@@ -1,0 +1,140 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: local # 로컬 프로파일 활성화
+
+  config:
+    import: optional:file:.env[.properties] # 환경변수 파일 로드
+
+  output:
+    ansi:
+      enabled: always # ANSI 콘솔 색상 활성화 (JUnit 테스트 포함)
+
+  web:
+    resources:
+      add-mappings: false # 정적 리소스 매핑 추가 여부 false
+  #  mvc:
+  #    throw-exception-if-no-handler-found: true # 요청 처리 핸들러 없을 때 예외 처리
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2MB  # 파일 임계값(메모리에 저장할 최대 크기)
+      max-request-size: 30MB # 최대 요청 크기
+      max-file-size: 10MB # 최대 파일 크기
+
+  jpa:
+    hibernate:
+      ddl-auto: update # 테이블 생성 및 업데이트 전략 (create, create-drop, update, validate, none)
+    defer-datasource-initialization: true # DataSource 초기화 지연
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect # Hibernate Dialect 설정
+        format_sql: true # SQL 포맷팅
+        highlight_sql: true # SQL 하이라이트 출력
+        use_sql_comments: true # JPQL SQL 주석 사용
+        default_batch_fetch_size: 100 # 기본 배치 크기 설정
+  sql:
+    init:
+      mode: embedded # SQL 초기화 모드 (always, never, embedded, embedded-always)
+
+app:
+  props:
+    social:
+#      kakao:
+#        client-id: ${KAKAO_CLIENT_ID}
+#        client-secret: ${KAKAO_CLIENT_SECRET}
+#        authorization-uri: https://kauth.kakao.com/oauth/authorize
+#        token-uri: https://kauth.kakao.com/oauth/token
+#        user-info-uri: https://kapi.kakao.com/v2/user/me
+#        user-info-name-attribute-key: id
+#        client-name: Kakao
+
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      access-token-expiration-period: 150 # 운영시, 15분, 테스트를 위해 150분
+      refresh-token-expiration-period: 1440 # 24시간 60 * 24 = 1440분
+
+    aws:
+      key:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket-name: ${AWS_S3_BUCKET_NAME}
+        region: ${AWS_REGION}
+
+org:
+  file:
+    upload:
+      path: upload
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug # Hibernate SQL 로그 레벨
+    org.hibernate.orm.jdbc.bind: trace # Hibernate SQL 바인딩 로그 레벨
+    org.springframework.transaction.interceptor: trace # Spring 트랜잭션 인터셉터 로그 레벨
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/gymPT
+    username: root
+    password: 1234
+
+#app:
+#  props:
+#    social:
+#      kakao:
+#        redirect-uri: ${KAKAO_LOCAL_REDIRECT_URI}
+
+logging:
+  level:
+    org.hibernate.SQL: debug # Hibernate SQL 로그 레벨
+    org.hibernate.orm.jdbc.bind: trace # Hibernate SQL 바인딩 로그 레벨
+    org.springframework.transaction.interceptor: trace # Spring 트랜잭션 인터셉터 로그 레벨
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod # 운영 환경
+  jpa:
+    hibernate:
+      ddl-auto: none # 테이블 생성 및 업데이트 전략 (create, create-drop, update, validate, none)
+  sql:
+    init:
+      mode: never # SQL 초기화 모드 (always, never, embedded, embedded-always)
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/gymPT
+    username: root
+    password: 1234
+    hikari:
+      max-lifetime: 600000 # 최대 수명 (밀리초)
+      idle-timeout: 300000 # 유휴 시간 (밀리초)
+      connection-timeout: 30000 # 연결 시간 초과 (밀리초)
+
+#app:
+#  props:
+#    social:
+#      kakao:
+#        redirect-uri: ${KAKAO_PROD_REDIRECT_URI}
+
+logging:
+  level:
+    org.hibernate.SQL: error # Hibernate SQL 로그 레벨
