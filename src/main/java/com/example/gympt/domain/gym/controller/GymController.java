@@ -10,15 +10,12 @@ import com.example.gympt.dto.PageRequestDTO;
 import com.example.gympt.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/gym") // 회원 권한 필요 없음
+@RequestMapping("/api/gym") // 회원 권한 필요 없이 헬스장과 트레이너를 조회 할 수 있는 api
 @RequiredArgsConstructor
 public class GymController {
 
@@ -46,6 +43,22 @@ public class GymController {
         PageResponseDTO<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainers(trainerRequestDTO, pageRequestDTO);
         return ResponseEntity.ok(trainerResponseDTOS);
     }
+
+    @GetMapping("detail/{id}")
+    //헬스장 상세보기
+    public ResponseEntity<GymResponseDTO> detailGym(@PathVariable Long id) {
+        GymResponseDTO gymResponseDTO =  gymService.getGymById(id);
+        return ResponseEntity.ok(gymResponseDTO);
+    }
+
+    @GetMapping("trainer/detail/{id}")
+    //트레이너 상세보기
+private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id) {
+        TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id);
+        return ResponseEntity.ok(trainerResponseDTO);
+    }
+
+
 }
 
 

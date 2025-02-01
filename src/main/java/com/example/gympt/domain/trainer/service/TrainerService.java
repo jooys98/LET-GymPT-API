@@ -24,7 +24,7 @@ default TrainerResponseDTO trainerEntityToDTO(Trainers trainers) {
     List<String> imageNames = trainers.getImageList().stream()
             .map(TrainerImage::getTrainerImageName)
             .toList();
-
+//Trainers 엔티티 속 이미지 리스트 객체를  가져와서 문자열 리스트로 만들어주기
     TrainerResponseDTO responseDTO = TrainerResponseDTO.builder()
             .id(trainers.getId())
             .email(trainers.getMember().getEmail())
@@ -42,4 +42,5 @@ default TrainerResponseDTO trainerEntityToDTO(Trainers trainers) {
 }
 
 
+    TrainerResponseDTO getTrainerById(Long id);
 }

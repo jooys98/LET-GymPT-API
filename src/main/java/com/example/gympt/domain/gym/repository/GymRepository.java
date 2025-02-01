@@ -18,4 +18,7 @@ public interface GymRepository extends JpaRepository<Gym, Long> , GymRepositoryC
 
     @Query("select g from Gym g where g.id = :id")
     Boolean existsGymId(@Param("id") Long gymId);
+
+    @Query("select g from Gym g where g.local = :id")
+    List<Gym> findByLocalId(@Param("id") Long id);
 }

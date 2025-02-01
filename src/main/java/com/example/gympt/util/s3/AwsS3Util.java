@@ -60,7 +60,7 @@ public class AwsS3Util {
      * S3에 파일 업로드
      *
      * @param file 파일
-     * @return 업로드된 파일 URL
+     * 업로드된 파일 URL 만들어줌
      */
     public String uploadFile(MultipartFile file) {
 
@@ -109,7 +109,7 @@ public class AwsS3Util {
      * @param extension 이미지 확장자
      */
     private void checkImageExtension(String extension) {
-        // 허용된 이미지 확장자 검증 -> TODO webp 추가
+        // 허용된 이미지 확장자 검증 -> TODO webp 추가 (고화질 이미지)
         Set<String> allowedExtensions = Set.of("jpg", "jpeg", "png", "gif");
         if (!allowedExtensions.contains(extension)) {
             throw new IllegalArgumentException("이미지 확장자는 jpg, jpeg, png, gif만 허용됩니다.");

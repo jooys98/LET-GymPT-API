@@ -6,7 +6,7 @@ import com.example.gympt.domain.category.dto.LocalResponseDTO;
 import java.util.List;
 
 public interface LocalService {
-    List<LocalResponseDTO> getLocalList(Long localId);
+    List<LocalResponseDTO> getLocalGymList(Long localId);
 
     List<LocalDTO> getAll();
 }

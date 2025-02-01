@@ -102,4 +102,18 @@ public class MemberServiceImpl implements MemberService {
         Boolean result = memberRepository.existsByEmail(email);
         return result;
     }
+
+    @Override
+    public Map<String, Object> getSosialClaim(MemberAuthDTO memberAuthDTO) {
+      Map<String , Object> claim = memberAuthDTO.getClaims();
+
+        String email = claim.get("email").toString();
+        String userRole = claim.get("role").toString();
+        String jwtAccessToken = jwtUtil.generateToken(claim, (int) (60 * 60 * 1000L));
+        claim.put("email", email);
+        claim.put("role", userRole);
+        claim.put("accessToken", jwtAccessToken);
+        return claim;
+
+    }
 }

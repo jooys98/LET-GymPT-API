@@ -85,8 +85,11 @@ public class TrainerServiceImpl implements TrainerService {
         return new PageResponseDTO<>(trainerList, pageRequestDTO, totalCount);
     }
 
-
-
+    @Override
+    public TrainerResponseDTO getTrainerById(Long id) {
+      Trainers trainers = trainerRepository.findById(id).orElseThrow(()->new RuntimeException("존재하지 않는 트레이너 입니다"));
+      return trainerEntityToDTO(trainers);
+    }
 
 
 }

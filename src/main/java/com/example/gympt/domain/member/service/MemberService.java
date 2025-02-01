@@ -17,7 +17,7 @@ public interface MemberService {
 
     Map<String, Object> getSocialClaims(MemberAuthDTO memberDTO);
 
-    default MemberAuthDTO entityToDTO(Member member) {
+    default MemberAuthDTO toAuthDTO(Member member) {
 //회원정보 -> 인증 회원 객체로  변환
         return new MemberAuthDTO(
                 member.getEmail(),
@@ -29,4 +29,6 @@ public interface MemberService {
 
 
     Boolean checkedEmail(String email);
+
+    Map<String, Object> getSosialClaim(MemberAuthDTO memberAuthDTO);
 }

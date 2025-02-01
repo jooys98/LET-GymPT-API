@@ -22,7 +22,9 @@ public class JWTUtil {
     private final JWTProps jwtProps;
 
 
-    // 토큰 생성
+
+    /* 토큰 생성
+    @param : 오브젝트 맵 , 토큰 시간 */
     public String generateToken(Map<String, Object> valueMap, int min) {
         SecretKey key = null;
         try {

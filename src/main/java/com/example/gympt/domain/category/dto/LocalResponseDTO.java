@@ -2,8 +2,10 @@ package com.example.gympt.domain.category.dto;
 
 import com.example.gympt.domain.gym.dto.GymResponseDTO;
 import com.example.gympt.domain.gym.entity.Gym;
+import com.example.gympt.domain.gym.enums.Popular;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -11,8 +13,16 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @ToString
+//지역별 헬스장을 리스트로 보여주기 위한 dto
 public class LocalResponseDTO {
     private Long id;
     private String localName;
-    private List<GymResponseDTO> gyms;
+    private String gymName;
+    private String address;
+    private Long dailyPrice;
+    private Long monthlyPrice;
+    private int likesCount;
+    private Popular popular;
+    @Builder.Default
+    private List<String> uploadFileNames = new ArrayList<>();
 }
