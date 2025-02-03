@@ -86,16 +86,6 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
-    @Override
-    public Map<String, Object> getSocialClaims(MemberAuthDTO memberDTO) {
-        Map<String, Object> claims = memberDTO.getClaims();
-        String jwtAccessToken = jwtUtil.generateToken(claims, jwtProps.getAccessTokenExpirationPeriod());      // 15분
-        String jwtRefreshToken = jwtUtil.generateToken(claims, jwtProps.getRefreshTokenExpirationPeriod());     // 1일
-
-        claims.put("accessToken", jwtAccessToken);
-        claims.put("refreshToken", jwtRefreshToken);
-        return claims;
-    }
 
     @Override
     public Boolean checkedEmail(String email) {
@@ -110,9 +100,11 @@ public class MemberServiceImpl implements MemberService {
         String email = claim.get("email").toString();
         String userRole = claim.get("role").toString();
         String jwtAccessToken = jwtUtil.generateToken(claim, (int) (60 * 60 * 1000L));
+        String jwtRefreshToken = jwtUtil.generateToken(claim, jwtProps.getRefreshTokenExpirationPeriod());
         claim.put("email", email);
         claim.put("role", userRole);
         claim.put("accessToken", jwtAccessToken);
+        claim.put("refreshToken", jwtRefreshToken);
         return claim;
 
     }

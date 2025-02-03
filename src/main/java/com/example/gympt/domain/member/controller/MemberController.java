@@ -54,7 +54,7 @@ public class MemberController {
         Map<String, Object> loginClaims = memberService.login(loginDTO.getEmail(), loginDTO.getPassword());
 
         // 로그인 성공시 accessToken, refreshToken 생성
-        String refreshToken = jwtUtil.generateToken(loginClaims, jwtProps.getRefreshTokenExpirationPeriod());
+        String refreshToken = loginClaims.get("refresh_token").toString();
         String accessToken = loginClaims.get("accessToken").toString();
         // TODO: user 로그인시, refreshToken token 테이블에 저장
 //        tokenService.saveRefreshToken(accessToken, refreshToken, memberService.getMember(loginDTO.getEmail()));

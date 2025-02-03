@@ -14,8 +14,7 @@ public interface MemberService {
     void join(@Valid JoinRequestDTO request);
 
     Map<String, Object> login(String email, String password);
-
-    Map<String, Object> getSocialClaims(MemberAuthDTO memberDTO);
+    
 
     default MemberAuthDTO toAuthDTO(Member member) {
 //회원정보 -> 인증 회원 객체로  변환

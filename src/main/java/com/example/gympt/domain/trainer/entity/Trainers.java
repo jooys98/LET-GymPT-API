@@ -3,7 +3,8 @@ package com.example.gympt.domain.trainer.entity;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.enums.Popular;
-import com.example.gympt.domain.likes.entity.Likes;
+import com.example.gympt.domain.likes.entity.LikesTrainers;
+import com.example.gympt.domain.likes.entity.LikesTrainers;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.trainer.enums.Gender;
 import jakarta.persistence.*;
@@ -49,7 +50,8 @@ public class Trainers {
     private Member member;
 
     @OneToMany(mappedBy = "trainers", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Likes> likes = new ArrayList<>();
+    private List<LikesTrainers> likes = new ArrayList<>();
+    //트레이너 좋아요
 
     public int getLikesCount() {
         return this.likes.size();

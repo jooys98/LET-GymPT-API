@@ -12,8 +12,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "likes_tbl")
-public class Likes {
+@Table(name = "likes_trainer_tbl")
+public class LikesTrainers {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,19 +24,14 @@ public class Likes {
     @JoinColumn(name = "email")
     private Member member;
 
-    //fk
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gym_id")
-    private Gym gym;
+    @JoinColumn(name = "trainer_email")
+    private Trainers trainers;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "trainer_email")
-   private Trainers trainers;
-
-    public static Likes createLikes(Member member, Gym gym) {
-        return Likes.builder()
+    public static LikesTrainers createLikes(Member member, Trainers trainers) {
+        return LikesTrainers.builder()
                 .member(member)
-                .gym(gym)
-                .build(); //멤버객체 + 헬스장 -> 빌더 -> 라이크 객체
+                .trainers(trainers)
+                .build(); //멤버객체 + 트레이너  -> 빌더 -> 라이크 객체
     }
 }

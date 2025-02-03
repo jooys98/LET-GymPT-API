@@ -14,4 +14,7 @@ public interface TrainerRepository extends JpaRepository<Trainers,Long>, Trainer
     @Query("select t from Trainers t join t.member m where m.email = :email")
     Optional<TrainerSaveForm> findByEmail(@Param("email") String email);
 
+    @Query("select t from Trainers t join t.member m where m.email = :email")
+    Optional<Trainers> findByTrainerEmail(@Param("email") String email);
+
 }

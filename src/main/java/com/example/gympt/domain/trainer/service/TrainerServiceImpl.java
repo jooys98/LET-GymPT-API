@@ -84,7 +84,7 @@ public class TrainerServiceImpl implements TrainerService {
         Long totalCount = trainerRepository.countTrainers(trainerRequestDTO);
         return new PageResponseDTO<>(trainerList, pageRequestDTO, totalCount);
     }
-
+//트레이너 상세 조회
     @Override
     public TrainerResponseDTO getTrainerById(Long id) {
       Trainers trainers = trainerRepository.findById(id).orElseThrow(()->new RuntimeException("존재하지 않는 트레이너 입니다"));

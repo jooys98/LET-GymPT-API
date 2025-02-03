@@ -1,5 +1,6 @@
 package com.example.gympt.domain.member.service;
 
+import com.example.gympt.domain.member.dto.KakaoMoblieRequestDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
@@ -116,6 +117,8 @@ private final PasswordEncoder passwordEncoder;
         //회원이 아닐경우 회원가입 진행
     }
 
+
+
     private Member makeKakaoUser(String email) {
         String tempPassword = this.makeTempPassword();
         Member user = Member.builder()
@@ -171,5 +174,22 @@ private final PasswordEncoder passwordEncoder;
 
         return kakaoAccount.get("email");
 
+    }
+
+
+//모바일 로그인용 인증객체
+    @Override
+    public MemberAuthDTO getKakaoMoblieMember(KakaoMoblieRequestDTO loginRequestDTO) {
+        Member member = memberRepository.getWithRoles(loginRequestDTO.getEmail()).orElse(null);
+//회원이 존재하는지 조회
+        if (member == null) {
+
+            //여기서 회원가입 시키고  MemberAuthDTO 로 만들어서 보내기
+            Member newKakaoMember = makeKakaoUser(loginRequestDTO.getEmail());
+            return memberService.toAuthDTO(newKakaoMember);
+
+        } else {
+            return  memberService.toAuthDTO(member);
+        }
     }
 }

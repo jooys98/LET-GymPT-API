@@ -1,7 +1,7 @@
 package com.example.gympt.domain.gym.entity;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.enums.Popular;
-import com.example.gympt.domain.likes.entity.Likes;
+import com.example.gympt.domain.likes.entity.LikesGym;
 import com.example.gympt.domain.review.entity.Review;
 import com.example.gympt.domain.trainer.entity.TrainerImage;
 import com.example.gympt.domain.trainer.entity.Trainers;
@@ -32,7 +32,7 @@ public class Gym {
     private Long monthlyPrice;
 
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Likes> likes = new ArrayList<>();
+    private List<LikesGym> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();

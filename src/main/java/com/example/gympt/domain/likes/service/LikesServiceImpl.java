@@ -1,0 +1,138 @@
+package com.example.gympt.domain.likes.service;
+
+import com.example.gympt.domain.gym.entity.Gym;
+import com.example.gympt.domain.gym.entity.GymImage;
+import com.example.gympt.domain.gym.repository.GymRepository;
+import com.example.gympt.domain.likes.dto.LikesGymDTO;
+import com.example.gympt.domain.likes.dto.LikesTrainersDTO;
+import com.example.gympt.domain.likes.entity.LikesGym;
+import com.example.gympt.domain.likes.entity.LikesTrainers;
+import com.example.gympt.domain.likes.repository.LikesGymRepository;
+import com.example.gympt.domain.likes.repository.LikesTrainerRepository;
+import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.member.repository.MemberRepository;
+import com.example.gympt.domain.trainer.entity.TrainerImage;
+import com.example.gympt.domain.trainer.entity.Trainers;
+import com.example.gympt.domain.trainer.repository.TrainerRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RequiredArgsConstructor
+@Transactional
+@Service
+public class LikesServiceImpl implements LikesService {
+
+    private final LikesGymRepository likesGymRepository;
+    private final LikesTrainerRepository likesTrainerRepository;
+    private final MemberRepository memberRepository;
+    private final GymRepository gymRepository;
+    private final TrainerRepository trainerRepository;
+
+///@Param : 헬스장 아이디 , 유저 이메일
+    @Override
+    public Boolean toggleGymLikes(String email, Long gymId) {
+        try {
+            Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 유저 입니다"));
+            Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new RuntimeException("존재하지 않는 헬스장입니다"));
+            String likesMemberEmail = member.getEmail();
+            Long likesGymId = gym.getId();
+
+            Boolean likesResult = likesGymRepository.existsByMember_EmailAndGym_Id(likesMemberEmail, likesGymId);
+            if (likesResult) {
+                likesGymRepository.deleteEmailGymId(likesMemberEmail, likesGymId);
+                return false;
+            } else {
+                LikesGym likesGym = LikesGym.createLikes(member, gym);
+                likesGymRepository.save(likesGym);
+                return true;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("헬스장 좋아요 토글 실패 ㅜ-ㅜ");
+        }
+    }
+
+    @Override
+    public List<LikesGymDTO> getLikesGymList(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        List<LikesGymDTO> likesGymList = likesGymRepository.findLikesGymsByMemberEmail(member.getEmail())
+                .stream().map(this::toGymLikesDTO).collect(Collectors.toList());
+        return likesGymList;
+    }
+
+///@Param: 트레이너 이메일 , 유저 이메일
+    @Override
+    public Boolean toggleTrainerLikes(String email, String trainerEmail) {
+        try {
+            Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다"));
+            Trainers trainers = trainerRepository.findByTrainerEmail(trainerEmail).orElseThrow(() -> new RuntimeException("트레이너가 존재하지 않습니다"));
+            String likesMemberEmail = member.getEmail();
+            String likesTrainerEmail = trainers.getMember().getEmail();
+
+            Boolean likesResult = likesTrainerRepository.existsByMember_EmailAndTrainers_Member_email(likesMemberEmail, likesTrainerEmail);
+            if (likesResult) {
+                likesTrainerRepository.deleteTrainerEmail(likesMemberEmail, likesTrainerEmail);
+                return false;
+            } else {
+                LikesTrainers likesTrainers = LikesTrainers.createLikes(member, trainers);
+                likesTrainerRepository.save(likesTrainers);
+                return true;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("트레이너 좋아요 실패 ㅜㅜ");
+        }
+    }
+
+    @Override
+    public List<LikesTrainersDTO> getLikesTrainerList(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        List<LikesTrainersDTO> likesTrainersDTOS = likesTrainerRepository.findLikesTrainersByMemberEmail(member.getEmail())
+                .stream().map(this::toTrainerLikesDTO).collect(Collectors.toList());
+        return likesTrainersDTOS;
+    }
+
+    private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers) {
+        Trainers trainers = trainerRepository.findByTrainerEmail(likesTrainers.getTrainers().getMember().getEmail()).orElseThrow(() -> new RuntimeException("해당 트레이너는 존재하지 않습니다"));
+        List<String> trainerImageNames = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).toList();
+
+        LikesTrainersDTO likesTrainersDTO = LikesTrainersDTO.builder()
+                .id(trainers.getId())
+                .local(trainers.getLocal().getLocalName())
+                .name(trainers.getTrainerName())
+                .gender(trainers.getGender().toString())
+                .email(likesTrainers.getMember().getEmail())
+                .gymName(trainers.getGym().getGymName())
+                .likesCount(trainers.getLikesCount())
+                .uploadFileNames(trainerImageNames)
+                .build();
+        return likesTrainersDTO;
+
+    }
+
+    private LikesGymDTO toGymLikesDTO(LikesGym likesGym) {
+        Gym gym = gymRepository.findByGymId(likesGym.getId()).orElseThrow(() -> new RuntimeException("헬스장이 존재하지 않습니다 "));
+        List<String> imageNames = gym.getImageList().stream().map(GymImage::getGymImageName).toList();
+
+        LikesGymDTO likesGymDTO = LikesGymDTO.builder()
+                .id(gym.getId())
+                .email(likesGym.getMember().getEmail())
+                .gymName(gym.getGymName())
+                .localName(gym.getLocal().getLocalName())
+                .gymId(gym.getId())
+                .address(gym.getAddress())
+                .dailyPrice(gym.getDailyPrice())
+                .monthlyPrice(gym.getMonthlyPrice())
+                .description(gym.getDescription())
+                .likesCount(gym.getLikesCount())
+                .popular(gym.getPopular())
+                .uploadFileNames(imageNames)
+                .build();
+        return likesGymDTO;
+    }
+
+
+}

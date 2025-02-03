@@ -24,7 +24,7 @@ public class LocalServiceImpl implements LocalService {
 
     private final LocalRepository localRepository;
     private final GymRepository gymRepository;
-    private final BuildProperties buildProperties;
+
 
     @Override
     public List<LocalResponseDTO> getLocalGymList(Long localId) {

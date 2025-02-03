@@ -1,7 +1,6 @@
 package com.example.gympt.domain.category.entity;
 
 import com.example.gympt.domain.gym.entity.Gym;
-import com.example.gympt.domain.likes.entity.Likes;
 import jakarta.persistence.*;
 import lombok.*;
 
