@@ -43,6 +43,10 @@ public class AuctionRequest extends BaseEntity {
     private String medicalConditions;
     //신체 결함 사항
 
+//참가한 트레이너 수
+    public Integer getParticipateTrainers() {
+        return this.auctionTrainerBids.size();
+    }
 
     @OneToOne(mappedBy = "auctionRequest")
     private MatchedAuction matchedAuction;
@@ -56,5 +60,8 @@ public class AuctionRequest extends BaseEntity {
     @Column(name = "status") // 해당 List 를 저장할 컬럼명
     @Builder.Default
     private List<AuctionStatus> status = new ArrayList<>();
+
+    @OneToMany(mappedBy = "auctionRequest")
+    private List<AuctionTrainerBid> auctionTrainerBids = new ArrayList<>();
 
 }

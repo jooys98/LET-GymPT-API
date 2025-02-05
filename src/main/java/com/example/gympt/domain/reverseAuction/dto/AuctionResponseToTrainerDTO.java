@@ -25,4 +25,5 @@ public class AuctionResponseToTrainerDTO {
     private String localName;
     private Long age;
     private String gender;
+    private Integer participateTrainers;
 }

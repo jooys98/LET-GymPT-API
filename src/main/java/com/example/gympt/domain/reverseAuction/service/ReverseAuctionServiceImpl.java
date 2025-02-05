@@ -72,6 +72,8 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
         }
     }
 
+
+    //트레이너 최종 낙찰 로직 + websocket
     @Transactional
     @Override
     public FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail) {
@@ -98,18 +100,24 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
                 .auctionRequest(auctionRequest)
                 .finalPrice(auctionTrainerBid.getPrice()) // 트레이너가 제안한 최종 금액
                 .build();
-        matchedAuctionRepository.save(matchedAuction);
 
+        matchedAuctionRepository.save(matchedAuction);
+        //최종 매칭 테이블에 저장
+        auctionTrainerBidRepository.deleteById(auctionTrainerBid.getId());
+        //역경매 트레이너 참가 리스트에서 삭제
+
+//사용자에게 보낼 트레이너 정보들
         FinalSelectAuctionDTO finalSelectAuctionDTO = FinalSelectAuctionDTO.builder()
                 .auctionId(auctionRequest.getId())
                 .email(matchedAuction.getAuctionRequest().getMember().getEmail())
                 .finalPrice(matchedAuction.getFinalPrice())
                 .trainerName(matchedAuction.getAuctionTrainerBid().getTrainer().getTrainerName())
                 .closedAt(matchedAuction.getClosedAt())
+                .trainerImage(auctionTrainerBid.getTrainerImage())
                 .localName(String.valueOf(matchedAuction.getAuctionTrainerBid().getTrainer().getLocal()))
                 .gymAddress(matchedAuction.getAuctionTrainerBid().getTrainer().getGym().getAddress())
                 .build();
-
+//트레이너에게 전송될 유저 정보
         AuctionTrainerNotificationDTO notificationDTO = AuctionTrainerNotificationDTO.builder()
                 .type("AUCTION_SELECTED")
                 .memberEmail(email)
@@ -129,7 +137,8 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
 
         return finalSelectAuctionDTO;
     }
-//유저에게만 보여지는 정보
+
+    //유저에게만 보여지는 정보
     @Transactional
     @Override
     public List<AuctionResponseDTO> getAuctionList() {
@@ -137,12 +146,29 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
                 .map(this::AuctionEntityToDTO).collect(Collectors.toList());
         return auctionResponseDTOS;
     }
-//트레이너에게만 보여지는 정보
+
+    //트레이너에게만 보여지는 정보
     @Override
     public List<AuctionResponseToTrainerDTO> getAuctionListToTrainers() {
         List<AuctionResponseToTrainerDTO> auctionResponseDTOS = auctionRequestRepository.findAll().stream()
                 .map(this::AuctionEntityForTrainersToDTO).collect(Collectors.toList());
         return auctionResponseDTOS;
+    }
+
+    //유저가 보는 역경매 상세정보
+    @Override
+    public AuctionResponseDTO getAuction(Long auctionRequestId) {
+        AuctionResponseDTO auctionResponseDTO = auctionRequestRepository.findById(auctionRequestId)
+                .map(this::AuctionEntityToDTO).orElseThrow(() -> new RuntimeException("존재하지 않는 정보 입니다"));
+        return auctionResponseDTO;
+    }
+
+    //트레이너만 볼수 있는 역경매 상세정보
+    @Override
+    public AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId) {
+        AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = auctionRequestRepository.findById(auctionId)
+                .map(this::AuctionEntityForTrainersToDTO).orElseThrow(() -> new RuntimeException("존재하지 않는 정보입니다"));
+        return auctionResponseToTrainerDTO;
     }
 
 }

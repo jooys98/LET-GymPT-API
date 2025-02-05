@@ -35,6 +35,6 @@ public class AuctionTrainerBid extends BaseEntity {
 
     private Long price;
     private String proposalContent;
-
+    private String trainerImage;
 
 }

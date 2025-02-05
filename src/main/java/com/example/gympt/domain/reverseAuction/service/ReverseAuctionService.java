@@ -26,14 +26,15 @@ public interface ReverseAuctionService {
                 .localName(auctionRequest.getLocal().getLocalName())
                 .age(auctionRequest.getAge())
                 .gender(auctionRequest.getGender())
+                .participateTrainers(auctionRequest.getParticipateTrainers())
                 .build();
-
         return auctionResponseDTO;
+
     }
 
     List<AuctionResponseToTrainerDTO> getAuctionListToTrainers();
 
-    default AuctionResponseToTrainerDTO AuctionEntityForTrainersToDTO(AuctionRequest auctionRequest){
+    default AuctionResponseToTrainerDTO AuctionEntityForTrainersToDTO(AuctionRequest auctionRequest) {
         AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = AuctionResponseToTrainerDTO.builder()
                 .auctionId(auctionRequest.getId())
                 .title(auctionRequest.getTitle())
@@ -47,7 +48,12 @@ public interface ReverseAuctionService {
                 .name(auctionRequest.getMember().getName())
                 .weight(auctionRequest.getWeight())
                 .height(auctionRequest.getHeight())
+                .participateTrainers(auctionRequest.getParticipateTrainers())
                 .build();
         return auctionResponseToTrainerDTO;
     }
+
+    AuctionResponseDTO getAuction(Long auctionRequestId);
+
+    AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId);
 }

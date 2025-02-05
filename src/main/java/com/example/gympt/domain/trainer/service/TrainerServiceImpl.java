@@ -123,11 +123,14 @@ public class TrainerServiceImpl implements TrainerService {
                 .price(trainerAuctionRequestDTO.getPrice())
                 .proposalContent(trainerAuctionRequestDTO.getProposalContent())
                 .trainer(trainers)
+                .trainerImage(String.valueOf(trainers.getImageList().get(0))) //이미지 한장만 가져오기 ㅎㅎ
                 .build();
         auctionTrainerBidRepository.save(auctionTrainerBid);
 
     }
 //TODO : 예외처리 메세지 전부 핸들러로 바꾸기 ㅎㅎㅎㅎ 언제 다하냐 으아아아아앙ㅇ
+//TODO : 사용자 확인용, 트레이너 확인용  입찰한 트레이너 리스트 보기 로직
+    //TODO: 사용자/트레이너  역경매 취소 로직
 
     //트레이너 pt 가격 변경
     @Override
@@ -137,13 +140,10 @@ public class TrainerServiceImpl implements TrainerService {
         Trainers trainers = trainerRepository.findByTrainerEmail(member.getEmail())
                 .orElseThrow(() -> new RuntimeException("가격변경 권한이 없습니다 "));
 
-        AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository.findByAuctionRequestIdAndTrainer(auctionRequestId, trainerEmail)
+        AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository
+                .findByAuctionRequestIdAndTrainer(auctionRequestId, trainers.getMember().getEmail())
                 .orElseThrow(() -> new RuntimeException("입찰 내역이 없습니다"));
-
-        if (!trainers.getMember().getEmail().equals(auctionTrainerBid.getTrainer().getMember().getEmail())) {
-            throw new RuntimeException("접근 권한이 없습니다");
-        }
-            //가격변경 신청한 본인이 입찰한 트레이너가 맞는지 다시 한번 확인
+        //가격변경 신청한 본인이 입찰한 트레이너가 맞는지 다시 한번 확인
 
         auctionTrainerBid.setPrice(updatePrice);
         auctionTrainerBidRepository.save(auctionTrainerBid);

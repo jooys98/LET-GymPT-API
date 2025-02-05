@@ -28,30 +28,38 @@ public class TrainerController {
 //트레이너 권한 회원만 이용할 수 있는 api
     @PostMapping("/apply")
     //트레이너 신청!!!
-    public ResponseEntity<String> trainerApply(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO,@RequestBody TrainerSaveRequestDTO trainerSaveRequestDTO) {
-        trainerService.saveTrainer(memberAuthDTO.getUsername(),trainerSaveRequestDTO);
+    public ResponseEntity<String> trainerApply(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        trainerService.saveTrainer(memberAuthDTO.getUsername(), trainerSaveRequestDTO);
         return ResponseEntity.ok().body("트레이너 신청이 완료 되었습니댜!");
     }
 
     //역경매 신청
     @PostMapping("/auction")
-    public ResponseEntity<String> letAuctionTrainer(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO,@RequestBody TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
-        trainerService.applyAuction(memberAuthDTO.getUsername(),trainerAuctionRequestDTO);
+    public ResponseEntity<String> letAuctionTrainer(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
+        trainerService.applyAuction(memberAuthDTO.getUsername(), trainerAuctionRequestDTO);
         return ResponseEntity.ok().body("역경매 참여 완료 되었습니다");
     }
 
     //pt 가격 변경
     @PutMapping("/auction/update")
-    public ResponseEntity<String> updateAuctionPrice(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO,@RequestBody Long auctionRequestId, @RequestBody Long updatePrice) {
+    public ResponseEntity<String> updateAuctionPrice(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody Long auctionRequestId, @RequestBody Long updatePrice) {
         trainerService.changePrice(auctionRequestId, memberAuthDTO.getUsername(), updatePrice);
         return ResponseEntity.ok("가격 변경이 완료 되었습니다 ");
     }
 
-    //트레이너에게만 보여지는 역경매 정보
+    //트레이너에게만 보여지는 역경매 신청 list
     @GetMapping("/auction/list")
     public ResponseEntity<List<AuctionResponseToTrainerDTO>> getAuctionRequestList() {
         List<AuctionResponseToTrainerDTO> response = reverseAuctionService.getAuctionListToTrainers();
         return ResponseEntity.ok().body(response);
 
     }
+//사용자가 신청한 역경매 정보 디테일
+    @GetMapping("/auction/{auctionId}")
+    public ResponseEntity<AuctionResponseToTrainerDTO> getAuctionDetailById(@PathVariable Long auctionId) {
+        AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = reverseAuctionService.getAuctionToTrainer(auctionId);
+        return ResponseEntity.ok().body(auctionResponseToTrainerDTO);
+    }
+
+
 }

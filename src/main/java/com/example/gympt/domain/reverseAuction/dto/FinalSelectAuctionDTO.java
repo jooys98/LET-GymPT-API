@@ -21,7 +21,8 @@ public class FinalSelectAuctionDTO {
     //최종금액
     private String trainerName;
 
-    //트레이너 이름
+    private String trainerImage;
+    //트레이너 이미지
     private LocalDateTime closedAt;
     //역경매 종료 시간
     private String localName;
