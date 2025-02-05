@@ -6,6 +6,7 @@ import com.example.gympt.domain.gym.enums.Popular;
 import com.example.gympt.domain.likes.entity.LikesTrainers;
 import com.example.gympt.domain.likes.entity.LikesTrainers;
 import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.trainer.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,6 +49,8 @@ public class Trainers {
     @OneToOne
     @JoinColumn(name = "email")
     private Member member;
+
+
 
     @OneToMany(mappedBy = "trainers", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LikesTrainers> likes = new ArrayList<>();

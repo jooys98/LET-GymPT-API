@@ -1,6 +1,7 @@
 package com.example.gympt.domain.member.entity;
 
 import com.example.gympt.domain.member.enums.MemberRole;
+import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -29,7 +30,8 @@ public class Member extends BaseEntity {
 
     private String phone;
     private String address;
-    private String sex;
+    private String localName;
+    private String gender;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
@@ -66,5 +68,7 @@ public class Member extends BaseEntity {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private Trainers trainer;
 
+    @OneToOne(mappedBy = "member" ,cascade = CascadeType.ALL)
+    private AuctionRequest auctionRequest;
 
 }

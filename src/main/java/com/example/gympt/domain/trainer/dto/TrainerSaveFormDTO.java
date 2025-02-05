@@ -22,6 +22,7 @@ public class TrainerSaveFormDTO {
     private String name;
     private String introduction;
     private Long age;
+    private String local;
     private String gymName;
     private String gender;
     private List<String> imagePathList;

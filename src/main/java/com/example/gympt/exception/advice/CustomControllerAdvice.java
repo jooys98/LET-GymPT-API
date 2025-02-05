@@ -3,6 +3,7 @@ package com.example.gympt.exception.advice;
 import com.example.gympt.exception.CustomAlreadyExists;
 import com.example.gympt.exception.CustomDoesntExist;
 import com.example.gympt.exception.CustomJWTException;
+import com.example.gympt.exception.NoDuplicationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -171,6 +172,13 @@ public class CustomControllerAdvice {
         String msg = "존재하지 않는 정보입니다!😳";
         log.error("Exception: {}", msg);
 
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(getErrorMessage(msg));
+    }
+
+    @ExceptionHandler(NoDuplicationException.class)
+    protected ResponseEntity<?> handleNoDuplicationException(NoDuplicationException e) {
+        String msg = "역경매 중복 신청은 불가능 합니다😳";
+        log.error("Exception: {}", msg);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(getErrorMessage(msg));
     }
 

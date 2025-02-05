@@ -1,5 +1,6 @@
 package com.example.gympt.domain.trainer.service;
 
+import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public interface TrainerService {
 
-    void saveTrainer(TrainerSaveRequestDTO trainerSaveRequestDTO);
+    void saveTrainer(String TrainerEmail , TrainerSaveRequestDTO trainerSaveRequestDTO);
 
     PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO);
 
@@ -43,4 +44,8 @@ default TrainerResponseDTO trainerEntityToDTO(Trainers trainers) {
 
 
     TrainerResponseDTO getTrainerById(Long id);
+
+    void applyAuction(String TrainerEmail,TrainerAuctionRequestDTO trainerAuctionRequestDTO);
+
+    void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
 }

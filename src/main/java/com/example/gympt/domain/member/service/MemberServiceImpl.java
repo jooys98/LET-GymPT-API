@@ -45,8 +45,9 @@ public class MemberServiceImpl implements MemberService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .sex(request.getSex())
+                .gender(request.getGender())
                 .address(request.getAddress())
+                .localName(request.getLocalName())
                 .birthday(request.getBirthday())
                 .phone(request.getPhone())
                 .build();
@@ -60,7 +61,6 @@ public class MemberServiceImpl implements MemberService {
             member.addRole(MemberRole.ADMIN);
         }
 
-        // 나중에 수정하기
         log.info("member: {}", member);
         //권한 업데이트
         memberRepository.save(member);

@@ -5,6 +5,12 @@ import com.example.gympt.domain.gym.repository.GymRepository;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
+import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
+import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
+import com.example.gympt.domain.reverseAuction.entity.AuctionTrainerBid;
+import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
+import com.example.gympt.domain.reverseAuction.repository.AuctionRequestRepository;
+import com.example.gympt.domain.reverseAuction.repository.AuctionTrainerBidRepository;
 import com.example.gympt.domain.trainer.dto.TrainerRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
@@ -23,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,12 +47,14 @@ public class TrainerServiceImpl implements TrainerService {
     private final TrainerSaveFormRepository trainerSaveFormRepository;
     private final TrainerRepository trainerRepository;
     private final CustomFileUtil customFileUtil;
+    private final AuctionRequestRepository auctionRequestRepository;
+    private final AuctionTrainerBidRepository auctionTrainerBidRepository;
 
 
     @Override
 //트레이너 데뷔 신청!!
-    public void saveTrainer(TrainerSaveRequestDTO trainerSaveRequestDTO) {
-        Member member = memberRepository.getWithRoles(trainerSaveRequestDTO.getEmail())
+    public void saveTrainer(String trainerEmail, TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        Member member = memberRepository.getWithRoles(trainerEmail)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
 
         if (!member.getMemberRoleList().contains(MemberRole.PREPARATION_TRAINER)) {
@@ -66,7 +75,7 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setGender(trainerSaveRequestDTO.getGender());
         trainer.setIntroduction(trainerSaveRequestDTO.getIntroduction());
 
-        for(String image : images) {
+        for (String image : images) {
             trainer.addImageString(image);
         }
         //trainerSaveRequestDTO 이미지 를 TrainerSaveImage 로 바꿔주는 메서드
@@ -84,11 +93,60 @@ public class TrainerServiceImpl implements TrainerService {
         Long totalCount = trainerRepository.countTrainers(trainerRequestDTO);
         return new PageResponseDTO<>(trainerList, pageRequestDTO, totalCount);
     }
-//트레이너 상세 조회
+
+    //트레이너 상세 조회
     @Override
     public TrainerResponseDTO getTrainerById(Long id) {
-      Trainers trainers = trainerRepository.findById(id).orElseThrow(()->new RuntimeException("존재하지 않는 트레이너 입니다"));
-      return trainerEntityToDTO(trainers);
+        Trainers trainers = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("존재하지 않는 트레이너 입니다"));
+        return trainerEntityToDTO(trainers);
+    }
+
+    //트레이너 입찰 신청
+    @Override
+    public void applyAuction(String trainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
+
+        Member member = memberRepository.getWithRoles(trainerEmail)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        Trainers trainers = trainerRepository.findByTrainerEmail(member.getEmail())
+                .orElseThrow(() -> new RuntimeException("트레이너 권한이 없습니다"));
+        if (!trainers.getLocal().getLocalName().equals(trainerAuctionRequestDTO.getLocalName())) {
+            throw new IllegalArgumentException("활동하시는 동네에서만 입찰 신창이 가능합니다 ");
+        }
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(trainerAuctionRequestDTO.getAuctionRequestId())
+                .orElseThrow(() -> new RuntimeException("해당 역경매는 존재하지 않습니다"));
+
+        auctionRequest.setStatus(Collections.singletonList(AuctionStatus.IN_PROGRESS));
+        //트레이너 입찰시 open 에서 진행중으로 상태 변경
+
+        AuctionTrainerBid auctionTrainerBid = AuctionTrainerBid.builder()
+                .auctionRequest(auctionRequest)
+                .price(trainerAuctionRequestDTO.getPrice())
+                .proposalContent(trainerAuctionRequestDTO.getProposalContent())
+                .trainer(trainers)
+                .build();
+        auctionTrainerBidRepository.save(auctionTrainerBid);
+
+    }
+//TODO : 예외처리 메세지 전부 핸들러로 바꾸기 ㅎㅎㅎㅎ 언제 다하냐 으아아아아앙ㅇ
+
+    //트레이너 pt 가격 변경
+    @Override
+    public void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice) {
+        Member member = memberRepository.getWithRoles(trainerEmail)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        Trainers trainers = trainerRepository.findByTrainerEmail(member.getEmail())
+                .orElseThrow(() -> new RuntimeException("가격변경 권한이 없습니다 "));
+
+        AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository.findByAuctionRequestIdAndTrainer(auctionRequestId, trainerEmail)
+                .orElseThrow(() -> new RuntimeException("입찰 내역이 없습니다"));
+
+        if (!trainers.getMember().getEmail().equals(auctionTrainerBid.getTrainer().getMember().getEmail())) {
+            throw new RuntimeException("접근 권한이 없습니다");
+        }
+            //가격변경 신청한 본인이 입찰한 트레이너가 맞는지 다시 한번 확인
+
+        auctionTrainerBid.setPrice(updatePrice);
+        auctionTrainerBidRepository.save(auctionTrainerBid);
     }
 
 
