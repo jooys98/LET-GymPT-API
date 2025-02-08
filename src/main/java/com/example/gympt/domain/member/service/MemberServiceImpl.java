@@ -70,6 +70,7 @@ public class MemberServiceImpl implements MemberService {
     public Map<String, Object> login(String email, String password) {
 
         MemberAuthDTO memberAuthDTO = (MemberAuthDTO) customUserDetailService.loadUserByUsername(email);
+        //인증객체 생성
         log.info("memberAuthDTO: {}", memberAuthDTO);
 
         if (!passwordEncoder.matches(password, memberAuthDTO.getPassword())) {
@@ -78,7 +79,7 @@ public class MemberServiceImpl implements MemberService {
         Map<String, Object> claims = memberAuthDTO.getClaims();
         String accessToken = jwtUtil.generateToken(claims, jwtProps.getAccessTokenExpirationPeriod());
         String refreshToken = jwtUtil.generateToken(claims, jwtProps.getRefreshTokenExpirationPeriod());
-
+//인증객체 정보를 토대로 토큰 발급
         claims.put("accessToken", accessToken);
         claims.put("refreshToken", refreshToken);
 
@@ -95,6 +96,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Map<String, Object> getSosialClaim(MemberAuthDTO memberAuthDTO) {
+        //앱소셜로그인을 위한 토큰 발급
       Map<String , Object> claim = memberAuthDTO.getClaims();
 
         String email = claim.get("email").toString();

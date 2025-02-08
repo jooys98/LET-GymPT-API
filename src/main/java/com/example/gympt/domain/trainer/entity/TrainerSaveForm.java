@@ -48,12 +48,12 @@ public class TrainerSaveForm {
     }
 
     //이미지 파일 이름으로 이미지 추가
-    public void addImageString(String fileName) {
+    public static TrainerSaveImage addImageString(String fileName) {
 
         TrainerSaveImage image = TrainerSaveImage.builder()
                 .trainerSaveImageName(fileName)
                 .build();
-        addImage(image);
+        return image;
     }
 
     //이미지 삭제!!!!!!!!

@@ -37,4 +37,8 @@ public class AuctionTrainerBid extends BaseEntity {
     private String proposalContent;
     private String trainerImage;
 
+
+    public void changePrice(Long price) {
+        this.price = price;
+    }
 }

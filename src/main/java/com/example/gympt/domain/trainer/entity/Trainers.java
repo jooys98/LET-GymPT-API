@@ -80,6 +80,31 @@ public class Trainers {
         addImage(trainerImage);
     }
 
+
+public void updateTrainerName(String trainerName) {
+        this.trainerName = trainerName;
+}
+
+public void updateAge(Long age) {
+        this.age = age;
+}
+public void updateGender(Gender gender) {
+        this.gender = gender;
+}
+public void updateLocal(Local local) {
+     this.local = local;
+}
+public void updateGym(Gym gym) {
+        this.gym = gym;
+}
+public void updateIntroduction(String introduction) {
+        this.introduction = introduction;
+}
+public void updateMember(Member member) {
+        this.member = member;
+}
+
+
     public void clearImageList() {
         this.imageList.clear();
     }

@@ -14,6 +14,7 @@ import com.example.gympt.domain.member.repository.MemberRepository;
 import com.example.gympt.domain.trainer.entity.TrainerImage;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.domain.trainer.repository.TrainerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,12 +33,12 @@ public class LikesServiceImpl implements LikesService {
     private final GymRepository gymRepository;
     private final TrainerRepository trainerRepository;
 
-///@Param : 헬스장 아이디 , 유저 이메일
+    /// @Param : 헬스장 아이디 , 유저 이메일
     @Override
     public Boolean toggleGymLikes(String email, Long gymId) {
         try {
-            Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 유저 입니다"));
-            Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new RuntimeException("존재하지 않는 헬스장입니다"));
+            Member member = getMember(email);
+            Gym gym = getGym(gymId);
             String likesMemberEmail = member.getEmail();
             Long likesGymId = gym.getId();
 
@@ -46,7 +47,10 @@ public class LikesServiceImpl implements LikesService {
                 likesGymRepository.deleteEmailGymId(likesMemberEmail, likesGymId);
                 return false;
             } else {
-                LikesGym likesGym = LikesGym.createLikes(member, gym);
+                LikesGym likesGym = LikesGym.builder()
+                        .gym(gym)
+                        .member(member)
+                        .build();
                 likesGymRepository.save(likesGym);
                 return true;
             }
@@ -55,20 +59,21 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+    //헬스장 좋아요 조회
     @Override
     public List<LikesGymDTO> getLikesGymList(String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        Member member = getMember(email);
         List<LikesGymDTO> likesGymList = likesGymRepository.findLikesGymsByMemberEmail(member.getEmail())
-                .stream().map(this::toGymLikesDTO).collect(Collectors.toList());
+                .stream().map(this::toGymLikesDTO).toList();
         return likesGymList;
     }
 
-///@Param: 트레이너 이메일 , 유저 이메일
+    /// @Param: 트레이너 이메일 , 유저 이메일
     @Override
     public Boolean toggleTrainerLikes(String email, String trainerEmail) {
         try {
-            Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다"));
-            Trainers trainers = trainerRepository.findByTrainerEmail(trainerEmail).orElseThrow(() -> new RuntimeException("트레이너가 존재하지 않습니다"));
+            Member member = getMember(email);
+            Trainers trainers = getTrainer(trainerEmail);
             String likesMemberEmail = member.getEmail();
             String likesTrainerEmail = trainers.getMember().getEmail();
 
@@ -77,7 +82,10 @@ public class LikesServiceImpl implements LikesService {
                 likesTrainerRepository.deleteTrainerEmail(likesMemberEmail, likesTrainerEmail);
                 return false;
             } else {
-                LikesTrainers likesTrainers = LikesTrainers.createLikes(member, trainers);
+                LikesTrainers likesTrainers = LikesTrainers.builder()
+                        .trainers(trainers)
+                        .member(member)
+                        .build();
                 likesTrainerRepository.save(likesTrainers);
                 return true;
             }
@@ -87,9 +95,10 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+    //회원의 트레이너 좋아요 조회
     @Override
     public List<LikesTrainersDTO> getLikesTrainerList(String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        Member member = getMember(email);
         List<LikesTrainersDTO> likesTrainersDTOS = likesTrainerRepository.findLikesTrainersByMemberEmail(member.getEmail())
                 .stream().map(this::toTrainerLikesDTO).collect(Collectors.toList());
         return likesTrainersDTOS;
@@ -134,5 +143,17 @@ public class LikesServiceImpl implements LikesService {
         return likesGymDTO;
     }
 
+    private Member getMember(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("회원이 존재하지 않습니다"));
+    }
+
+    private Gym getGym(Long gymId) {
+        return gymRepository.findByGymId(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));
+    }
+
+    private Trainers getTrainer(String trainerEmail) {
+        return trainerRepository.findByTrainerEmail(trainerEmail).orElseThrow(() -> new EntityNotFoundException("트레이너가 존재하지 않습니다"));
+    }
 
 }

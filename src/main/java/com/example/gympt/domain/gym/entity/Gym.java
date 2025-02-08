@@ -1,4 +1,5 @@
 package com.example.gympt.domain.gym.entity;
+
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.enums.Popular;
 import com.example.gympt.domain.likes.entity.LikesGym;
@@ -26,7 +27,7 @@ public class Gym {
     private Long id;
     private String gymName;
     private String address;
-    @Column(name = "description" , columnDefinition = "LONGTEXT")
+    @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
     private Long dailyPrice;
     private Long monthlyPrice;
@@ -38,7 +39,7 @@ public class Gym {
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Trainers> trainers  = new ArrayList<>();
+    private List<Trainers> trainers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_id")
@@ -75,8 +76,37 @@ public class Gym {
         addImage(gymImage);
     }
 
-//이미지 삭제!!!!!!!!
+    //이미지 삭제!!!!!!!!
     public void clearImageList() {
         this.imageList.clear();
     }
+
+    //수정 로직(엔티티 관련 수정이 아닌 객체 관련 수정)
+    public void updateGym(String gymName) {
+        this.gymName = gymName;
+    }
+
+    public void updateLocal(Local local) {
+        this.local = local;
+    }
+
+    public void updateAddress(String address) {
+        this.address = address;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+    public void updateDailyPrice(Long dailyPrice) {
+        this.dailyPrice = dailyPrice;
+    }
+    public void updateMonthlyPrice(Long monthlyPrice) {
+        this.monthlyPrice = monthlyPrice;
+    }
+
+    public void updateTrainers(Trainers trainers) {
+        this.trainers.add(trainers);
+    }
+
 }

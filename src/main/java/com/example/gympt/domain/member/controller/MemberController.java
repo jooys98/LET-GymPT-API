@@ -39,10 +39,10 @@ public class MemberController {
 
     // 회원가입
     @PostMapping("/join")
-    public ResponseEntity<?> join(@Valid @RequestBody JoinRequestDTO request) {
+    public ResponseEntity<String> join(@Valid @RequestBody JoinRequestDTO request) {
         log.info("join: {}", request);
         memberService.join(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("회원가입 완료되었습니다");
     }
 
 

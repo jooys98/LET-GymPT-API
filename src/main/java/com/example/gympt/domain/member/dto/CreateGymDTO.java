@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class CreateGymDTO {
-//헬스장 등록,수정용 dto
+//admin 의 헬스장 등록,수정용 dto
     private String gymName;
     private String address;
     private String local;
@@ -26,6 +26,7 @@ public class CreateGymDTO {
     private Long monthlyPrice;
     private Popular popular;
     private List<MultipartFile> files;
+    private List<String> uploadFileNames;
     //폼데이타
 
 
