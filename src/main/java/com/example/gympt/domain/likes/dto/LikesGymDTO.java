@@ -9,7 +9,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @Getter
-@Setter
 @NoArgsConstructor
 @ToString
 public class LikesGymDTO {
@@ -25,7 +24,5 @@ public class LikesGymDTO {
     private int likesCount;
     private Popular popular;
     private Long gymId;
-
-    @Builder.Default
-    private List<String> uploadFileNames = new ArrayList<>();
+private String gymImage;
 }

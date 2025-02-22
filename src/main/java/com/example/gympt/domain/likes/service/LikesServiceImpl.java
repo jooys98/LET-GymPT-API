@@ -104,9 +104,11 @@ public class LikesServiceImpl implements LikesService {
         return likesTrainersDTOS;
     }
 
+
+
     private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers) {
-        Trainers trainers = trainerRepository.findByTrainerEmail(likesTrainers.getTrainers().getMember().getEmail()).orElseThrow(() -> new RuntimeException("해당 트레이너는 존재하지 않습니다"));
-        List<String> trainerImageNames = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).toList();
+        Trainers trainers = getTrainer(likesTrainers.getTrainers().getMember().getEmail());
+       String trainerImage = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).findFirst().orElse(null);
 
         LikesTrainersDTO likesTrainersDTO = LikesTrainersDTO.builder()
                 .id(trainers.getId())
@@ -116,15 +118,18 @@ public class LikesServiceImpl implements LikesService {
                 .email(likesTrainers.getMember().getEmail())
                 .gymName(trainers.getGym().getGymName())
                 .likesCount(trainers.getLikesCount())
-                .uploadFileNames(trainerImageNames)
+                .trainerImage(trainerImage)
                 .build();
         return likesTrainersDTO;
 
     }
 
     private LikesGymDTO toGymLikesDTO(LikesGym likesGym) {
-        Gym gym = gymRepository.findByGymId(likesGym.getId()).orElseThrow(() -> new RuntimeException("헬스장이 존재하지 않습니다 "));
-        List<String> imageNames = gym.getImageList().stream().map(GymImage::getGymImageName).toList();
+        Gym gym = getGym(likesGym.getId());
+        String image = gym.getImageList().stream()
+                .map(GymImage::getGymImageName)
+                .findFirst().orElse(null);
+
 
         LikesGymDTO likesGymDTO = LikesGymDTO.builder()
                 .id(gym.getId())
@@ -138,7 +143,7 @@ public class LikesServiceImpl implements LikesService {
                 .description(gym.getDescription())
                 .likesCount(gym.getLikesCount())
                 .popular(gym.getPopular())
-                .uploadFileNames(imageNames)
+                .gymImage(image)
                 .build();
         return likesGymDTO;
     }

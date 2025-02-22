@@ -1,6 +1,5 @@
 package com.example.gympt.domain.community.entity;
 
-import com.example.gympt.domain.comment.entity.Comment;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -22,8 +21,11 @@ public class Community extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+
+
     private String content;
 
+    private String image;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "email")
     private Member member;

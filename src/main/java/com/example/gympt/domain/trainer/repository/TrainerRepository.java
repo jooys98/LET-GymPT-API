@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface TrainerRepository extends JpaRepository<Trainers,Long>, TrainerRepositoryCustom {
+public interface TrainerRepository extends JpaRepository<Trainers, Long>, TrainerRepositoryCustom {
 
     @Query("select t from Trainers t join t.member m where m.email = :email")
     Optional<TrainerSaveForm> findByEmail(@Param("email") String email);
@@ -17,4 +17,6 @@ public interface TrainerRepository extends JpaRepository<Trainers,Long>, Trainer
     @Query("select t from Trainers t join t.member m where m.email = :email")
     Optional<Trainers> findByTrainerEmail(@Param("email") String email);
 
+    @Query("select t from Trainers t join t.member m where m.name = :trainerName")
+    Optional<Trainers> findByName(@Param("trainerName") String trainerName);
 }

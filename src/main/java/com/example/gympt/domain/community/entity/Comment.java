@@ -1,6 +1,5 @@
-package com.example.gympt.domain.comment.entity;
+package com.example.gympt.domain.community.entity;
 
-import com.example.gympt.domain.community.entity.Community;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;

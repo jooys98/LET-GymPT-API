@@ -25,8 +25,8 @@ public class SwaggerConfig {
 
     private Info apiInfo () {
         return new Info()
-                .title("mall-api Swagger")
-                .description("mall 유저 및 인증, 상품 등에 관한 REST API")
+                .title("Let Gym-Pt-api Swagger")
+                .description("널 위해서라면 api 300개도 만들어줄 수 있어 ...⭐️")
                 .version("1.0.0");
     }
 

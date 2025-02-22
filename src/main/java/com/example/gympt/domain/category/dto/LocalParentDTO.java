@@ -10,9 +10,11 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @ToString
-
-public class LocalDTO {
+@Setter
+public class LocalParentDTO {
     private Long id;
     private String localName;
 
+    private Set<LocalParentDTO> children = new HashSet<>();
 }
+

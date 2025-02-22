@@ -18,10 +18,9 @@ public class LikesTrainersDTO {
     private String gymName;
     private String gender;
     private String local;
+    private String trainerImage;
     private int likesCount;
 
-    @Builder.Default
-    private List<String> uploadFileNames = new ArrayList<>();
 
     //그외 나머지 정보는 상세페이지 조회때 보여주기 ~!
 }

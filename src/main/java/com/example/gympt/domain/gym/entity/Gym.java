@@ -1,6 +1,7 @@
 package com.example.gympt.domain.gym.entity;
 
 import com.example.gympt.domain.category.entity.Local;
+import com.example.gympt.domain.category.entity.LocalGymBridge;
 import com.example.gympt.domain.gym.enums.Popular;
 import com.example.gympt.domain.likes.entity.LikesGym;
 import com.example.gympt.domain.review.entity.Review;
@@ -19,7 +20,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = "imageList")
+@ToString(exclude = {"imageList","lacal"})
 @Table(name = "gym_tbl")
 public class Gym {
     @Id
@@ -44,6 +45,12 @@ public class Gym {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_id")
     private Local local;
+
+    @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<LocalGymBridge> localGymBridgeList = new ArrayList<>();
+
+
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'N'")

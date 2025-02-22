@@ -23,6 +23,5 @@ public class LocalResponseDTO {
     private Long monthlyPrice;
     private int likesCount;
     private Popular popular;
-    @Builder.Default
-    private List<String> uploadFileNames = new ArrayList<>();
+   private String gymImage;
 }

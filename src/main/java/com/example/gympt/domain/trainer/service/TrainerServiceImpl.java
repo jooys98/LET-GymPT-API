@@ -21,6 +21,7 @@ import com.example.gympt.domain.trainer.repository.TrainerRepository;
 import com.example.gympt.domain.trainer.repository.TrainerSaveFormRepository;
 import com.example.gympt.dto.PageRequestDTO;
 import com.example.gympt.dto.PageResponseDTO;
+import com.example.gympt.exception.CustomDoesntExist;
 import com.example.gympt.util.s3.CustomFileUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -132,7 +133,7 @@ public class TrainerServiceImpl implements TrainerService {
         Trainers trainers = getTrainers(trainerEmail);
         AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository
                 .findByAuctionRequestIdAndTrainer(auctionRequestId, trainers.getMember().getEmail())
-                .orElseThrow(() -> new RuntimeException("입찰 내역이 없습니다"));
+                .orElseThrow(() -> new CustomDoesntExist("입찰 내역이 없습니다"));
         //가격변경 신청한 본인이 입찰한 트레이너가 맞는지 다시 한번 확인
 
         auctionTrainerBid.changePrice(updatePrice);

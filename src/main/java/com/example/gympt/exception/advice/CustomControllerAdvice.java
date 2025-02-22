@@ -1,9 +1,6 @@
 package com.example.gympt.exception.advice;
 
-import com.example.gympt.exception.CustomAlreadyExists;
-import com.example.gympt.exception.CustomDoesntExist;
-import com.example.gympt.exception.CustomJWTException;
-import com.example.gympt.exception.NoDuplicationException;
+import com.example.gympt.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -180,6 +177,13 @@ public class CustomControllerAdvice {
         String msg = "역경매 중복 신청은 불가능 합니다😳";
         log.error("Exception: {}", msg);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(getErrorMessage(msg));
+    }
+
+    @ExceptionHandler(CustomNotAccessHandler.class)
+    protected ResponseEntity<?> handleNotAccessException(CustomNotAccessHandler e) {
+        String msg = "접근 권한이 없습니다😳";
+        log.error("Exception: {}", msg);
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(getErrorMessage(msg));
     }
 
     private static Map<String, String> getErrorMessage(String msg) {

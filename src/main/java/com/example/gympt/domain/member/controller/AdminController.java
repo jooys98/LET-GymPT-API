@@ -40,14 +40,12 @@ public class AdminController {
 //좋아요는 사용자들이 나중에 추가함
 
     @PostMapping("/create/gym")
-    //완료@!!!!!!!!
     public ResponseEntity<String> createGym(CreateGymDTO createGymDTO,
                                             @AuthenticationPrincipal final UserDetails adminDetails) {
         adminService.createGym(createGymDTO, adminDetails.getUsername());
         return ResponseEntity.ok("헬스장 등록이 완료 되었습니다 ");
     }
 
-    //완료!!!!!!!
     @DeleteMapping("/delete/gym/{gymId}")
     public ResponseEntity<String> deleteGym(@PathVariable Long gymId,
                                             @AuthenticationPrincipal final UserDetails adminDetails) {
