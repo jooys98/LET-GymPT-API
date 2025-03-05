@@ -186,6 +186,14 @@ public class CustomControllerAdvice {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(getErrorMessage(msg));
     }
 
+
+    @ExceptionHandler(NotAccessChatRoom.class)
+    public ResponseEntity<?> NotAccessChattingRoom(NotAccessChatRoom e) {
+        String msg = e.getMessage();
+        log.error("채팅방 사용자만 접근이 가능합니다: {}", msg);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getErrorMessage(msg));
+    }
+
     private static Map<String, String> getErrorMessage(String msg) {
         return Map.of("errMsg", msg);
     }

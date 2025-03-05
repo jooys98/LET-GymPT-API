@@ -2,6 +2,7 @@ package com.example.gympt.domain.trainer.service;
 
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.repository.GymRepository;
+import com.example.gympt.domain.likes.repository.LikesTrainerRepository;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
@@ -22,6 +23,7 @@ import com.example.gympt.domain.trainer.repository.TrainerSaveFormRepository;
 import com.example.gympt.dto.PageRequestDTO;
 import com.example.gympt.dto.PageResponseDTO;
 import com.example.gympt.exception.CustomDoesntExist;
+import com.example.gympt.notification.service.NotificationService;
 import com.example.gympt.util.s3.CustomFileUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -51,15 +53,17 @@ public class TrainerServiceImpl implements TrainerService {
     private final CustomFileUtil customFileUtil;
     private final AuctionRequestRepository auctionRequestRepository;
     private final AuctionTrainerBidRepository auctionTrainerBidRepository;
-
+    private final LikesTrainerRepository likesTrainerRepository;
+    private final NotificationService notificationService;
 
     @Override
 //트레이너 데뷔 신청!!
+    //가입시 트레이너 회원으로 회원가입 -> 트레이너 프로필 만들기 -> admin 의 허용으로 트레이너 권한
     public void saveTrainer(String trainerEmail, TrainerSaveRequestDTO trainerSaveRequestDTO) {
         Member member = getMemberRoles(trainerEmail);
 
         if (!member.getMemberRoleList().contains(MemberRole.PREPARATION_TRAINER)) {
-            throw new RuntimeException("트레이너 신청 회원이 아닙니다");
+            throw new IllegalArgumentException("트레이너 신청 회원이 아닙니다");
         }
         Gym gym = getGym(trainerSaveRequestDTO.getGymId());
 
@@ -72,33 +76,35 @@ public class TrainerServiceImpl implements TrainerService {
                 .gym(gym)
                 .name(trainerSaveRequestDTO.getName())
                 .age(trainerSaveRequestDTO.getAge())
-                .gender(trainerSaveRequestDTO.getGender())
                 .introduction(trainerSaveRequestDTO.getIntroduction())
                 .imageList(trainerSaveImages)
                 .build();
+        trainerSaveForm.addGender(trainerSaveRequestDTO.getGender());
+
         trainerSaveFormRepository.save(trainerSaveForm);
     }
 
 
     //트레이너 조건 별 정보 조회!
     @Override
-    public PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO) {
+    public PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO, String email) {
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1,
                 pageRequestDTO.getSize());
         List<TrainerResponseDTO> trainerList = trainerRepository.findTrainers(trainerRequestDTO, pageable)
-                .stream().map(this::trainerEntityToDTO).collect(Collectors.toList());
+                .stream().map(trainer -> this.trainerEntityToDTO(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
+
         Long totalCount = trainerRepository.countTrainers(trainerRequestDTO);
         return new PageResponseDTO<>(trainerList, pageRequestDTO, totalCount);
     }
 
     //트레이너 상세 조회
     @Override
-    public TrainerResponseDTO getTrainerById(Long id) {
-        Trainers trainers = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("존재하지 않는 트레이너 입니다"));
-        return trainerEntityToDTO(trainers);
+    public TrainerResponseDTO getTrainerById(Long id, String email) {
+        Trainers trainers = getTrainerId(id);
+        return trainerEntityToDTO(trainers, likesTrainerRepository.likes(email, trainers.getId()));
     }
 
-    //트레이너 입찰 신청
+    //트레이너 역경매 입찰 신청
     @Override
     public void applyAuction(String trainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
 
@@ -120,6 +126,8 @@ public class TrainerServiceImpl implements TrainerService {
                 .trainerImage(String.valueOf(trainers.getImageList().get(0))) //이미지 한장만 가져오기
                 .build();
         auctionTrainerBidRepository.save(auctionTrainerBid);
+        //역경매를 신청한 회원에게 알림 발송
+        notificationService.newTrainerAuctionNotification(auctionRequest.getMember().getEmail());
 
     }
 
@@ -138,9 +146,29 @@ public class TrainerServiceImpl implements TrainerService {
 
         auctionTrainerBid.changePrice(updatePrice);
         auctionTrainerBidRepository.save(auctionTrainerBid);
+        //입찰시 해당 역경매를 신청한 회원에게 알림 발송
+        notificationService.updatePriceAuctionToMember(auctionTrainerBid.getAuctionRequest().getMember().getEmail());
+    }
+
+    @Override
+    public void changeByGym(Gym gym) {
+        List<Trainers> trainers = trainerRepository.findByGymId(gym.getId());
+        // 2. 임시 헬스장 정보 가져오기 (미리 DB에 저장된 임시 헬스장 객체)
+        Gym tempGym = gymRepository.findById(Long.valueOf(10)).orElseThrow(() -> new EntityNotFoundException("임시 헬스장이 없습니다"));
+        if (!trainers.isEmpty()) {
+            updateTrainersGym(trainers, tempGym);
+        }
+
     }
 
 
+    private void updateTrainersGym(List<Trainers> trainers, Gym newGym) {
+        // 각 트레이너의 헬스장 정보 변경
+        trainers.forEach(trainer -> trainer.setGym(newGym));
+
+        // 변경된 트레이너 정보 일괄 저장 (벌크 업데이트)
+        trainerRepository.saveAll(trainers);
+    }
 
 
     private Member getMemberRoles(String email) {
@@ -156,5 +184,11 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerRepository.findByTrainerEmail(trainerEmail)
                 .orElseThrow(() -> new EntityNotFoundException("트레이너 권한이 없습니다"));
     }
+
+    private Trainers getTrainerId(Long trainerId) {
+        return trainerRepository.findById(trainerId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 입니다"));
+    }
+
 
 }

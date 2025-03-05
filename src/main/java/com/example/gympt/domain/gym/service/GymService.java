@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface GymService {
-    PageResponseDTO<GymResponseDTO> getGyms(GymSearchRequestDTO gymSearchRequestDTO , PageRequestDTO pageRequestDTO);
+    PageResponseDTO<GymResponseDTO> getGyms(GymSearchRequestDTO gymSearchRequestDTO, PageRequestDTO pageRequestDTO, String email);
 
 
-
-    GymResponseDTO getGymById(Long id);
+    GymResponseDTO getGymById(Long id, String email);
 }

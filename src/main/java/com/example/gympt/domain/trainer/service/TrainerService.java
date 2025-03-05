@@ -18,42 +18,40 @@ import java.util.List;
 
 public interface TrainerService {
 
-    void saveTrainer(String TrainerEmail , TrainerSaveRequestDTO trainerSaveRequestDTO);
+    void saveTrainer(String TrainerEmail, TrainerSaveRequestDTO trainerSaveRequestDTO);
 
-    PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO);
+    PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO, String email);
 
 
     //트레이너 정보 조회시 쓰이는 dto 변환 메서드
-default TrainerResponseDTO trainerEntityToDTO(Trainers trainers) {
-    List<String> imageNames = trainers.getImageList().stream()
-            .map(TrainerImage::getTrainerImageName)
-            .toList();
+    default TrainerResponseDTO trainerEntityToDTO(Trainers trainers, boolean likes) {
+        List<String> imageNames = trainers.getImageList().stream()
+                .map(TrainerImage::getTrainerImageName)
+                .toList();
 //Trainers 엔티티 속 이미지 리스트 객체를  가져와서 문자열 리스트로 만들어주기
-    TrainerResponseDTO responseDTO = TrainerResponseDTO.builder()
-            .id(trainers.getId())
-            .email(trainers.getMember().getEmail())
-            .age(trainers.getAge())
-            .name(trainers.getMember().getName())
-            .gender(trainers.getGender().toString())
-            .introduction(trainers.getIntroduction())
-            .gymName(trainers.getGym().toString())
-            .local(trainers.getLocal().toString())
-            .likesCount(trainers.getLikesCount())
-            .uploadFileNames(imageNames)
-            .build();
-    return responseDTO;
+        TrainerResponseDTO responseDTO = TrainerResponseDTO.builder()
+                .id(trainers.getId())
+                .email(trainers.getMember().getEmail())
+                .age(trainers.getAge())
+                .name(trainers.getMember().getName())
+                .gender(trainers.getGender().toString())
+                .introduction(trainers.getIntroduction())
+                .gymName(trainers.getGym().toString())
+                .local(trainers.getLocal().toString())
+                .likesCount(trainers.getLikesCount())
+                .uploadFileNames(imageNames)
+                .likes(likes)
+                .build();
+        return responseDTO;
 
-}
-
-
-
+    }
 
 
+    TrainerResponseDTO getTrainerById(Long id, String email);
 
-
-    TrainerResponseDTO getTrainerById(Long id);
-
-    void applyAuction(String TrainerEmail,TrainerAuctionRequestDTO trainerAuctionRequestDTO);
+    void applyAuction(String TrainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO);
 
     void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
+
+    void changeByGym(Gym gym);
 }

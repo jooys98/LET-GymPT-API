@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"imageList","lacal"})
+@ToString(exclude = {"imageList"})
 @Table(name = "gym_tbl")
 public class Gym {
     @Id
@@ -114,6 +114,18 @@ public class Gym {
 
     public void updateTrainers(Trainers trainers) {
         this.trainers.add(trainers);
+    }
+
+
+    public double getReviewAverage() {
+        if (reviews == null || reviews.isEmpty()) {
+            return 0;
+        }
+        return reviews.stream().mapToDouble(Review::getRating).average().orElse(0);
+    }
+
+    public int getReviewCount() {
+        return this.reviews.size();
     }
 
 }

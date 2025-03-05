@@ -1,0 +1,52 @@
+#version: '3.8'
+services:
+  db:
+    image: mysql:8
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: gymPT
+      MYSQL_USER: gymPT
+      MYSQL_PASSWORD: gymPT
+      TZ: Asia/Seoul
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql/conf.d:/etc/mysql/conf.d
+#      mkdir -p ~/app/db/mysql/conf.d ec2에 디렉토리 생성
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    networks:
+      - app-network
+
+
+
+  mongodb:
+    image: mongo:latest
+    container_name: chat
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: gymPT
+      MONGO_INITDB_ROOT_PASSWORD: gymPT
+      MONGO_INITDB_DATABASE: chat
+    volumes:
+      - mongodb_data:/data/db
+#      ec2에 디렉토리 따로 안만들어도 됨
+#    배포시 ec2에서 다시 한번 권한 설정을 해줘야 할 수도 있음
+    #       초기화 스크립트가 필요한 경우 주석 해제
+    #       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    command:
+      - --auth
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+
+

@@ -30,7 +30,7 @@ public class AuctionTrainerBid extends BaseEntity {
     @JoinColumn(name = "trainer_email")
     private Trainers trainer;
 
-    @OneToOne(mappedBy = "auctionTrainerBid")
+    @OneToOne(mappedBy = "auctionTrainerBid", cascade = CascadeType.ALL)
     private MatchedAuction matchedAuction;
 
     private Long price;

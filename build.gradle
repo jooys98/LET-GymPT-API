@@ -39,7 +39,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
     // ⭐ Spring boot 3.x이상에서 QueryDsl 패키지를 정의하는 방법
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
     annotationProcessor(
@@ -80,6 +80,28 @@ dependencies {
     // aws s3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+    //firebase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+
+    //mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    //mongodb test 를 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    //mongodb 드라이버
+    implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
+
+    implementation 'org.mongodb:mongodb-driver-core:4.11.1'
+    implementation 'org.mongodb:bson:4.11.1'
+    //webSocket 구현을 위한 기본적인 패키지
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //STOMP(Simple Text Oriented Messaging Protocol) 구현체
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+
+    //WebSocket을 지원하지 않는 브라우저를 위한 대체 솔루션
+    implementation 'org.webjars:sockjs-client:1.5.1'
 }
 
 tasks.named('test') {

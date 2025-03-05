@@ -3,6 +3,7 @@ package com.example.gympt.domain.reverseAuction.entity;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
+import com.example.gympt.domain.trainer.enums.Gender;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,7 +31,7 @@ public class AuctionRequest extends BaseEntity {
     private Member member;
     private Long age;
     //member 정보 가져오기
-    private String gender;
+    private Gender gender;
     //성별
     private Long height;
     //키
@@ -43,17 +44,18 @@ public class AuctionRequest extends BaseEntity {
     private String medicalConditions;
     //신체 결함 사항
 
-//참가한 트레이너 수
-    public Integer getParticipateTrainers() {
-        return this.auctionTrainerBids.size();
-    }
 
-    @OneToOne(mappedBy = "auctionRequest")
+    //MatchedAuction 은 종속적인 관계이므로
+    @OneToOne(mappedBy = "auctionRequest", cascade = CascadeType.ALL)
     private MatchedAuction matchedAuction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_id")
     private Local local;
+
+    @OneToMany(mappedBy = "auctionRequest", cascade = CascadeType.ALL)
+    private List<AuctionTrainerBid> auctionTrainerBids = new ArrayList<>();
+
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "status_list", joinColumns = @JoinColumn(name = "title")) //상태와 연결되는 컬럼값
@@ -61,7 +63,17 @@ public class AuctionRequest extends BaseEntity {
     @Builder.Default
     private List<AuctionStatus> status = new ArrayList<>();
 
-    @OneToMany(mappedBy = "auctionRequest")
-    private List<AuctionTrainerBid> auctionTrainerBids = new ArrayList<>();
 
+    public void changeStatus(AuctionStatus status) {
+        this.status.add(status);
+    }
+
+    //참가한 트레이너 수
+    public Integer getParticipateTrainers() {
+        return this.auctionTrainerBids.size();
+    }
+
+    public void addGender(String gender) {
+        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    }
 }

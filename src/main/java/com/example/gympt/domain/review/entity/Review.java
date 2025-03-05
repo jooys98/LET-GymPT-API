@@ -33,9 +33,12 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "gym_id")
     private Gym gym;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id")
     private Trainers trainers;
+
+    private boolean active;
 }
 
 

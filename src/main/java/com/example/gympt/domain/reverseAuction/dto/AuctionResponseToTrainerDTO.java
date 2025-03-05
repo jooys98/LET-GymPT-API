@@ -26,4 +26,6 @@ public class AuctionResponseToTrainerDTO {
     private Long age;
     private String gender;
     private Integer participateTrainers;
+
+    //TODO: 참여한 트레이너 들 + 가격+ 날짜 리스트도 함께 포함 시키기
 }

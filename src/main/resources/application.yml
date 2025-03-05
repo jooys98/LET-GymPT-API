@@ -1,5 +1,16 @@
 server:
   port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    # 특수문자 허용 설정
+    relaxed-query-chars: '|,{,},[,],^,`,<,>,\,;,/,?,@,#,$,%,&,=,+'
+    relaxed-path-chars: '|,{,},[,],^,`,<,>,\,;,/,?,@,#,$,%,&,=,+'
+
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   profiles:
@@ -91,10 +102,13 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/gymPT
-    username: root
-    password: 1234
+    url: jdbc:mysql://localhost:3307/gymPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: gymPT
+    password: gymPT
 
+  data:
+    mongodb:
+      uri: mongodb://gymPT:gymPT@localhost:27017/chat?authSource=admin
 #app:
 #  props:
 #    social:
@@ -121,14 +135,18 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/gymPT
-    username: root
-    password: 1234
+    url: jdbc:mysql://localhost:3306/gymPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: gymPT
+    password: gymPT
     hikari:
       max-lifetime: 600000 # 최대 수명 (밀리초)
       idle-timeout: 300000 # 유휴 시간 (밀리초)
       connection-timeout: 30000 # 연결 시간 초과 (밀리초)
 
+
+  data:
+    mongodb:
+      uri: mongodb://gymPT:gymPT@localhost:27017/chat?authSource=admin
 #app:
 #  props:
 #    social:

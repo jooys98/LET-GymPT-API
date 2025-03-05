@@ -32,6 +32,7 @@ public class CommunityController {
         return ResponseEntity.ok(communityService.getPostDetail(id));
     }
 
+
     //커뮤니티 게시글 검색
     @GetMapping("/search")
     public ResponseEntity<List<CommunityResponseDTO>> searchCommunity(String keyword) {
@@ -49,6 +50,13 @@ public class CommunityController {
     public ResponseEntity<String> createMyCommunity(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody CommunityRequestDTO communityRequestDTO) {
         communityService.createPost(memberAuthDTO.getUsername(), communityRequestDTO);
         return ResponseEntity.ok("글 작성이 완료 되었습니다!");
+    }
+
+
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<List<CommentDTO>> getCommentByPost(@PathVariable Long id) {
+        return ResponseEntity.ok(communityService.getComments(id));
+
     }
 
     //게시글에 댓글 달기

@@ -1,5 +1,6 @@
 package com.example.gympt.domain.gym.repository.queryDsl;
 
+import com.example.gympt.domain.category.entity.QLocalGymBridge;
 import com.example.gympt.domain.gym.dto.GymSearchRequestDTO;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.enums.Popular;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static com.example.gympt.domain.category.entity.QLocal.local;
+import static com.example.gympt.domain.category.entity.QLocalGymBridge.localGymBridge;
 import static com.example.gympt.domain.gym.entity.QGym.gym;
 
 @RequiredArgsConstructor
@@ -58,7 +61,7 @@ public class GymRepositoryCustomImpl implements GymRepositoryCustom {
     }
 
 
-    //    //인기 헬스장 검색!
+    //인기 헬스장 검색!
     private BooleanExpression filterByPopular(Popular isPopular) {
         return isPopular != null ? gym.popular.eq(isPopular) : null;
     }
@@ -69,7 +72,7 @@ public class GymRepositoryCustomImpl implements GymRepositoryCustom {
         if (localName == null) {
             return null;
         }
-        return gym.local.localName.eq(localName);
+        return gym.local.localName.contains(localName);
     }
 
     //단어 검색
@@ -109,4 +112,9 @@ public class GymRepositoryCustomImpl implements GymRepositoryCustom {
         }
         return gym.dailyPrice.between(minPrice, maxPrice);
     }
+
+
+    //카테고리 로 조건에 맞는 해당 프로덕트 들을 조회
+
+
 }

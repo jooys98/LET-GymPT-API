@@ -1,5 +1,6 @@
 package com.example.gympt.domain.trainer.entity;
 
+import com.example.gympt.domain.booking.entity.Booking;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.enums.Popular;
@@ -7,6 +8,7 @@ import com.example.gympt.domain.likes.entity.LikesTrainers;
 import com.example.gympt.domain.likes.entity.LikesTrainers;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
+import com.example.gympt.domain.review.entity.Review;
 import com.example.gympt.domain.trainer.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,7 +31,7 @@ public class Trainers {
     private Long id;
     private String trainerName;
     private Long age;
-    @Column(name = "introduction" , columnDefinition = "LONGTEXT")
+    @Column(name = "introduction", columnDefinition = "LONGTEXT")
     private String introduction;
 
 
@@ -50,7 +52,11 @@ public class Trainers {
     @JoinColumn(name = "email")
     private Member member;
 
+    @OneToMany(mappedBy = "trainers", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "trainers", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> booking = new ArrayList<>();
 
     @OneToMany(mappedBy = "trainers", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LikesTrainers> likes = new ArrayList<>();
@@ -59,6 +65,7 @@ public class Trainers {
     public int getLikesCount() {
         return this.likes.size();
     }
+
 
     @ElementCollection
     @Builder.Default
@@ -81,28 +88,38 @@ public class Trainers {
     }
 
 
-public void updateTrainerName(String trainerName) {
-        this.trainerName = trainerName;
-}
+    public void addGender(String gender) {
+        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    }
 
-public void updateAge(Long age) {
+    public void updateTrainerName(String trainerName) {
+        this.trainerName = trainerName;
+    }
+
+    public void updateAge(Long age) {
         this.age = age;
-}
-public void updateGender(Gender gender) {
+    }
+
+    public void updateGender(Gender gender) {
         this.gender = gender;
-}
-public void updateLocal(Local local) {
-     this.local = local;
-}
-public void updateGym(Gym gym) {
+    }
+
+    public void updateLocal(Local local) {
+        this.local = local;
+    }
+
+    public void updateGym(Gym gym) {
         this.gym = gym;
-}
-public void updateIntroduction(String introduction) {
+    }
+
+
+    public void updateIntroduction(String introduction) {
         this.introduction = introduction;
-}
-public void updateMember(Member member) {
+    }
+
+    public void updateMember(Member member) {
         this.member = member;
-}
+    }
 
 
     public void clearImageList() {

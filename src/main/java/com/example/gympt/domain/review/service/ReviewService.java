@@ -42,4 +42,6 @@ public interface ReviewService {
                 .trainerName(review.getTrainers().getTrainerName())
                 .build();
     }
+
+    void deleteByGym(Gym gym);
 }

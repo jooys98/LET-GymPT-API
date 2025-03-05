@@ -23,6 +23,7 @@ public class TrainerResponseDTO {
     private String gender;
     private String local;
     private int likesCount;
+    private boolean likes;
 
 
     @Builder.Default

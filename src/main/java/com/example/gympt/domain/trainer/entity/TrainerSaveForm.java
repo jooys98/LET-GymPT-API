@@ -3,6 +3,7 @@ package com.example.gympt.domain.trainer.entity;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.entity.GymImage;
 import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.trainer.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.apache.catalina.session.FileStore;
@@ -26,7 +27,7 @@ public class TrainerSaveForm {
     private String name;
     private String introduction;
     private Long age;
-    private String gender;
+    private Gender gender;
 
     @ElementCollection
     @Builder.Default
@@ -39,6 +40,11 @@ public class TrainerSaveForm {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "email")
     private Member member;
+
+    public void addGender(String gender) {
+        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    }
+
 
     //이미지 추가 , 파라미터 : 이미지 ,
     public void addImage(TrainerSaveImage image) {

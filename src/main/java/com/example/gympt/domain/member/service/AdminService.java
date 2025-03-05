@@ -1,5 +1,7 @@
 package com.example.gympt.domain.member.service;
 
+import com.example.gympt.domain.category.dto.LocalDTO;
+import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.member.dto.CreateGymDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveFormDTO;
@@ -13,30 +15,41 @@ import java.util.List;
 
 @Service
 public interface AdminService {
-    void approveTrainer(String trainerEmail, String adminUsername);
+    void approveTrainer(String trainerEmail);
 
-    List<TrainerSaveFormDTO> getPreparationTrainers(String adminUsername);
+    List<TrainerSaveFormDTO> getPreparationTrainers();
 
-default TrainerSaveFormDTO converTodto (TrainerSaveForm trainerSaveForm) {
-    List<String> imageNames = trainerSaveForm.getImageList().stream()
-            .map(TrainerSaveImage::getTrainerSaveImageName)
-            .toList();
- return TrainerSaveFormDTO.builder()
-         .id(trainerSaveForm.getId())
-         .name(trainerSaveForm.getName())
-         .age(trainerSaveForm.getAge())
-         .introduction(trainerSaveForm.getIntroduction())
-         .gender(trainerSaveForm.getGender())
-         .gymName(trainerSaveForm.getGym().getGymName())
-         .imagePathList(imageNames)
-         .build();
-}
+    default TrainerSaveFormDTO converTodto(TrainerSaveForm trainerSaveForm) {
+        List<String> imageNames = trainerSaveForm.getImageList().stream()
+                .map(TrainerSaveImage::getTrainerSaveImageName)
+                .toList();
+        return TrainerSaveFormDTO.builder()
+                .id(trainerSaveForm.getId())
+                .name(trainerSaveForm.getName())
+                .age(trainerSaveForm.getAge())
+                .introduction(trainerSaveForm.getIntroduction())
+                .gender(trainerSaveForm.getGender().toString())
+                .gymName(trainerSaveForm.getGym().getGymName())
+                .imagePathList(imageNames)
+                .build();
+    }
 
 
+    void createGym(CreateGymDTO createGymDTO);
 
-    void createGym(CreateGymDTO createGymDTO, String adminUsername);
+    void deleteGym(Long gymId);
 
-    void deleteGym(Long gymId, String adminUsername);
+    void updateGym(Long gymId, CreateGymDTO createGymDTO);
 
-    void updateGym(Long gymId, CreateGymDTO createGymDTO, String adminUsername);
-}
+    List<LocalDTO> localList();
+
+    void removeLocal(Long localId);
+
+    default LocalDTO entityToDTO(Local local){
+            return LocalDTO.builder()
+                    .id(local.getId())
+                    .localName(local.getLocalName())
+                    .build();
+        }
+    }
+

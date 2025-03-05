@@ -66,4 +66,6 @@ public interface CommunityService {
                 .build();
 
     }
+
+    List<CommentDTO> getComments(Long id);
 }

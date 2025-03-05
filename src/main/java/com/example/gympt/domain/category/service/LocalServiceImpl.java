@@ -5,9 +5,13 @@ import com.example.gympt.domain.category.dto.LocalParentDTO;
 import com.example.gympt.domain.category.dto.LocalResponseDTO;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.category.repository.LocalRepository;
+import com.example.gympt.domain.gym.dto.GymResponseDTO;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.entity.GymImage;
 import com.example.gympt.domain.gym.repository.GymRepository;
+import com.example.gympt.domain.gym.service.GymService;
+import com.example.gympt.domain.gym.service.GymServiceImpl;
+import com.example.gympt.domain.likes.repository.LikesGymRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.info.BuildProperties;
@@ -26,14 +30,15 @@ public class LocalServiceImpl implements LocalService {
 
     private final LocalRepository localRepository;
     private final GymRepository gymRepository;
-
+    private final GymServiceImpl gymService;
+    private final LikesGymRepository likesGymRepository;
 
     @Override
-    public List<LocalResponseDTO> getLocalGymList(Long localId) {
+    public List<GymResponseDTO> getLocalGymList(Long localId, String email) {
         Local local = getLocal(localId);
         List<Gym> gyms = localRepository.findGymByLocalId(local.getId());
-        List<LocalResponseDTO> localResponseDTOS = gyms.stream().map(this::convertToLocalDTO).toList();
-        return localResponseDTOS;
+        List<GymResponseDTO> localGymList = gyms.stream().map(gym -> gymService.entityToDTO(gym, likesGymRepository.likes(email, gym.getId()))).toList();
+        return localGymList;
     }//local id 애 해당하는 헬스장 리스트 -> 풀어서 LocalResponseDTO 로 변환 -> 다시 리스트로 만들기 !
 
 

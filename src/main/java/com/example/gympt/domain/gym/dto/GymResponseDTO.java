@@ -1,10 +1,9 @@
 package com.example.gympt.domain.gym.dto;
 
 import com.example.gympt.domain.gym.enums.Popular;
-import com.example.gympt.domain.review.entity.Review;
+import com.example.gympt.domain.review.dto.ReviewResponseDTO;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,13 +26,12 @@ public class GymResponseDTO {
     private Long monthlyPrice;
     private int likesCount;
     private Popular popular;
-    private List<Review> reviewList;
+    private List<ReviewResponseDTO> reviewList;
     private List<Trainers> trainers;
-
-
-    // 파일 업로드한 url 응답값
-    @Builder.Default
-    private List<String> uploadFileNames = new ArrayList<>();
+    private boolean likes;
+    private double reviewAverage;
+    private int reviewCount;
+    private List<String> imageNames;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

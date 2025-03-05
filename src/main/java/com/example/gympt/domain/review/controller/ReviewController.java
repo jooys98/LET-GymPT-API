@@ -19,6 +19,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    //TODO : 예약일로 부터 1일 이 지난뒤 리뷰를 작성할 수 있게 조건 걸어주기
 
 @PostMapping
 public ResponseEntity<String> createReview(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, ReviewRequestDTO review) {

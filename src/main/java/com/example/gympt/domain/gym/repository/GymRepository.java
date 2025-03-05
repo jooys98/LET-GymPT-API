@@ -21,4 +21,10 @@ public interface GymRepository extends JpaRepository<Gym, Long> , GymRepositoryC
 
     @Query("select g from Gym g where g.local = :id")
     List<Gym> findByLocalId(@Param("id") Long id);
+
+    @Query("select case when count(g) > 0 then true else false end from Gym g where g.local.id = :localId")
+    boolean existsByLocal(@Param("localId") Long localId);
+
+
+
 }

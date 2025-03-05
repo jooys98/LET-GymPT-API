@@ -1,5 +1,6 @@
 package com.example.gympt.domain.reverseAuction.service;
 
+import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.reverseAuction.dto.*;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.reverseAuction.entity.MatchedAuction;
@@ -8,7 +9,6 @@ import java.util.List;
 
 public interface ReverseAuctionService {
     void applyAuction(AuctionRequestDTO auctionRequestDTO);
-
 
     FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail);
 
@@ -23,7 +23,7 @@ public interface ReverseAuctionService {
                 .openAt(auctionRequest.getCreatedAt())
                 .localName(auctionRequest.getLocal().getLocalName())
                 .age(auctionRequest.getAge())
-                .gender(auctionRequest.getGender())
+                .gender(auctionRequest.getGender().toString())
                 .participateTrainers(auctionRequest.getParticipateTrainers())
                 .build();
         return auctionResponseDTO;
@@ -41,7 +41,7 @@ public interface ReverseAuctionService {
                 .openAt(auctionRequest.getCreatedAt())
                 .localName(auctionRequest.getLocal().getLocalName())
                 .age(auctionRequest.getAge())
-                .gender(auctionRequest.getGender())
+                .gender(auctionRequest.getGender().toString())
                 .email(auctionRequest.getMember().getEmail())
                 .name(auctionRequest.getMember().getName())
                 .weight(auctionRequest.getWeight())
@@ -81,7 +81,15 @@ public interface ReverseAuctionService {
     AuctionTrainerNotificationDTO getSelectedMessage(String email);
 
 
-    AuctionResponseDTO getAuction(Long auctionRequestId);
+    Object getAuction(Long auctionRequestId, String email);
 
-    AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId);
+//    AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId);
+
+    Member getMember(String email);
+
+    List<AuctionResponseDTO> getAuctionListInLocal(Long localId);
+
+    List<AuctionResponseToTrainerDTO> getAuctionListToTrainersInLocal(Long localId);
+
+    Long cancelAuction(String email, Long auctionRequestId);
 }

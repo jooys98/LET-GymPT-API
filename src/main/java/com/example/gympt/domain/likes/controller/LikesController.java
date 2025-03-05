@@ -1,11 +1,14 @@
 package com.example.gympt.domain.likes.controller;
 
 import com.example.gympt.domain.likes.dto.LikesGymDTO;
+import com.example.gympt.domain.likes.dto.LikesRequestDTO;
 import com.example.gympt.domain.likes.dto.LikesTrainersDTO;
 import com.example.gympt.domain.likes.service.LikesService;
+import com.example.gympt.security.MemberAuthDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,28 +20,32 @@ import java.util.List;
 public class LikesController {
 
     private final LikesService likesService;
-//헬스장 좋아요 추가 / 취소
-    @PostMapping("/gym/change")
-    public ResponseEntity<String> toggleGymLikes(@RequestParam String email, @RequestParam Long gymId) {
-        Boolean gymLikes = likesService.toggleGymLikes(email, gymId);
-        return ResponseEntity.ok(gymLikes ? "좋아요 추가" : "좋아요 취소");
+
+    //헬스장 좋아요 추가 / 취소
+    @PostMapping("/gym")
+    public ResponseEntity<Boolean> toggleGymLikes(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO,@RequestBody LikesRequestDTO likesRequestDTO) {
+        Boolean gymLikes = likesService.toggleGymLikes(memberAuthDTO.getEmail(), likesRequestDTO.getGymId());
+        return ResponseEntity.ok(gymLikes);
     }
-//졿아요 누른 헬스장 조회
+
+    //졿아요 누른 헬스장 조회
     @GetMapping("/gym/list")
-    public ResponseEntity<List<LikesGymDTO>> getLikesGymList(@RequestParam String email) {
-        List<LikesGymDTO> likesGymDTOList = likesService.getLikesGymList(email);
+    public ResponseEntity<List<LikesGymDTO>> getLikesGymList(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO) {
+        List<LikesGymDTO> likesGymDTOList = likesService.getLikesGymList(memberAuthDTO.getEmail());
         return ResponseEntity.ok(likesGymDTOList);
     }
-//트레이너 좋아요 추가 / 취소
-    @PostMapping("/trainer/change")
-    public ResponseEntity<String> toggleTrainerLikes(@RequestParam String email, @RequestParam  String trainerEmail) {
-        Boolean trainerLikes = likesService.toggleTrainerLikes(email, trainerEmail);
-        return ResponseEntity.ok(trainerLikes ? "좋아요 추가" : "좋아요 취소");
+
+    //트레이너 좋아요 추가 / 취소
+    @PostMapping("/trainer")
+    public ResponseEntity<Boolean> toggleTrainerLikes(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody LikesRequestDTO likesRequestDTO) {
+        Boolean trainerLikes = likesService.toggleTrainerLikes(memberAuthDTO.getEmail(), likesRequestDTO.getTrainerId());
+        return ResponseEntity.ok(trainerLikes);
     }
-//좋아요 누른 트레이너 조회
+
+    //좋아요 누른 트레이너 조회
     @GetMapping("/trainer/list")
-    public ResponseEntity<List<LikesTrainersDTO>> getLikesTrainerList(@RequestParam String email) {
-        List<LikesTrainersDTO> likesTrainersDTOList = likesService.getLikesTrainerList(email);
+    public ResponseEntity<List<LikesTrainersDTO>> getLikesTrainerList(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO) {
+        List<LikesTrainersDTO> likesTrainersDTOList = likesService.getLikesTrainerList(memberAuthDTO.getEmail());
         return ResponseEntity.ok(likesTrainersDTOList);
     }
 }

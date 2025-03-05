@@ -64,16 +64,16 @@ public class LikesServiceImpl implements LikesService {
     public List<LikesGymDTO> getLikesGymList(String email) {
         Member member = getMember(email);
         List<LikesGymDTO> likesGymList = likesGymRepository.findLikesGymsByMemberEmail(member.getEmail())
-                .stream().map(this::toGymLikesDTO).toList();
+                .stream().map(likesGym -> this.toGymLikesDTO(likesGym, likesGymRepository.likes(email, likesGym.getId()))).toList();
         return likesGymList;
     }
 
     /// @Param: 트레이너 이메일 , 유저 이메일
     @Override
-    public Boolean toggleTrainerLikes(String email, String trainerEmail) {
+    public Boolean toggleTrainerLikes(String email, Long trainerId) {
         try {
             Member member = getMember(email);
-            Trainers trainers = getTrainer(trainerEmail);
+            Trainers trainers = getTrainer(trainerId);
             String likesMemberEmail = member.getEmail();
             String likesTrainerEmail = trainers.getMember().getEmail();
 
@@ -100,15 +100,14 @@ public class LikesServiceImpl implements LikesService {
     public List<LikesTrainersDTO> getLikesTrainerList(String email) {
         Member member = getMember(email);
         List<LikesTrainersDTO> likesTrainersDTOS = likesTrainerRepository.findLikesTrainersByMemberEmail(member.getEmail())
-                .stream().map(this::toTrainerLikesDTO).collect(Collectors.toList());
+                .stream().map(trainer -> this.toTrainerLikesDTO(trainer,likesTrainerRepository.likes(email, trainer.getId()))).toList();
         return likesTrainersDTOS;
     }
 
 
-
-    private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers) {
-        Trainers trainers = getTrainer(likesTrainers.getTrainers().getMember().getEmail());
-       String trainerImage = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).findFirst().orElse(null);
+    private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers,boolean likes) {
+        Trainers trainers = getTrainer(likesTrainers.getTrainers().getId());
+        String trainerImage = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).findFirst().orElse(null);
 
         LikesTrainersDTO likesTrainersDTO = LikesTrainersDTO.builder()
                 .id(trainers.getId())
@@ -119,12 +118,13 @@ public class LikesServiceImpl implements LikesService {
                 .gymName(trainers.getGym().getGymName())
                 .likesCount(trainers.getLikesCount())
                 .trainerImage(trainerImage)
+                .likes(likes)
                 .build();
         return likesTrainersDTO;
 
     }
 
-    private LikesGymDTO toGymLikesDTO(LikesGym likesGym) {
+    private LikesGymDTO toGymLikesDTO(LikesGym likesGym, boolean likes) {
         Gym gym = getGym(likesGym.getId());
         String image = gym.getImageList().stream()
                 .map(GymImage::getGymImageName)
@@ -144,6 +144,7 @@ public class LikesServiceImpl implements LikesService {
                 .likesCount(gym.getLikesCount())
                 .popular(gym.getPopular())
                 .gymImage(image)
+                .likes(likes)
                 .build();
         return likesGymDTO;
     }
@@ -157,8 +158,8 @@ public class LikesServiceImpl implements LikesService {
         return gymRepository.findByGymId(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));
     }
 
-    private Trainers getTrainer(String trainerEmail) {
-        return trainerRepository.findByTrainerEmail(trainerEmail).orElseThrow(() -> new EntityNotFoundException("트레이너가 존재하지 않습니다"));
+    private Trainers getTrainer(Long trainerId) {
+        return trainerRepository.findById(trainerId).orElseThrow(() -> new EntityNotFoundException("트레이너가 존재하지 않습니다"));
     }
 
 }

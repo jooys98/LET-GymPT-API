@@ -20,6 +20,7 @@ public class LikesTrainersDTO {
     private String local;
     private String trainerImage;
     private int likesCount;
+    private boolean likes;
 
 
     //그외 나머지 정보는 상세페이지 조회때 보여주기 ~!

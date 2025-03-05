@@ -43,7 +43,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Transactional(readOnly = true)
     @Override
     public List<CommunityResponseDTO> getSearchPost(String keyword) {
-        return communityRepository.searchByKeyword(keyword).stream().map(this::convertToDTO).toList();
+        return communityRepository.findCommunities(keyword).stream().map(this::convertToDTO).toList();
+//
     }
 
     @Override
@@ -85,6 +86,11 @@ public class CommunityServiceImpl implements CommunityService {
         }
         commentRepository.delete(comment);
         return comment.getId();
+    }
+
+    @Override
+    public List<CommentDTO> getComments(Long id) {
+        return commentRepository.findByCommunityId(id).stream().map(this::convertToCommentsDTO).toList();
     }
 
 

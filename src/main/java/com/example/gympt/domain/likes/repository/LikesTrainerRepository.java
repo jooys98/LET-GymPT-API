@@ -21,4 +21,6 @@ public interface LikesTrainerRepository extends JpaRepository<LikesTrainers, Lon
     @Query("delete from LikesTrainers t where t.member.email = :email and t.trainers.member.email = :trainer_email")
     void deleteTrainerEmail(@Param("email") String email, @Param("trainer_email") String trainerEmail);
 
+    @Query("SELECT COUNT(p) > 0 FROM LikesTrainers p WHERE p.member.email = :email AND p.trainers.id = :trainerId")
+    boolean likes(@Param("email") String email, @Param("trainerId") Long trainerId);
 }

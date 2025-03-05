@@ -3,12 +3,14 @@ package com.example.gympt.domain.member.entity;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.trainer.entity.Trainers;
+import com.example.gympt.domain.trainer.enums.Gender;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,11 +33,14 @@ public class Member extends BaseEntity {
     private String phone;
     private String address;
     private String localName;
-    private String gender;
+    private Gender gender;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-
+    private String profileImage;
     private boolean delFlag;
+    @Column
+    private String fcmToken;
+
 
     public void changeDel(boolean delFlag) {
         this.delFlag = delFlag;
@@ -58,6 +63,9 @@ public class Member extends BaseEntity {
     }
 
 
+    public void addGender(String gender) {
+        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    }
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "member_role_list", joinColumns = @JoinColumn(name = "email"))
@@ -68,7 +76,26 @@ public class Member extends BaseEntity {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private Trainers trainer;
 
-    @OneToOne(mappedBy = "member" ,cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private AuctionRequest auctionRequest;
+
+
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void updateAddress(String address) {
+        this.address = address;
+    }
+
+    public void updateLocalName(String localName) {
+        this.localName = localName;
+    }
+
 
 }

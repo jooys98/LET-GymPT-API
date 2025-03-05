@@ -21,6 +21,7 @@ public class CreateGymDTO {
     private String gymName;
     private String address;
     private String local;
+    private Long localId;
     private String description;
     private Long dailyPrice;
     private Long monthlyPrice;

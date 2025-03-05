@@ -13,20 +13,19 @@ import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
 import com.example.gympt.domain.reverseAuction.repository.AuctionRequestRepository;
 import com.example.gympt.domain.reverseAuction.repository.AuctionTrainerBidRepository;
 import com.example.gympt.domain.reverseAuction.repository.MatchedAuctionRepository;
-import com.example.gympt.exception.CustomAlreadyExists;
 import com.example.gympt.exception.CustomDoesntExist;
 import com.example.gympt.exception.CustomNotAccessHandler;
 import com.example.gympt.exception.NoDuplicationException;
+import com.example.gympt.notification.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.message.SimpleMessage;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+
+import static com.example.gympt.domain.reverseAuction.enums.AuctionStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     private final LocalRepository localRepository;
     private final AuctionTrainerBidRepository auctionTrainerBidRepository;
     private final MatchedAuctionRepository matchedAuctionRepository;
-    private final SimpMessagingTemplate messagingTemplate; //웹소켓 전송용
+    private final NotificationService notificationService;
 
 
     //유저의 역경매 신청 로직
@@ -50,20 +49,20 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
             throw new IllegalArgumentException("역경매 신청은 일반 회원만 가능합니다 ");
         }
 
-        Boolean exits = auctionRequestRepository.existsByMember_Email(member.getEmail());
+        AuctionRequest action = getAuctionRequest(member.getEmail());
 
-        if (exits) {
+        if (action.getStatus().contains(OPEN)) { //신청했지만 아무도 입찰 하지 않은 상태
             throw new NoDuplicationException("역경매 줄복 신청은 불가능 합니다");
-            //TODO: custom exception handler로 바꾸기
+        } else if (action.getStatus().contains(IN_PROGRESS)) { // 트레이너가 입찰 한 상태
+            throw new NoDuplicationException("이미 진행중인 역경매 내역이 있습니다");
         } else {
 
-            Local local = localRepository.findByLocalName(auctionRequestDTO.getLocalName()).orElseThrow();
+            Local local = getLocal(auctionRequestDTO.getLocalName());
             //사용자는 자신의 사는 지역이 아니더라도 원하는 지역에서 수업 신청이 가능하므로 동네 조회 비교 로직은 생략
 
             AuctionRequest auctionRequest = AuctionRequest.builder()
                     .member(member)
                     .height(auctionRequestDTO.getHeight())
-                    .gender(auctionRequestDTO.getGender())
                     .weight(auctionRequestDTO.getWeight())
                     .title(auctionRequestDTO.getTitle())
                     .age(auctionRequestDTO.getAge())
@@ -71,9 +70,12 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
                     .medicalConditions(auctionRequestDTO.getMedicalConditions())
                     .local(local)
                     .build();
-            auctionRequest.setStatus(Collections.singletonList(AuctionStatus.OPEN));
+            auctionRequest.addGender(auctionRequestDTO.getGender());
+            auctionRequest.changeStatus(OPEN);
 
             auctionRequestRepository.save(auctionRequest);
+            //해당 지역 트레이너 들에게 알림 전송
+            notificationService.sendOpenActionToTrainer(local.getId());
         }
     }
 
@@ -84,16 +86,16 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     public FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail) {
         Member member = getMember(email);
 
-        AuctionRequest auctionRequest = getAuctionRequest(email);
+        AuctionRequest auctionRequest = getAuctionRequestInProgress(email);
 
-        if (!auctionRequest.getStatus().contains(AuctionStatus.IN_PROGRESS)) {
-            throw new CustomDoesntExist("입찰한 트레이너가 없습니다 "); // 트래이너 입찰 시 IN_PROGRESS 상태 변경
+        if (auctionRequest.getStatus().contains(OPEN)) {
+            throw new CustomDoesntExist("입찰하신 트레이너가 없습니다 "); // 트래이너 입찰 시 IN_PROGRESS 상태 변경
         } else if (!auctionRequest.getMember().equals(member)) {
             throw new CustomNotAccessHandler("경매 신청자 본인확인이 안되어 권한이 없습니다 ");
         }
 
 
-        auctionRequest.setStatus(Collections.singletonList(AuctionStatus.COMPLETED)); // 최종 선택시 상태 변경
+        auctionRequest.changeStatus(COMPLETED); // 최종 선택시 상태 변경
         auctionRequestRepository.save(auctionRequest);
 
         AuctionTrainerBid auctionTrainerBid = getAuctionTrainer(trainerEmail);
@@ -108,24 +110,29 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
         //최종 매칭 테이블에 저장
         auctionTrainerBidRepository.deleteById(auctionTrainerBid.getId());
         //역경매 트레이너 참가 리스트에서 삭제
-//        auctionRequestRepository.deleteById(auctionRequest.getId());
+
 
 //사용자에게 보낼 트레이너 정보들
         FinalSelectAuctionDTO finalSelectAuctionDTO = convertToSelectDTO(auctionRequest, matchedAuction);
-
+        // 참여했던 트레이너에게 알림 전송
+        notificationService.endedAuction(auctionRequest.getId());
+        //낙찰 된 트레이너 에게 알림 전송
+        notificationService.sendFinalSelected(matchedAuction.getAuctionTrainerBid().getTrainer().getMember().getEmail());
         return finalSelectAuctionDTO;
     }
 
-    //유저에게만 보여지는 정보
-    @Transactional
+    //TODO : 역경매 정보 회원 권한에 따라 분기처리 하는 방식으로 수정 하기
+
+    @Transactional(readOnly = true)
     @Override
     public List<AuctionResponseDTO> getAuctionList() {
-        List<AuctionResponseDTO> auctionResponseDTOS = auctionRequestRepository.findAll().stream()
-                .map(this::AuctionEntityToDTO).toList();
-        return auctionResponseDTOS;
+        List<AuctionRequest> auctionRequests = auctionRequestRepository.findAll();
+        return auctionRequests.stream().map(this::AuctionEntityToDTO).toList();
+
     }
 
     //트레이너에게만 보여지는 정보
+    @Transactional(readOnly = true)
     @Override
     public List<AuctionResponseToTrainerDTO> getAuctionListToTrainers() {
         List<AuctionResponseToTrainerDTO> auctionResponseDTOS = auctionRequestRepository.findAll().stream()
@@ -135,44 +142,106 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
 
     @Override
     public AuctionTrainerNotificationDTO getSelectedMessage(String email) {
-        MatchedAuction matchedAuction =getAuction(email);
+        MatchedAuction matchedAuction = getAuction(email);
         return convertToNotificationDTO(matchedAuction);
     }
 
-    //유저가 보는 역경매 상세정보
+    //유저 , 트레이너 권한 분기처리  역경매 상세정보
+    @Transactional(readOnly = true)
     @Override
-    public AuctionResponseDTO getAuction(Long auctionRequestId) {
-        AuctionResponseDTO auctionResponseDTO = auctionRequestRepository.findById(auctionRequestId)
-                .map(this::AuctionEntityToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보 입니다"));
-        return auctionResponseDTO;
+    public Object getAuction(Long auctionRequestId, String email) {
+        Member member = getMember(email);
+        if (member.getMemberRoleList().contains(MemberRole.USER)) {
+            AuctionResponseDTO auctionResponseDTO = auctionRequestRepository.findById(auctionRequestId)
+                    .map(this::AuctionEntityToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보 입니다"));
+            return auctionResponseDTO;
+        } else {
+            AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = auctionRequestRepository.findById(auctionRequestId)
+                    .map(this::AuctionEntityForTrainersToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보입니다"));
+            return auctionResponseToTrainerDTO;
+        }
     }
 
     //트레이너만 볼수 있는 역경매 상세정보
+//    @Override
+//    public AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId) {
+//        AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = auctionRequestRepository.findById(auctionId)
+//                .map(this::AuctionEntityForTrainersToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보입니다"));
+//        return auctionResponseToTrainerDTO;
+//    }
+    @Transactional(readOnly = true)
     @Override
-    public AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId) {
-        AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = auctionRequestRepository.findById(auctionId)
-                .map(this::AuctionEntityForTrainersToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보입니다"));
-        return auctionResponseToTrainerDTO;
-    }
-
-
-    private Member getMember(String email) {
+    public Member getMember(String email) {
         return memberRepository.getWithRoles(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다"));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<AuctionResponseDTO> getAuctionListInLocal(Long localId) {
+        List<Local> LocalIds = localRepository.findByLocalId(localId);
+        List<AuctionResponseDTO> auctionResponseDTOS = auctionRequestRepository.findByAuctionInLocal(LocalIds)
+                .stream().map(auction -> this.AuctionEntityToDTO(auction)).toList();
+        return auctionResponseDTOS;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<AuctionResponseToTrainerDTO> getAuctionListToTrainersInLocal(Long localId) {
+        List<Local> LocalIds = localRepository.findByLocalId(localId);
+        List<AuctionResponseToTrainerDTO> auctionResponseDTOS = auctionRequestRepository.findByAuctionInLocal(LocalIds)
+                .stream().map(auction -> this.AuctionEntityForTrainersToDTO(auction)).toList();
+        return auctionResponseDTOS;
+    }
+
+    @Override
+    public Long cancelAuction(String email, Long auctionRequestId) {
+        Member member = getMember(email);
+        AuctionRequest auctionRequest = getAuctionRequestById(auctionRequestId);
+        List<AuctionTrainerBid> auctionTrainer = getAuctionTrainerBid(email);
+        if (!member.getEmail().equals(auctionRequest.getMember().getEmail())) {
+            throw new CustomNotAccessHandler("삭제 권한이 없습니다");
+        }
+        auctionRequestRepository.delete(auctionRequest);
+
+        List<Long> idList = auctionTrainer.stream()
+                .map(AuctionTrainerBid::getId)
+                .toList();
+        auctionTrainerBidRepository.deleteByIdList(idList);
+        return auctionRequest.getId();
+    }
+//역경매 아이디로 조회
+    private AuctionRequest getAuctionRequestById(Long auctionRequestId) {
+        return auctionRequestRepository.findById(auctionRequestId).orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
+    }
+
+//이메일로 역경매 조회
     private AuctionRequest getAuctionRequest(String email) {
         return auctionRequestRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
     }
 
+//이메일에 해당하는 진행중인 역경매 진행
+    private AuctionRequest getAuctionRequestInProgress(String email) {
+        return auctionRequestRepository.findByProgressEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
+    }
+//역경매에 참가한 트레이너 조회
     private AuctionTrainerBid getAuctionTrainer(String email) {
         return auctionTrainerBidRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 입니다"));
-
     }
 
+//이메일에 해당하는 역경매에 참가한 트레이너 조회
+    private List<AuctionTrainerBid> getAuctionTrainerBid(String email) {
+        return auctionTrainerBidRepository.findByMemberEmail(email);
+    }
+
+//해당 트레이너가 낙찰된 역경매 결과 조회
     private MatchedAuction getAuction(String email) {
         return matchedAuctionRepository.findByTrainerEmail(email).orElseThrow(() -> new EntityNotFoundException("매칭된 내역이 없습니다"));
     }
 
+    private Local getLocal(String localName) {
+        return localRepository.findByLocalName(localName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다" + localName));
+    }
 }

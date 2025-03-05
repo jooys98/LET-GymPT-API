@@ -1,7 +1,5 @@
 package com.example.gympt.domain.category.dto;
 
-import com.example.gympt.domain.gym.dto.GymResponseDTO;
-import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.enums.Popular;
 import lombok.*;
 

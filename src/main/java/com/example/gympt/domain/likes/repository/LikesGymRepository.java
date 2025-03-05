@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface LikesGymRepository extends JpaRepository<LikesGym, Long> {
 
-    @Query("select g.gym from LikesGym g where g.member.email = :email")
+    @Query("select g from LikesGym g where g.member.email = :email")
     List<LikesGym> findLikesGymsByMemberEmail(@Param("email") String email);
 
     Boolean existsByMember_EmailAndGym_Id(String email, Long gymId);
@@ -21,5 +21,11 @@ public interface LikesGymRepository extends JpaRepository<LikesGym, Long> {
     @Modifying
     @Query("delete from LikesGym g where g.member.email = :email and g.gym.id = :gym_id")
     void deleteEmailGymId(@Param("email") String email, @Param("gym_id") Long gymId);
+
+
+
+    @Query("SELECT COUNT(p) > 0 FROM LikesGym p WHERE p.member.email = :email AND p.gym.id = :gymId")
+    boolean likes(@Param("email") String email, @Param("gymId") Long gymId);
+
 
 }

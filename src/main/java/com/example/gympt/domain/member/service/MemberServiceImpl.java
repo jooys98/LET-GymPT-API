@@ -1,6 +1,8 @@
 package com.example.gympt.domain.member.service;
 
 import com.example.gympt.domain.member.dto.JoinRequestDTO;
+import com.example.gympt.domain.member.dto.MemberRequestDTO;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
@@ -8,6 +10,7 @@ import com.example.gympt.props.JWTProps;
 import com.example.gympt.security.CustomUserDetailService;
 import com.example.gympt.security.MemberAuthDTO;
 import com.example.gympt.util.JWTUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +33,6 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Transactional
-    //이게 붙으면 우선순위가 높음
     @Override
     public void join(JoinRequestDTO request) {
 
@@ -45,22 +47,20 @@ public class MemberServiceImpl implements MemberService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .gender(request.getGender())
                 .address(request.getAddress())
                 .localName(request.getLocalName())
                 .birthday(request.getBirthday())
                 .phone(request.getPhone())
                 .build();
+        member.addGender(request.getGender());
 
         String role = request.getRole().toString();
         if (role.equals("TRAINER")) {
             member.addRole(MemberRole.PREPARATION_TRAINER);
         } else if (role.equals("USER")) {
             member.addRole(MemberRole.USER);
-        }else if (role.equals("ADMIN")) {
-            member.addRole(MemberRole.ADMIN);
         }
-
+//TODO : 타입 불일치 주의
         log.info("member: {}", member);
         //권한 업데이트
         memberRepository.save(member);
@@ -74,7 +74,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("memberAuthDTO: {}", memberAuthDTO);
 
         if (!passwordEncoder.matches(password, memberAuthDTO.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다 바보야");
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다");
         }
         Map<String, Object> claims = memberAuthDTO.getClaims();
         String accessToken = jwtUtil.generateToken(claims, jwtProps.getAccessTokenExpirationPeriod());
@@ -97,7 +97,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Map<String, Object> getSosialClaim(MemberAuthDTO memberAuthDTO) {
         //앱소셜로그인을 위한 토큰 발급
-      Map<String , Object> claim = memberAuthDTO.getClaims();
+        Map<String, Object> claim = memberAuthDTO.getClaims();
 
         String email = claim.get("email").toString();
         String userRole = claim.get("role").toString();
@@ -110,4 +110,27 @@ public class MemberServiceImpl implements MemberService {
         return claim;
 
     }
+
+    @Override
+    public MemberResponseDTO updateMember(String email, MemberRequestDTO memberRequestDTO) {
+        Member member = getMember(email);
+        member.updateName(memberRequestDTO.getName());
+        member.updateAddress(memberRequestDTO.getAddress());
+        member.updateLocalName(memberRequestDTO.getLocalName());
+        member.updatePhone(memberRequestDTO.getPhone());
+        memberRepository.save(member);
+        return this.entityToDTO(member);
+    }
+
+    @Override
+    public MemberResponseDTO getMemberDetail(String email) {
+        Member member = getMember(email);
+        return this.entityToDTO(member);
+    }
+
+    private Member getMember(String email) {
+        return memberRepository.getWithRoles(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다"));
+    }
+
+
 }

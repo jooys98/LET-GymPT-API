@@ -12,7 +12,7 @@ public interface LikesService {
 
     List<LikesGymDTO> getLikesGymList(String email);
 
-    Boolean toggleTrainerLikes(String email, String trainerEmail);
+    Boolean toggleTrainerLikes(String email, Long trainerId);
 
     List<LikesTrainersDTO> getLikesTrainerList(String email);
 

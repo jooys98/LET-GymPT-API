@@ -8,8 +8,10 @@ import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.service.TrainerService;
 import com.example.gympt.dto.PageRequestDTO;
 import com.example.gympt.dto.PageResponseDTO;
+import com.example.gympt.security.MemberAuthDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,39 +24,41 @@ public class GymController {
     private final GymService gymService;
     private final TrainerService trainerService;
 //인증 처리가 필요없는 gym - trainer 조회 관련 로직은 전부 이곳에서 처리!
-//    @GetMapping("/list")
-//    public ResponseEntity<List<GymResponseDTO>> SearchGyms(GymSearchRequestDTO gymSearchRequestDTO) {
-//        List<GymResponseDTO> gymResponseDTOS = gymService.getGyms(gymSearchRequestDTO);
-//        return ResponseEntity.ok(gymResponseDTOS);
-//    }
+
 
     @GetMapping("/list") //@ModelAttribute : 클라이언트가 요청한 파라미터 값만 전달하여 결과를 보여줌 , dto 요소에 나머지 값들은 null 처리
     //헬스장 목록 다중조건 조회 + 페이지네이션
-    public ResponseEntity<PageResponseDTO<GymResponseDTO>> SearchGyms(@ModelAttribute GymSearchRequestDTO gymSearchRequestDTO,
-                                                                      @ModelAttribute PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<GymResponseDTO> gymResponseDTOS = gymService.getGyms(gymSearchRequestDTO, pageRequestDTO);
+    public ResponseEntity<PageResponseDTO<GymResponseDTO>> gymList(@ModelAttribute GymSearchRequestDTO gymSearchRequestDTO,
+                                                                      @ModelAttribute PageRequestDTO pageRequestDTO, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        String email = (memberDTO != null) ? memberDTO.getEmail() : null;
+        PageResponseDTO<GymResponseDTO> gymResponseDTOS = gymService.getGyms(gymSearchRequestDTO, pageRequestDTO, email);
         return ResponseEntity.ok(gymResponseDTOS);
     }
 
-    @GetMapping("/trainer/list")
+    @GetMapping("/trainer-list")
     //트레이너 목록 다중조건 조회 + 페이지 네이션
-    public ResponseEntity<PageResponseDTO<TrainerResponseDTO>> listTrainers(@ModelAttribute TrainerRequestDTO trainerRequestDTO,
-                                                                            @ModelAttribute PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainers(trainerRequestDTO, pageRequestDTO);
+    public ResponseEntity<PageResponseDTO<TrainerResponseDTO>>trainerList(@ModelAttribute TrainerRequestDTO trainerRequestDTO,
+                                                                            @ModelAttribute PageRequestDTO pageRequestDTO,
+                                                                            @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        String email = (memberDTO != null) ? memberDTO.getEmail() : null;
+        PageResponseDTO<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainers(trainerRequestDTO, pageRequestDTO, email);
+
         return ResponseEntity.ok(trainerResponseDTOS);
     }
 
-    @GetMapping("detail/{id}")
+    @GetMapping("/{id}")
     //헬스장 상세보기
-    public ResponseEntity<GymResponseDTO> detailGym(@PathVariable Long id) {
-        GymResponseDTO gymResponseDTO =  gymService.getGymById(id);
+    public ResponseEntity<GymResponseDTO> detailGym(@PathVariable Long id, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        String email = (memberDTO != null) ? memberDTO.getEmail() : null;
+        GymResponseDTO gymResponseDTO = gymService.getGymById(id,email);
         return ResponseEntity.ok(gymResponseDTO);
     }
 
-    @GetMapping("trainer/detail/{id}")
+    @GetMapping("trainer/{id}")
     //트레이너 상세보기
-private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id) {
-        TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id);
+    private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id , @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        String email = (memberDTO != null) ? memberDTO.getEmail() : null;
+        TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id,email);
         return ResponseEntity.ok(trainerResponseDTO);
     }
 

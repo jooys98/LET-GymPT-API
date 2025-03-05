@@ -37,17 +37,20 @@ public class LocalRepositoryCustomImpl implements LocalRepositoryCustom {
                 .where(local.parent.id.eq(localId))
                 .fetch();
     }
-
+ //관악구에 해당하는 헬스장 또는 서울대입구에 있는 헬스장 찾기
     @Override
     public List<Gym> findGymByLocalId(Long localId) {
         return queryFactory
                 .selectFrom(gym)
-                .distinct()
                 .join(gym.localGymBridgeList, localGymBridge)
                 .join(localGymBridge.local, local)
                 .where(eqSubLocalId(localId).or(eqLocalId(localId)))
+                .distinct()
                 .fetch();
     }
+
+
+
 
 
     //파라미터로 받은 카테고리 아이디가 child 카테고리 일때 (최하위 카테고리 아이디로 gym 조회)

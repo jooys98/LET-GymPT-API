@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface CommentRepository extends JpaRepository<Comment, Long>{
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("select c from Comment c where c.community.id =:id")
-    List<Comment> findByCommunityId(@Param("id") Long id);
+    @Query("select c from Comment c where c.community.id= :id order by c.community.createdAt desc")
+    List<Comment> findByCommunityId(Long id);
 }

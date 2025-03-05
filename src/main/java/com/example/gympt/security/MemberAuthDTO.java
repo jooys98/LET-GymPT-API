@@ -8,7 +8,9 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Getter
+@Setter
+@ToString
 public class MemberAuthDTO extends User {
  // 유저 인증 객체
 

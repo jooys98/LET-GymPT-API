@@ -1,12 +1,13 @@
 package com.example.gympt.domain.member.controller;
 
 
-import com.example.gympt.domain.member.dto.JoinRequestDTO;
-import com.example.gympt.domain.member.dto.LoginRequestDTO;
-import com.example.gympt.domain.member.dto.LoginResponseDTO;
+import com.example.gympt.domain.member.dto.*;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.service.MemberService;
+import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
+import com.example.gympt.domain.trainer.service.TrainerService;
 import com.example.gympt.props.JWTProps;
+import com.example.gympt.security.MemberAuthDTO;
 import com.example.gympt.util.CookieUtil;
 import com.example.gympt.util.JWTUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,14 +28,13 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JWTUtil jwtUtil;
     private final JWTProps jwtProps;
-
+    private final TrainerService trainerService;
 
     @GetMapping("/check/{email}")
     public ResponseEntity<String> checkEmail(@PathVariable String email) {
         Boolean isEmailDuplication = memberService.checkedEmail(email);
-        return ResponseEntity.ok(isEmailDuplication ? "이미 존재하는 이메일입니다":"사용가능한 이메일 입니다");
+        return ResponseEntity.ok(isEmailDuplication ? "이미 존재하는 이메일입니다" : "사용가능한 이메일 입니다");
 
     }
 
@@ -46,15 +47,13 @@ public class MemberController {
     }
 
 
-
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDTO, HttpServletResponse response) {
         log.info("login: {}", loginDTO);
         Map<String, Object> loginClaims = memberService.login(loginDTO.getEmail(), loginDTO.getPassword());
 
         // 로그인 성공시 accessToken, refreshToken 생성
-        String refreshToken = loginClaims.get("refresh_token").toString();
+        String refreshToken = loginClaims.get("refreshToken").toString();
         String accessToken = loginClaims.get("accessToken").toString();
         // TODO: user 로그인시, refreshToken token 테이블에 저장
 //        tokenService.saveRefreshToken(accessToken, refreshToken, memberService.getMember(loginDTO.getEmail()));
@@ -84,5 +83,26 @@ public class MemberController {
 
         return ResponseEntity.ok("logout success!");
     }
+
+    @PostMapping("/apply")
+    //트레이너 신청!!!
+    public ResponseEntity<String> trainerApply(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        trainerService.saveTrainer(memberAuthDTO.getUsername(), trainerSaveRequestDTO);
+        return ResponseEntity.ok().body("트레이너 신청이 완료 되었습니댜!");
+    }
+
+    //TODO :/트레이너 정보  수정
+//회원정보 수정
+    @PutMapping
+    public ResponseEntity<MemberResponseDTO> modifyMember(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, MemberRequestDTO memberRequestDTO) {
+        return ResponseEntity.ok(memberService.updateMember(memberAuthDTO.getEmail(), memberRequestDTO));
+    }
+
+    //자신의 회원 정보 확인
+    @GetMapping
+    public ResponseEntity<MemberResponseDTO> getMembers(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO) {
+        return ResponseEntity.ok(memberService.getMemberDetail(memberAuthDTO.getEmail()));
+    }
+
 
 }

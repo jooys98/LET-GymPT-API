@@ -1,5 +1,6 @@
 package com.example.gympt.domain.review.repository;
 
+import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.review.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
    @Query("select r from Review r where r.gym.id =:gymId")
     List<Review> findByGymId(@Param("gymId") Long gymId);
+
+    void deleteByGym(Gym gym);
 }
