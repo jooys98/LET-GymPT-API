@@ -36,10 +36,10 @@ public interface TrainerService {
                 .name(trainers.getMember().getName())
                 .gender(trainers.getGender().toString())
                 .introduction(trainers.getIntroduction())
-                .gymName(trainers.getGym().toString())
-                .local(trainers.getLocal().toString())
+                .gymName(trainers.getGym().getGymName())
+                .local(trainers.getLocal().getLocalName())
                 .likesCount(trainers.getLikesCount())
-                .uploadFileNames(imageNames)
+                .imageList(imageNames)
                 .likes(likes)
                 .build();
         return responseDTO;

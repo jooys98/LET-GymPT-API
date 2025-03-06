@@ -4,8 +4,10 @@ import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.entity.GymImage;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.trainer.enums.Gender;
+import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.apache.catalina.session.FileStore;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "trainer_form")
-public class TrainerSaveForm {
+public class TrainerSaveForm extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

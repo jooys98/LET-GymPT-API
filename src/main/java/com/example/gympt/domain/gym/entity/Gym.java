@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"imageList"})
+@ToString(exclude = {"imageList" , "trainers"})
 @Table(name = "gym_tbl")
 public class Gym {
     @Id

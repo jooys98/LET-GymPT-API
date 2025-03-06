@@ -18,6 +18,7 @@ public class ReviewResponseDTO {
     private String name;//작성자
     private LocalDateTime createdAt;
     private String reviewImage;
+    private Long trainerId;
     private String trainerName;
     private Double rating;
 }

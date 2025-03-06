@@ -67,47 +67,43 @@ public class AdminServiceImpl implements AdminService {
         trainer.getMemberRoleList().remove(MemberRole.PREPARATION_TRAINER);
         trainer.getMemberRoleList().add(MemberRole.TRAINER);
         memberRepository.save(trainer); // 권한 바꿔주기
-        saveTrainer(trainerEmail);
+        this.saveTrainer(trainerEmail);
         notificationService.sendTrainerApproval(trainerEmail);
     }
 
-
+    @Transactional
     public void saveTrainer(String trainerEmail) {
-        TrainerSaveForm trainerSaveForm = getPreparationTrainer(trainerEmail);
-
-        trainerSaveFormRepository.delete(trainerSaveForm);
-
-        Gym gym = getGym(trainerSaveForm.getGym().getId());
-
-        List<TrainerSaveImage> images = trainerSaveForm.getImageList();
-        Trainers trainer = Trainers.builder()
-                .trainerName(trainerSaveForm.getName())
-                .age(trainerSaveForm.getAge())
-                .introduction(trainerSaveForm.getIntroduction())
-                .member(trainerSaveForm.getMember())
-                .gym(gym)
-                .local(trainerSaveForm.getGym().getLocal())
-                .build();
-        trainer.updateGender(trainerSaveForm.getGender());
-
         try {
-            if (images != null && !images.isEmpty()) {
-//TrainerSaveForm 이미지를 trainer 엔티티에도 저장
-                List<String> imageNames = images.stream().map(TrainerSaveImage::getTrainerSaveImageName).toList();
-                //트레이너 신청 이미지 리스트에서 이미지 이름만 가져와서 문자열 리스트로 만듦
-                List<String> savedImageList = customFileUtil.uploadImagePathS3Files(imageNames);
-                //이미지 이름 문자열 리스트를 s3 에 업로드 함
+            TrainerSaveForm trainerSaveForm = getPreparationTrainer(trainerEmail);
+            Gym gym = getGym(trainerSaveForm.getGym().getId());
 
-                for (String saveImageName : savedImageList) {
-                    //savedImageList 에 있는 문자열들을 하나씩 꺼내서
-                    trainer.addImageString(saveImageName);
-                    //트레이너 테이블에 저장
-                }
+            List<TrainerSaveImage> images = trainerSaveForm.getImageList();
+            List<String> imageList = images.stream().map(TrainerSaveImage::getTrainerSaveImageName).toList();
+
+            Trainers trainer = Trainers.builder()
+                    .trainerName(trainerSaveForm.getName())
+                    .age(trainerSaveForm.getAge())
+                    .introduction(trainerSaveForm.getIntroduction())
+                    .member(trainerSaveForm.getMember())
+                    .gym(gym)
+                    .local(trainerSaveForm.getGym().getLocal())
+                    .build();
+            trainer.addGender(trainerSaveForm.getGender());
+
+            for (String imageName : imageList) {
+                trainer.addImageString(imageName);
             }
+
+
+            log.info("저장될 트레이너 email", trainer.getTrainerName());
+
             trainerRepository.save(trainer);
+            log.info("저장된 트레이너 email", trainer.getMember().getEmail());
+            trainerSaveFormRepository.delete(trainerSaveForm);
         } catch (Exception e) {
-            e.getMessage();
+            throw new RuntimeException("트레이너 저장 중  오류 발생 " + e.getMessage(), e);
         }
+
     }
 
 

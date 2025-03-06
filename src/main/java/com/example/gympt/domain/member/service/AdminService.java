@@ -30,7 +30,8 @@ public interface AdminService {
                 .introduction(trainerSaveForm.getIntroduction())
                 .gender(trainerSaveForm.getGender().toString())
                 .gymName(trainerSaveForm.getGym().getGymName())
-                .imagePathList(imageNames)
+                .imageList(imageNames)
+                .createdAt(trainerSaveForm.getCreatedAt())
                 .build();
     }
 

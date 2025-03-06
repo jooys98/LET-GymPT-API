@@ -25,7 +25,7 @@ public class TrainerSaveFormDTO {
     private String local;
     private String gymName;
     private String gender;
-    private List<String> imagePathList;
+    private List<String> imageList;
 
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

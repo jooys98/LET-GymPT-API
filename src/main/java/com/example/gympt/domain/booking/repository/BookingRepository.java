@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+    //트레이너가 null 일때를 대비한 쿼리
     @Query("SELECT B FROM Booking B WHERE B.member.email=:email AND B.gym=:gym AND ((:trainers IS NULL) OR (B.trainers=:trainers))")
     Optional<Booking> findBooking(String email, @Nullable Trainers trainers, Gym gym);
 

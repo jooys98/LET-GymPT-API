@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface TrainerRepository extends JpaRepository<Trainers, Long>, TrainerRepositoryCustom {
 
 
-    @EntityGraph(attributePaths = {"memberRoleList"})
     @Query("select t from Trainers t join t.member m where m.email = :email")
     Optional<Trainers> findByTrainerEmail(@Param("email") String email);
 
@@ -23,4 +22,6 @@ public interface TrainerRepository extends JpaRepository<Trainers, Long>, Traine
 
     @Query("select t from Trainers t join t.gym g where g.id =:id")
     List<Trainers> findByGymId(@Param(("id")) Long id);
+
+
 }

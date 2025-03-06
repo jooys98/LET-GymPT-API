@@ -86,8 +86,8 @@ public class MemberController {
 
     @PostMapping("/apply")
     //트레이너 신청!!!
-    public ResponseEntity<String> trainerApply(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody TrainerSaveRequestDTO trainerSaveRequestDTO) {
-        trainerService.saveTrainer(memberAuthDTO.getUsername(), trainerSaveRequestDTO);
+    public ResponseEntity<String> trainerApply(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        trainerService.saveTrainer(memberAuthDTO.getEmail(), trainerSaveRequestDTO);
         return ResponseEntity.ok().body("트레이너 신청이 완료 되었습니댜!");
     }
 

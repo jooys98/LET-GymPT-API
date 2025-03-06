@@ -29,7 +29,8 @@ public class GymController {
     @GetMapping("/list") //@ModelAttribute : 클라이언트가 요청한 파라미터 값만 전달하여 결과를 보여줌 , dto 요소에 나머지 값들은 null 처리
     //헬스장 목록 다중조건 조회 + 페이지네이션
     public ResponseEntity<PageResponseDTO<GymResponseDTO>> gymList(@ModelAttribute GymSearchRequestDTO gymSearchRequestDTO,
-                                                                      @ModelAttribute PageRequestDTO pageRequestDTO, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+                                                                   @ModelAttribute PageRequestDTO pageRequestDTO,
+                                                                   @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
         PageResponseDTO<GymResponseDTO> gymResponseDTOS = gymService.getGyms(gymSearchRequestDTO, pageRequestDTO, email);
         return ResponseEntity.ok(gymResponseDTOS);
@@ -37,9 +38,9 @@ public class GymController {
 
     @GetMapping("/trainer-list")
     //트레이너 목록 다중조건 조회 + 페이지 네이션
-    public ResponseEntity<PageResponseDTO<TrainerResponseDTO>>trainerList(@ModelAttribute TrainerRequestDTO trainerRequestDTO,
-                                                                            @ModelAttribute PageRequestDTO pageRequestDTO,
-                                                                            @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+    public ResponseEntity<PageResponseDTO<TrainerResponseDTO>> trainerList(@ModelAttribute TrainerRequestDTO trainerRequestDTO,
+                                                                           @ModelAttribute PageRequestDTO pageRequestDTO,
+                                                                           @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
         PageResponseDTO<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainers(trainerRequestDTO, pageRequestDTO, email);
 
@@ -50,15 +51,15 @@ public class GymController {
     //헬스장 상세보기
     public ResponseEntity<GymResponseDTO> detailGym(@PathVariable Long id, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
-        GymResponseDTO gymResponseDTO = gymService.getGymById(id,email);
+        GymResponseDTO gymResponseDTO = gymService.getGymById(id, email);
         return ResponseEntity.ok(gymResponseDTO);
     }
 
     @GetMapping("trainer/{id}")
     //트레이너 상세보기
-    private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id , @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+    private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
-        TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id,email);
+        TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id, email);
         return ResponseEntity.ok(trainerResponseDTO);
     }
 

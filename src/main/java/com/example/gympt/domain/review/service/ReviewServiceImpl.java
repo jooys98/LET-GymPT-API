@@ -38,13 +38,20 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookingRepository bookingRepository;
 
     @Override
-    public void createReview(String username, ReviewRequestDTO reviewRequestDTO) {
-        Member member = this.getMember(username);
+    public void createReview(String email, ReviewRequestDTO reviewRequestDTO) {
+        Member member = getMember(email);
         Gym gym = getGym(reviewRequestDTO.getGymId());
-        Trainers trainers = getTrainer(reviewRequestDTO.getTrainerName());
+
+        Trainers trainers = null;
+        if (reviewRequestDTO.getTrainerName() != null && !reviewRequestDTO.getTrainerName().isEmpty()) {
+            trainers = getTrainer(reviewRequestDTO.getTrainerName());
+        }
 
         Booking booking = bookingRepository.findBooking(member.getEmail(), trainers, gym).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
-        if (!booking.getGym().equals(gym) && !booking.getTrainers().equals(trainers) && booking.getMember().equals(member)) {
+
+        if (booking.getGym() == null || !booking.getGym().equals(gym) ||
+                (trainers != null && booking.getTrainers() != null && !booking.getTrainers().equals(trainers)) ||
+                booking.getMember() == null || !booking.getMember().equals(member)) {
             throw new CustomDoesntExist("예약 내역이 없어 리뷰 작성이 불가능 합니다");
         }
         // 만약 리뷰 이미지가 있으면 s3에 업로드
@@ -52,19 +59,16 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewRequestDTO.getReviewImage() != null && !reviewRequestDTO.getReviewImage().isEmpty()) {
             reviewImage = customFileUtil.uploadS3File(reviewRequestDTO.getReviewImage());
         }
-        Trainers trainerName = null;
-        if (reviewRequestDTO.getTrainerName() != null && !reviewRequestDTO.getTrainerName().isEmpty()) {
-            trainerName = getTrainer(reviewRequestDTO.getTrainerName());
-        }
-        Review newReview = dtoToEntity(reviewRequestDTO, member, gym, reviewImage, trainerName);
+
+        Review newReview = dtoToEntity(reviewRequestDTO, member, gym, reviewImage, trainers);
         reviewRepository.save(newReview);
 
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ReviewResponseDTO> getMyReviewList(String username) {
-        return reviewRepository.findReviewsByEmail(username).stream().map(this::EntityToDTO).toList();
+    public List<ReviewResponseDTO> getMyReviewList(String email) {
+        return reviewRepository.findReviewsByEmail(email).stream().map(this::EntityToDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -74,8 +78,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Long deleteReview(String username, Long reviewId) {
-        Member member = this.getMember(username);
+    public Long deleteReview(String email, Long reviewId) {
+        Member member = this.getMember(email);
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 review 입니다"));
         if (!review.getMember().getEmail().equals(member.getEmail())) {
             throw new RuntimeException("리뷰 작성자 본인만 삭제 가능합니다");
@@ -96,12 +100,12 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     private Trainers getTrainer(String trainerName) {
-        return trainerRepository.findByTrainerEmail(trainerName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + trainerName));
+        return trainerRepository.findByName(trainerName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + trainerName));
     }
 
 
     private Gym getGym(Long gymId) {
-        return gymRepository.findByGymId(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));
+        return gymRepository.findById(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));
     }
 
     private Member getMember(String email) {

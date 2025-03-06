@@ -24,10 +24,7 @@ public class TrainerResponseDTO {
     private String local;
     private int likesCount;
     private boolean likes;
-
-
-    @Builder.Default
-    private List<String> uploadFileNames = new ArrayList<>();
+    private List<String> imageList;
 
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

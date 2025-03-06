@@ -23,7 +23,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = "imageList")
+@ToString(exclude = {"imageList" , "gym" , "member" , "reviews" , "booking" , "likes"})
 @Table(name = "trainers_tbl")
 public class Trainers {
     @Id
@@ -39,8 +39,6 @@ public class Trainers {
     @JoinColumn(name = "local_id")
     private Local local;
 
-    @Enumerated(EnumType.STRING)
-    @ColumnDefault("'M'")
     private Gender gender;
 
 
@@ -88,8 +86,8 @@ public class Trainers {
     }
 
 
-    public void addGender(String gender) {
-        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    public void addGender(Gender gender) {
+        this.gender = gender;
     }
 
     public void updateTrainerName(String trainerName) {
@@ -100,9 +98,6 @@ public class Trainers {
         this.age = age;
     }
 
-    public void updateGender(Gender gender) {
-        this.gender = gender;
-    }
 
     public void updateLocal(Local local) {
         this.local = local;

@@ -2,6 +2,7 @@ package com.example.gympt.domain.member.controller;
 
 import com.example.gympt.domain.category.dto.LocalDTO;
 import com.example.gympt.domain.member.dto.CreateGymDTO;
+import com.example.gympt.domain.member.dto.RoleChangeRequest;
 import com.example.gympt.domain.member.service.AdminService;
 import com.example.gympt.domain.trainer.dto.TrainerSaveFormDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,9 @@ public class AdminController {
 
     @PostMapping("/changed-role")
     public ResponseEntity<String> changedRole(
-            @RequestParam String trainerEmail) {
+            @RequestBody RoleChangeRequest roleChangeRequest) {
         //관리자 권한으로 트레이너 권한 변경과 동시에 트레이너 테이블에 추가
-        adminService.approveTrainer(trainerEmail);
+        adminService.approveTrainer(roleChangeRequest.getEmail());
         return ResponseEntity.ok("트레이너 데뷔를 축하드립니다");
     }
 

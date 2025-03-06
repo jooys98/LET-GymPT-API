@@ -76,6 +76,14 @@ app:
         bucket-name: ${AWS_S3_BUCKET_NAME}
         region: ${AWS_REGION}
 
+  ai:
+    api:
+     key: ${OPENAI_API_KEY}
+
+
+
+
+
 org:
   file:
     upload:
