@@ -38,19 +38,27 @@ public class TrainerRepositoryCustomImpl implements TrainerRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(trainers)
                 .where(
+                        filterByLocalId(trainerRequestDTO.getLocalId()),
                         containsSearchKeyword(trainerRequestDTO.getSearchKeyword()),
                         betweenAge(trainerRequestDTO.getMinAge(), trainerRequestDTO.getMaxAge()),
                         filterByGender(gender),
                         filterByName(trainerRequestDTO.getName()),
                         filterByGymName(trainerRequestDTO.getGymName()),
-                        filterByLocal(trainerRequestDTO.getLocal())
+                        filterByLocal(trainerRequestDTO.getLocalName())
                 ).offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(trainers.id.desc())
                 .fetch();
     }
 
-    private BooleanExpression  filterByName(String name) {
+    private BooleanExpression filterByLocalId(Long localId) {
+        if (localId == null) {
+            return null;
+        }
+        return trainers.local.id.eq(localId);
+    }
+
+    private BooleanExpression filterByName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return null;
         }
@@ -124,7 +132,8 @@ public class TrainerRepositoryCustomImpl implements TrainerRepositoryCustom {
                         filterByGender(gender),
                         filterByName(trainerRequestDTO.getName()),
                         filterByGymName(trainerRequestDTO.getGymName()),
-                        filterByLocal(trainerRequestDTO.getLocal())
+                        filterByLocal(trainerRequestDTO.getLocalName()),
+                        filterByLocalId(trainerRequestDTO.getLocalId())
                 )
                 .fetchOne();
     }

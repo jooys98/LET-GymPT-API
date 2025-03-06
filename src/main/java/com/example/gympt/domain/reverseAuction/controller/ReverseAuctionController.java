@@ -4,6 +4,7 @@ import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.reverseAuction.dto.*;
 import com.example.gympt.domain.reverseAuction.service.ReverseAuctionService;
+import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.security.MemberAuthDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +24,11 @@ public class ReverseAuctionController {
 //로그인 후 이용 가능한 서비스
 
     private final ReverseAuctionService reverseAuctionService;
-    private final SimpMessageSendingOperations messagingTemplate;
 
     //역경매 신청
     @PostMapping("/apply")
-    public ResponseEntity<String> applyReverseAuction(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody AuctionRequestDTO auctionRequestDTO) {
-        auctionRequestDTO.setEmail(memberAuthDTO.getUsername());
-        reverseAuctionService.applyAuction(auctionRequestDTO);
-        return ResponseEntity.ok("역경매 신청이 완료 되었습니다");
+    public ResponseEntity<Long> applyReverseAuction(@RequestBody AuctionRequestDTO auctionRequestDTO) {
+        return ResponseEntity.ok(reverseAuctionService.applyAuction(auctionRequestDTO));
     }
 
 
@@ -40,6 +38,13 @@ public class ReverseAuctionController {
         FinalSelectAuctionDTO finalSelectAuctionDTO = reverseAuctionService.selectTrainer(memberAuthDTO.getUsername(), trainerEmail);
         return ResponseEntity.ok(finalSelectAuctionDTO);
     }
+
+    //역경매에 참여한 트레이너 리스트 보기
+    @GetMapping("/trainers/{auctionRequestId}")
+    public ResponseEntity<List<AuctionTrainerBidResponseDTO>> getTrainersInAuction(@PathVariable Long auctionRequestId) {
+        return ResponseEntity.ok(reverseAuctionService.getTrainers(auctionRequestId));
+    }
+
 
     //로그인 한 회원/트레이너 는 전부 볼 수 있는 역경매 게시판 !
     @GetMapping("/list")
@@ -83,7 +88,8 @@ public class ReverseAuctionController {
         }
 
     }
-//사용자의 역경매 취소 로직
+
+    //사용자의 역경매 취소 로직
     @DeleteMapping("/{auctionRequestId}")
     public ResponseEntity<Long> deleteAuction(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionRequestId) {
         return ResponseEntity.ok(reverseAuctionService.cancelAuction(memberAuthDTO.getEmail(), auctionRequestId));

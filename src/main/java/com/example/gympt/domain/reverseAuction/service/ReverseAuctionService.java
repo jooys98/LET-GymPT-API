@@ -3,12 +3,14 @@ package com.example.gympt.domain.reverseAuction.service;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.reverseAuction.dto.*;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
+import com.example.gympt.domain.reverseAuction.entity.AuctionTrainerBid;
 import com.example.gympt.domain.reverseAuction.entity.MatchedAuction;
+import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 
 import java.util.List;
 
 public interface ReverseAuctionService {
-    void applyAuction(AuctionRequestDTO auctionRequestDTO);
+    Long applyAuction(AuctionRequestDTO auctionRequestDTO);
 
     FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail);
 
@@ -22,6 +24,7 @@ public interface ReverseAuctionService {
                 .medicalConditions(auctionRequest.getMedicalConditions())
                 .openAt(auctionRequest.getCreatedAt())
                 .localName(auctionRequest.getLocal().getLocalName())
+                .localId(auctionRequest.getLocal().getId())
                 .age(auctionRequest.getAge())
                 .gender(auctionRequest.getGender().toString())
                 .participateTrainers(auctionRequest.getParticipateTrainers())
@@ -39,6 +42,7 @@ public interface ReverseAuctionService {
                 .request(auctionRequest.getRequest())
                 .medicalConditions(auctionRequest.getMedicalConditions())
                 .openAt(auctionRequest.getCreatedAt())
+                .localId(auctionRequest.getLocal().getId())
                 .localName(auctionRequest.getLocal().getLocalName())
                 .age(auctionRequest.getAge())
                 .gender(auctionRequest.getGender().toString())
@@ -59,6 +63,7 @@ public interface ReverseAuctionService {
                 .trainerName(matchedAuction.getAuctionTrainerBid().getTrainer().getTrainerName())
                 .closedAt(matchedAuction.getClosedAt())
                 .trainerImage(matchedAuction.getAuctionTrainerBid().getTrainerImage())
+                .localId(auctionRequest.getLocal().getId())
                 .localName(String.valueOf(matchedAuction.getAuctionTrainerBid().getTrainer().getLocal()))
                 .gymAddress(matchedAuction.getAuctionTrainerBid().getTrainer().getGym().getAddress())
                 .build();
@@ -78,6 +83,21 @@ public interface ReverseAuctionService {
     }
 
 
+    default AuctionTrainerBidResponseDTO convertToAuctionTrainerBidDTO(AuctionTrainerBid auctionTrainerBid) {
+        return AuctionTrainerBidResponseDTO.builder()
+                .auctionRequestId(auctionTrainerBid.getAuctionRequest().getId())
+                .trainerId(auctionTrainerBid.getTrainer().getId())
+                .trainerEmail(auctionTrainerBid.getTrainer().getMember().getEmail())
+                .trainerName(auctionTrainerBid.getTrainer().getMember().getName())
+                .gymId(auctionTrainerBid.getTrainer().getGym().getId())
+                .gymName(auctionTrainerBid.getTrainer().getGym().getGymName())
+                .price(auctionTrainerBid.getPrice())
+                .proposalContent(auctionTrainerBid.getProposalContent())
+                .trainerImage(auctionTrainerBid.getTrainerImage())
+                .build();
+    }
+
+
     AuctionTrainerNotificationDTO getSelectedMessage(String email);
 
 
@@ -92,4 +112,8 @@ public interface ReverseAuctionService {
     List<AuctionResponseToTrainerDTO> getAuctionListToTrainersInLocal(Long localId);
 
     Long cancelAuction(String email, Long auctionRequestId);
+
+    List<AuctionTrainerBidResponseDTO> getTrainers(Long auctionRequestId);
+
+
 }

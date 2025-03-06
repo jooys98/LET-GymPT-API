@@ -28,8 +28,11 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
     @Query("select a from AuctionTrainerBid a where a.auctionRequest.member.email=:email")
     List<AuctionTrainerBid> findByMemberEmail(@Param("email") String memberEmail);
 
-
     @Modifying
     @Query("delete from AuctionTrainerBid a where a.id in :ids")
     void deleteByIdList(@Param("ids") List<Long> ids);
+
+
+    @Query("select t from AuctionTrainerBid t where t.auctionRequest.id =:auctionRequestId")
+    List<AuctionTrainerBid> findTrainersInAuction(@Param("auctionRequestId") Long auctionRequestId);
 }

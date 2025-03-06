@@ -26,8 +26,6 @@ public class GymResponseDTO {
     private Long monthlyPrice;
     private int likesCount;
     private Popular popular;
-    private List<ReviewResponseDTO> reviewList;
-    private List<Trainers> trainers;
     private boolean likes;
     private double reviewAverage;
     private int reviewCount;

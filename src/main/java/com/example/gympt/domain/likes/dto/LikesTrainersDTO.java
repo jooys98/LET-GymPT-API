@@ -16,6 +16,7 @@ public class LikesTrainersDTO {
     private String email; // 유저의 이메일
     private String name;
     private String gymName;
+    private Long gymId;
     private String gender;
     private String local;
     private String trainerImage;

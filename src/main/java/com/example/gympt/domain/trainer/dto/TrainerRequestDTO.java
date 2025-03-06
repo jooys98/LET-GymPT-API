@@ -13,7 +13,8 @@ import java.util.List;
 @Builder
 @ToString
 public class TrainerRequestDTO {
-    private String local;        // 지역으로 검색
+    private Long localId;
+    private String localName;        // 지역으로 검색
     private String gymName;      // 헬스장 이름으로 검색
     private String gender;       // 성별
     private Long minAge;         // 나이 범위 검색

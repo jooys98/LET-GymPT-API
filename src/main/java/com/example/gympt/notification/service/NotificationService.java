@@ -53,6 +53,7 @@ public class NotificationService {
      *
      * @param memberList 회원 목록
      */
+    @Transactional
     public void sendBulkNotification(List<Member> memberList, String title, String body, NotificationType type) {
         log.info("sendBulkNotification 시작: {} 명의 회원에게 알림 전송", memberList.size());
 

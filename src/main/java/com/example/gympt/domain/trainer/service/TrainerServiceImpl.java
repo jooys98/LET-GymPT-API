@@ -123,7 +123,7 @@ public class TrainerServiceImpl implements TrainerService {
                 .price(trainerAuctionRequestDTO.getPrice())
                 .proposalContent(trainerAuctionRequestDTO.getProposalContent())
                 .trainer(trainers)
-                .trainerImage(String.valueOf(trainers.getImageList().get(0))) //이미지 한장만 가져오기
+                .trainerImage(trainers.getImageList().get(0).toString()) //이미지 한장만 가져오기
                 .build();
         auctionTrainerBidRepository.save(auctionTrainerBid);
         //역경매를 신청한 회원에게 알림 발송
@@ -159,6 +159,13 @@ public class TrainerServiceImpl implements TrainerService {
             updateTrainersGym(trainers, tempGym);
         }
 
+    }
+
+    @Override
+    public List<TrainerResponseDTO> getTrainerByGymId(Long id, String email) {
+        List<TrainerResponseDTO> trainerList = trainerRepository.findByGymId(id)
+                .stream().map(trainer -> this.trainerEntityToDTO(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
+        return trainerList;
     }
 
 

@@ -11,15 +11,14 @@ import lombok.*;
 @ToString
 //사용자의 역경매 신청 양식
 public class AuctionRequestDTO {
-    private Long id;
-
     private String email;
     private String name;
+    private Long localId;
     private String localName;
     private Long age;
     //member 정보 가져오기
     private String gender;
-    //성별
+    //성별 M,F
     private Long height;
     //키
     private Long weight;
@@ -29,5 +28,5 @@ public class AuctionRequestDTO {
     private String request;
     //pt 요구사항 (원하는 스타일)
     private String medicalConditions;
-
+    //신체 결함 사항
 }

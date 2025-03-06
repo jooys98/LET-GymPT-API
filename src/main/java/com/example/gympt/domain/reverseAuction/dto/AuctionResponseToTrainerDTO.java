@@ -23,6 +23,7 @@ public class AuctionResponseToTrainerDTO {
     private String medicalConditions;
     private LocalDateTime openAt;
     private String localName;
+    private Long localId;
     private Long age;
     private String gender;
     private Integer participateTrainers;

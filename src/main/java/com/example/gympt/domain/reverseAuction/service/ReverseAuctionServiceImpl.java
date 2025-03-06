@@ -13,6 +13,7 @@ import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
 import com.example.gympt.domain.reverseAuction.repository.AuctionRequestRepository;
 import com.example.gympt.domain.reverseAuction.repository.AuctionTrainerBidRepository;
 import com.example.gympt.domain.reverseAuction.repository.MatchedAuctionRepository;
+import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.exception.CustomDoesntExist;
 import com.example.gympt.exception.CustomNotAccessHandler;
 import com.example.gympt.exception.NoDuplicationException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 import static com.example.gympt.domain.reverseAuction.enums.AuctionStatus.*;
@@ -41,59 +43,62 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
 
 
     //유저의 역경매 신청 로직
+    @Transactional
     @Override
-    public void applyAuction(AuctionRequestDTO auctionRequestDTO) {
+    public Long applyAuction(AuctionRequestDTO auctionRequestDTO) {
         Member member = getMember(auctionRequestDTO.getEmail());
 
         if (!member.getMemberRoleList().contains(MemberRole.USER)) {
             throw new IllegalArgumentException("역경매 신청은 일반 회원만 가능합니다 ");
         }
 
-        AuctionRequest action = getAuctionRequest(member.getEmail());
+        Optional<AuctionRequest> existingAuction = auctionRequestRepository.findByEmail(member.getEmail());
 
-        if (action.getStatus().contains(OPEN)) { //신청했지만 아무도 입찰 하지 않은 상태
-            throw new NoDuplicationException("역경매 줄복 신청은 불가능 합니다");
-        } else if (action.getStatus().contains(IN_PROGRESS)) { // 트레이너가 입찰 한 상태
-            throw new NoDuplicationException("이미 진행중인 역경매 내역이 있습니다");
-        } else {
+        // 기존 역경매가 존재하는 경우
+        if (existingAuction.isPresent()) {
+            List<AuctionStatus> status = existingAuction.get().getStatus();
 
-            Local local = getLocal(auctionRequestDTO.getLocalName());
-            //사용자는 자신의 사는 지역이 아니더라도 원하는 지역에서 수업 신청이 가능하므로 동네 조회 비교 로직은 생략
-
-            AuctionRequest auctionRequest = AuctionRequest.builder()
-                    .member(member)
-                    .height(auctionRequestDTO.getHeight())
-                    .weight(auctionRequestDTO.getWeight())
-                    .title(auctionRequestDTO.getTitle())
-                    .age(auctionRequestDTO.getAge())
-                    .request(auctionRequestDTO.getRequest())
-                    .medicalConditions(auctionRequestDTO.getMedicalConditions())
-                    .local(local)
-                    .build();
-            auctionRequest.addGender(auctionRequestDTO.getGender());
-            auctionRequest.changeStatus(OPEN);
-
-            auctionRequestRepository.save(auctionRequest);
-            //해당 지역 트레이너 들에게 알림 전송
-            notificationService.sendOpenActionToTrainer(local.getId());
+            // 진행 중인 상태인 경우 (OPEN 또는 IN_PROGRESS)
+            if (status.contains(OPEN)) {
+                throw new NoDuplicationException("역경매 중복 신청은 불가능합니다");
+            } else if (status.contains(IN_PROGRESS)) {
+                throw new NoDuplicationException("이미 진행중인 역경매 내역이 있습니다");
+            }
         }
-    }
+        // 신청내역이 없거나 COMPLETED 상태라면 새로운 신청 처리
+        Local local = getLocal(auctionRequestDTO.getLocalId());
+        //사용자는 자신의 사는 지역이 아니더라도 원하는 지역에서 수업 신청이 가능하므로 동네 조회 비교 로직은 생략
 
+        AuctionRequest auctionRequest = AuctionRequest.builder()
+                .member(member)
+                .height(auctionRequestDTO.getHeight())
+                .weight(auctionRequestDTO.getWeight())
+                .title(auctionRequestDTO.getTitle())
+                .age(auctionRequestDTO.getAge())
+                .request(auctionRequestDTO.getRequest())
+                .medicalConditions(auctionRequestDTO.getMedicalConditions())
+                .local(local)
+                .build();
+        auctionRequest.addGender(auctionRequestDTO.getGender());
+        auctionRequest.changeStatus(OPEN);
+
+        auctionRequestRepository.save(auctionRequest);
+        //해당 지역 트레이너 들에게 알림 전송
+        notificationService.sendOpenActionToTrainer(local.getId());
+        return auctionRequest.getId();
+    }
 
     //트레이너 최종 낙찰 로직 + websocket
     @Transactional
     @Override
     public FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail) {
         Member member = getMember(email);
-
+        //진핸중인 사용자의 역경매 조회
         AuctionRequest auctionRequest = getAuctionRequestInProgress(email);
 
-        if (auctionRequest.getStatus().contains(OPEN)) {
-            throw new CustomDoesntExist("입찰하신 트레이너가 없습니다 "); // 트래이너 입찰 시 IN_PROGRESS 상태 변경
-        } else if (!auctionRequest.getMember().equals(member)) {
+        if (!auctionRequest.getMember().equals(member)) {
             throw new CustomNotAccessHandler("경매 신청자 본인확인이 안되어 권한이 없습니다 ");
         }
-
 
         auctionRequest.changeStatus(COMPLETED); // 최종 선택시 상태 변경
         auctionRequestRepository.save(auctionRequest);
@@ -209,39 +214,48 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
         auctionTrainerBidRepository.deleteByIdList(idList);
         return auctionRequest.getId();
     }
-//역경매 아이디로 조회
+
+    @Override
+    public List<AuctionTrainerBidResponseDTO> getTrainers(Long auctionRequestId) {
+        AuctionRequest auctionRequest = getAuctionRequestById(auctionRequestId);
+        List<AuctionTrainerBid> trainersInAuction = auctionTrainerBidRepository.findTrainersInAuction(auctionRequest.getId());
+        return trainersInAuction.stream().map(this::convertToAuctionTrainerBidDTO).toList();
+
+    }
+
+    //역경매 아이디로 조회
     private AuctionRequest getAuctionRequestById(Long auctionRequestId) {
         return auctionRequestRepository.findById(auctionRequestId).orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
     }
 
-//이메일로 역경매 조회
+    //이메일로 역경매 조회
     private AuctionRequest getAuctionRequest(String email) {
-        return auctionRequestRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
+        return auctionRequestRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("신청내역이 없습니다"));
     }
 
-//이메일에 해당하는 진행중인 역경매 진행
+    //이메일에 해당하는 진행중인 역경매 진행
     private AuctionRequest getAuctionRequestInProgress(String email) {
         return auctionRequestRepository.findByProgressEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("신청 내역이 없습니다"));
     }
-//역경매에 참가한 트레이너 조회
+
+    //역경매에 참가한 트레이너 조회
     private AuctionTrainerBid getAuctionTrainer(String email) {
         return auctionTrainerBidRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 입니다"));
     }
 
-//이메일에 해당하는 역경매에 참가한 트레이너 조회
+    //이메일에 해당하는 역경매에 참가한 트레이너 조회
     private List<AuctionTrainerBid> getAuctionTrainerBid(String email) {
         return auctionTrainerBidRepository.findByMemberEmail(email);
     }
 
-//해당 트레이너가 낙찰된 역경매 결과 조회
+    //해당 트레이너가 낙찰된 역경매 결과 조회
     private MatchedAuction getAuction(String email) {
         return matchedAuctionRepository.findByTrainerEmail(email).orElseThrow(() -> new EntityNotFoundException("매칭된 내역이 없습니다"));
     }
 
-    private Local getLocal(String localName) {
-        return localRepository.findByLocalName(localName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다" + localName));
+    private Local getLocal(Long localId) {
+        return localRepository.findLocalId(localId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다" + localId));
     }
 }

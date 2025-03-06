@@ -25,6 +25,7 @@ public class FinalSelectAuctionDTO {
     //트레이너 이미지
     private LocalDateTime closedAt;
     //역경매 종료 시간
+    private Long localId;
     private String localName;
     //지역 이름
     private String gymAddress;

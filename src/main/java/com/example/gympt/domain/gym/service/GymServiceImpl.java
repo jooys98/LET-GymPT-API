@@ -11,6 +11,7 @@ import com.example.gympt.domain.likes.entity.LikesGym;
 import com.example.gympt.domain.likes.repository.LikesGymRepository;
 import com.example.gympt.domain.review.entity.Review;
 import com.example.gympt.domain.trainer.entity.TrainerSaveImage;
+import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.dto.PageRequestDTO;
 import com.example.gympt.dto.PageResponseDTO;
 import jakarta.persistence.EntityNotFoundException;
@@ -77,8 +78,7 @@ public GymResponseDTO entityToDTO(Gym gym, boolean likes) {
                 .reviewAverage(gym.getReviewAverage())
                 .reviewCount(gym.getReviewCount())
                 .likes(likes)
-                .trainers(gym.getTrainers())
                 .build();
-        //TODO: 추후에 추가 리뷰 리스트 , 트레이너 리스트
+
     }
 }

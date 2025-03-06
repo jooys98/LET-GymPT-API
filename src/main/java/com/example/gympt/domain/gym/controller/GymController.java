@@ -57,12 +57,20 @@ public class GymController {
 
     @GetMapping("trainer/{id}")
     //트레이너 상세보기
-    private ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+    public ResponseEntity<TrainerResponseDTO> detailTrainer(@PathVariable Long id, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
         TrainerResponseDTO trainerResponseDTO = trainerService.getTrainerById(id, email);
         return ResponseEntity.ok(trainerResponseDTO);
     }
 
+//헬스장 별로 트레이너 조회
+    @GetMapping("/trainer-list/{id}")
+    public ResponseEntity<List<TrainerResponseDTO>> trainerListByGym(@AuthenticationPrincipal final MemberAuthDTO memberDTO, @PathVariable  Long id) {
+        String email = (memberDTO != null) ? memberDTO.getEmail() : null;
+        List<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainerByGymId(id, email);
+
+        return ResponseEntity.ok(trainerResponseDTOS);
+    }
 
 }
 

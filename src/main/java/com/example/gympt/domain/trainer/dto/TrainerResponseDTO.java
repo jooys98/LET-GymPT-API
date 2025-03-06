@@ -19,8 +19,10 @@ public class TrainerResponseDTO {
     private String name;
     private String introduction;
     private Long age;
+    private Long gymId;
     private String gymName;
     private String gender;
+    private Long localId;
     private String local;
     private int likesCount;
     private boolean likes;

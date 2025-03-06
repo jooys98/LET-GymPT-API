@@ -15,6 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString(exclude = {"parent", "children"})
 @Table(name = "local_tbl")
 public class Local {
     @Id

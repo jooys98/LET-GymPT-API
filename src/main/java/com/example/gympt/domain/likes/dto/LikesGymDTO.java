@@ -23,7 +23,6 @@ public class LikesGymDTO {
     private Long monthlyPrice;
     private int likesCount;
     private Popular popular;
-    private Long gymId;
     private String gymImage;
     private Boolean likes;
 }

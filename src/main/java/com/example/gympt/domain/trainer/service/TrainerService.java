@@ -36,6 +36,8 @@ public interface TrainerService {
                 .name(trainers.getMember().getName())
                 .gender(trainers.getGender().toString())
                 .introduction(trainers.getIntroduction())
+                .gymId(trainers.getGym().getId())
+                .localId(trainers.getLocal().getId())
                 .gymName(trainers.getGym().getGymName())
                 .local(trainers.getLocal().getLocalName())
                 .likesCount(trainers.getLikesCount())
@@ -54,4 +56,6 @@ public interface TrainerService {
     void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
 
     void changeByGym(Gym gym);
+
+    List<TrainerResponseDTO> getTrainerByGymId(Long id, String email);
 }
