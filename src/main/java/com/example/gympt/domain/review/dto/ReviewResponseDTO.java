@@ -21,4 +21,5 @@ public class ReviewResponseDTO {
     private Long trainerId;
     private String trainerName;
     private Double rating;
+    private boolean active;
 }

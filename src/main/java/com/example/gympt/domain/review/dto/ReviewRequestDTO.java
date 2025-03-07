@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 @ToString
 public class ReviewRequestDTO {
+    private Long bookingId;
     private Long gymId;
     private String gymName;
     private String content;

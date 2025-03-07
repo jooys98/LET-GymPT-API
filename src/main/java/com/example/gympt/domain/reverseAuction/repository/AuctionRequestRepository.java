@@ -17,5 +17,9 @@ public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, 
     @Query("select m from AuctionRequest m where m.member.email = :email")
     Optional<AuctionRequest> findByEmail(@Param("email") String email);
 
+    @Query("select m from AuctionRequest m where m.member.email = :email")
+    List <AuctionRequest> findHistoryByEmail(@Param("email") String email);
+
+
 
 }

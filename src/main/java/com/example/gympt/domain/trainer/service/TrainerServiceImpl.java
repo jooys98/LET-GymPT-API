@@ -1,5 +1,7 @@
 package com.example.gympt.domain.trainer.service;
 
+import com.example.gympt.domain.category.entity.Local;
+import com.example.gympt.domain.category.repository.LocalRepository;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.repository.GymRepository;
 import com.example.gympt.domain.likes.repository.LikesTrainerRepository;
@@ -10,11 +12,13 @@ import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.reverseAuction.entity.AuctionTrainerBid;
 import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
+import com.example.gympt.domain.reverseAuction.enums.AuctionTrainerStatus;
 import com.example.gympt.domain.reverseAuction.repository.AuctionRequestRepository;
 import com.example.gympt.domain.reverseAuction.repository.AuctionTrainerBidRepository;
 import com.example.gympt.domain.trainer.dto.TrainerRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
+import com.example.gympt.domain.trainer.entity.TrainerImage;
 import com.example.gympt.domain.trainer.entity.TrainerSaveForm;
 import com.example.gympt.domain.trainer.entity.TrainerSaveImage;
 import com.example.gympt.domain.trainer.entity.Trainers;
@@ -55,6 +59,7 @@ public class TrainerServiceImpl implements TrainerService {
     private final AuctionTrainerBidRepository auctionTrainerBidRepository;
     private final LikesTrainerRepository likesTrainerRepository;
     private final NotificationService notificationService;
+    private final LocalRepository localRepository;
 
     @Override
 //트레이너 데뷔 신청!!
@@ -109,13 +114,14 @@ public class TrainerServiceImpl implements TrainerService {
     public void applyAuction(String trainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
 
         Trainers trainers = getTrainers(trainerEmail);
-        if (!trainers.getLocal().getLocalName().equals(trainerAuctionRequestDTO.getLocalName())) {
+        Local local = getLocal(trainerAuctionRequestDTO.getLocalId());
+
+        if (!trainers.getLocal().getId().equals(local.getId())) {
             throw new IllegalArgumentException("활동하시는 동네에서만 입찰 신창이 가능합니다 ");
         }
-        AuctionRequest auctionRequest = auctionRequestRepository.findById(trainerAuctionRequestDTO.getAuctionRequestId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 역경매는 존재하지 않습니다"));
-
-        auctionRequest.setStatus(Collections.singletonList(AuctionStatus.IN_PROGRESS));
+        AuctionRequest auctionRequest = getAuctionRequest(trainerAuctionRequestDTO.getAuctionRequestId());
+        auctionRequest.deleteStatus(AuctionStatus.OPEN);
+        auctionRequest.changeStatus(AuctionStatus.IN_PROGRESS);
         //트레이너 입찰시 open 에서 진행중으로 상태 변경
 
         AuctionTrainerBid auctionTrainerBid = AuctionTrainerBid.builder()
@@ -123,20 +129,24 @@ public class TrainerServiceImpl implements TrainerService {
                 .price(trainerAuctionRequestDTO.getPrice())
                 .proposalContent(trainerAuctionRequestDTO.getProposalContent())
                 .trainer(trainers)
-                .trainerImage(trainers.getImageList().get(0).toString()) //이미지 한장만 가져오기
+                .trainerImage(trainers.getImageList().isEmpty() ? null :
+                        trainers.getImageList().get(0).getTrainerImageName())//이미지 한장만 가져오기
                 .build();
+        auctionTrainerBid.changeStatus(AuctionTrainerStatus.PENDING);
+
         auctionTrainerBidRepository.save(auctionTrainerBid);
         //역경매를 신청한 회원에게 알림 발송
         notificationService.newTrainerAuctionNotification(auctionRequest.getMember().getEmail());
 
     }
 
+
 //TODO : 사용자 확인용, 트레이너 확인용  입찰한 트레이너 리스트 보기 로직
     //TODO: 사용자/트레이너  역경매 취소 로직
 
     //트레이너 pt 가격 변경
     @Override
-    public void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice) {
+    public Long changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice) {
 
         Trainers trainers = getTrainers(trainerEmail);
         AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository
@@ -148,6 +158,7 @@ public class TrainerServiceImpl implements TrainerService {
         auctionTrainerBidRepository.save(auctionTrainerBid);
         //입찰시 해당 역경매를 신청한 회원에게 알림 발송
         notificationService.updatePriceAuctionToMember(auctionTrainerBid.getAuctionRequest().getMember().getEmail());
+        return auctionTrainerBid.getAuctionRequest().getId();
     }
 
     @Override
@@ -197,5 +208,12 @@ public class TrainerServiceImpl implements TrainerService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 입니다"));
     }
 
+    private AuctionRequest getAuctionRequest(Long auctionRequestId) {
+        return auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 역경매는 존재하지 않습니다"));
+    }
 
+    private Local getLocal(Long localId) {
+        return localRepository.findById(localId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다"));
+    }
 }

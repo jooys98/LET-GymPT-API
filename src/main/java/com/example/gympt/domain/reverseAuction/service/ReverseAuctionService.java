@@ -12,7 +12,7 @@ import java.util.List;
 public interface ReverseAuctionService {
     Long applyAuction(AuctionRequestDTO auctionRequestDTO);
 
-    FinalSelectAuctionDTO selectTrainer(String email, String trainerEmail);
+    FinalSelectAuctionDTO selectTrainer(String email, Long trainerId);
 
     List<AuctionResponseDTO> getAuctionList();
 
@@ -20,6 +20,7 @@ public interface ReverseAuctionService {
         AuctionResponseDTO auctionResponseDTO = AuctionResponseDTO.builder()
                 .auctionId(auctionRequest.getId())
                 .title(auctionRequest.getTitle())
+                .name(auctionRequest.getMember().getName())
                 .request(auctionRequest.getRequest())
                 .medicalConditions(auctionRequest.getMedicalConditions())
                 .openAt(auctionRequest.getCreatedAt())
@@ -28,6 +29,7 @@ public interface ReverseAuctionService {
                 .age(auctionRequest.getAge())
                 .gender(auctionRequest.getGender().toString())
                 .participateTrainers(auctionRequest.getParticipateTrainers())
+                .status(auctionRequest.getStatus().toString())
                 .build();
         return auctionResponseDTO;
 
@@ -51,6 +53,7 @@ public interface ReverseAuctionService {
                 .weight(auctionRequest.getWeight())
                 .height(auctionRequest.getHeight())
                 .participateTrainers(auctionRequest.getParticipateTrainers())
+                .status(auctionRequest.getStatus().toString())
                 .build();
 
     }
@@ -58,29 +61,32 @@ public interface ReverseAuctionService {
     default FinalSelectAuctionDTO convertToSelectDTO(AuctionRequest auctionRequest, MatchedAuction matchedAuction) {
         return FinalSelectAuctionDTO.builder()
                 .auctionId(auctionRequest.getId())
-                .email(matchedAuction.getAuctionRequest().getMember().getEmail())
+                .email(auctionRequest.getMember().getEmail())
                 .finalPrice(matchedAuction.getFinalPrice())
                 .trainerName(matchedAuction.getAuctionTrainerBid().getTrainer().getTrainerName())
-                .closedAt(matchedAuction.getClosedAt())
                 .trainerImage(matchedAuction.getAuctionTrainerBid().getTrainerImage())
+                .createAt(auctionRequest.getCreatedAt())
+                .closedAt(matchedAuction.getClosedAt())
                 .localId(auctionRequest.getLocal().getId())
-                .localName(String.valueOf(matchedAuction.getAuctionTrainerBid().getTrainer().getLocal()))
+                .localName(auctionRequest.getLocal().getLocalName())
                 .gymAddress(matchedAuction.getAuctionTrainerBid().getTrainer().getGym().getAddress())
+                .gymName(matchedAuction.getAuctionTrainerBid().getTrainer().getGym().getGymName())
+                .status(auctionRequest.getStatus().toString())
                 .build();
     }
 
-
-    default AuctionTrainerNotificationDTO convertToNotificationDTO(MatchedAuction matchedAuction) {
-        return AuctionTrainerNotificationDTO.builder()
-                .type("AUCTION_SELECTED")
-                .memberEmail(matchedAuction.getAuctionRequest().getMember().getEmail())
-                .memberPhoneNumber(matchedAuction.getAuctionRequest().getMember().getPhone())
-                .memberName(matchedAuction.getAuctionRequest().getMember().getName())
-                .auctionId(matchedAuction.getAuctionRequest().getId())
-                .finalPrice(matchedAuction.getFinalPrice())
-                .message("축하드립니다! 회원님이 귀하를 PT 트레이너로 선택했습니다")
-                .build();
-    }
+//
+//    default AuctionTrainerNotificationDTO convertToNotificationDTO(MatchedAuction matchedAuction) {
+//        return AuctionTrainerNotificationDTO.builder()
+//                .type("AUCTION_SELECTED")
+//                .memberEmail(matchedAuction.getAuctionRequest().getMember().getEmail())
+//                .memberPhoneNumber(matchedAuction.getAuctionRequest().getMember().getPhone())
+//                .memberName(matchedAuction.getAuctionRequest().getMember().getName())
+//                .auctionId(matchedAuction.getAuctionRequest().getId())
+//                .finalPrice(matchedAuction.getFinalPrice())
+//                .message("축하드립니다! 회원님이 귀하를 PT 트레이너로 선택했습니다")
+//                .build();
+//    }
 
 
     default AuctionTrainerBidResponseDTO convertToAuctionTrainerBidDTO(AuctionTrainerBid auctionTrainerBid) {
@@ -94,17 +100,32 @@ public interface ReverseAuctionService {
                 .price(auctionTrainerBid.getPrice())
                 .proposalContent(auctionTrainerBid.getProposalContent())
                 .trainerImage(auctionTrainerBid.getTrainerImage())
+                .startTime(auctionTrainerBid.getCreatedAt())
+                .build();
+    }
+
+    default AuctionTrainerHistoryDTO convertToAuctionTrainerHistory(AuctionTrainerBid auctionTrainerBid) {
+        return AuctionTrainerHistoryDTO.builder()
+                .auctionId(auctionTrainerBid.getAuctionRequest().getId())
+                .name(auctionTrainerBid.getAuctionRequest().getMember().getName())
+                .title(auctionTrainerBid.getAuctionRequest().getTitle())
+                .request(auctionTrainerBid.getAuctionRequest().getRequest())
+                .openAt(auctionTrainerBid.getAuctionRequest().getCreatedAt())
+                .closeAt(auctionTrainerBid.getClosedAt())
+                .finalPrice(auctionTrainerBid.getPrice())
+                .medicalConditions(auctionTrainerBid.getAuctionRequest().getMedicalConditions())
+                .localName(auctionTrainerBid.getAuctionRequest().getLocal().getLocalName())
+                .localId(auctionTrainerBid.getAuctionRequest().getLocal().getId())
+                .gender(auctionTrainerBid.getAuctionRequest().getGender().toString())
+                .status(auctionTrainerBid.getStatus().toString())
                 .build();
     }
 
 
-    AuctionTrainerNotificationDTO getSelectedMessage(String email);
-
-
     Object getAuction(Long auctionRequestId, String email);
 
-//    AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId);
-
+    //    AuctionResponseToTrainerDTO getAuctionToTrainer(Long auctionId);
+//    AuctionTrainerNotificationDTO getSelectedMessage(String email);
     Member getMember(String email);
 
     List<AuctionResponseDTO> getAuctionListInLocal(Long localId);
@@ -116,4 +137,7 @@ public interface ReverseAuctionService {
     List<AuctionTrainerBidResponseDTO> getTrainers(Long auctionRequestId);
 
 
+    List<FinalSelectAuctionDTO> getAuctionHistory(String email);
+
+    List<AuctionTrainerHistoryDTO> getAuctionHistoryToTrainer(String email);
 }

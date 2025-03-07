@@ -1,5 +1,7 @@
 package com.example.gympt.domain.reverseAuction.entity;
 
+import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
+import com.example.gympt.domain.reverseAuction.enums.AuctionTrainerStatus;
 import com.example.gympt.domain.trainer.entity.TrainerImage;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.entity.BaseEntity;
@@ -27,7 +29,7 @@ public class AuctionTrainerBid extends BaseEntity {
     private AuctionRequest auctionRequest;
 
     @ManyToOne
-    @JoinColumn(name = "trainer_email")
+    @JoinColumn(name = "trainer_id")
     private Trainers trainer;
 
     @OneToOne(mappedBy = "auctionTrainerBid", cascade = CascadeType.ALL)
@@ -36,6 +38,24 @@ public class AuctionTrainerBid extends BaseEntity {
     private Long price;
     private String proposalContent;
     private String trainerImage;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "status_list_trainers", joinColumns = @JoinColumn(name = "title")) //상태와 연결되는 컬럼값
+    @Column(name = "status") // 해당 List 를 저장할 컬럼명
+    @Builder.Default
+    private List<AuctionTrainerStatus> status = new ArrayList<>();
+
+    public void deleteStatus(AuctionTrainerStatus status) {
+        this.status.remove(status);
+    }
+
+
+    public void changeStatus(AuctionTrainerStatus status) {
+        // 이미 해당 상태가 존재하는지 확인
+        if (!this.status.contains(status)) {
+            this.status.add(status);
+        }
+    }
 
 
     public void changePrice(Long price) {

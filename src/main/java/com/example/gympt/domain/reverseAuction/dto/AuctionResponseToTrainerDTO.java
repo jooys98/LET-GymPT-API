@@ -3,11 +3,11 @@ package com.example.gympt.domain.reverseAuction.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @ToString
 public class AuctionResponseToTrainerDTO {
@@ -27,6 +27,7 @@ public class AuctionResponseToTrainerDTO {
     private Long age;
     private String gender;
     private Integer participateTrainers;
+    private String status;
 
     //TODO: 참여한 트레이너 들 + 가격+ 날짜 리스트도 함께 포함 시키기
 }

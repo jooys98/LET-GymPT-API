@@ -1,5 +1,7 @@
 package com.example.gympt.domain.trainer.controller;
 
+import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerHistoryDTO;
+import com.example.gympt.domain.reverseAuction.dto.AuctionUpdatePrice;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.service.ReverseAuctionService;
 import com.example.gympt.domain.trainer.service.TrainerService;
@@ -28,17 +30,22 @@ public class TrainerController {
     //역경매 입찰 신청
     @PostMapping("/auction")
     public ResponseEntity<String> letAuctionTrainer(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
-        trainerService.applyAuction(memberAuthDTO.getUsername(), trainerAuctionRequestDTO);
+        trainerService.applyAuction(memberAuthDTO.getEmail(), trainerAuctionRequestDTO);
         return ResponseEntity.ok("역경매 참여 완료 되었습니다");
     }
 
     //pt 가격 변경
-    @PutMapping("/auction/update")
-    public ResponseEntity<String> updateAuctionPrice(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody Long auctionRequestId, @RequestBody Long updatePrice) {
-        trainerService.changePrice(auctionRequestId, memberAuthDTO.getUsername(), updatePrice);
-        return ResponseEntity.ok("가격 변경이 완료 되었습니다 ");
+    @PatchMapping("/auction/{auctionId}")
+    public ResponseEntity<Long> updateAuctionPrice(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionId, @RequestBody AuctionUpdatePrice auctionUpdatePrice) {
+        return ResponseEntity.ok(trainerService.changePrice(auctionId, memberAuthDTO.getEmail(), auctionUpdatePrice.getUpdatePrice()));
+
     }
 
+    //트레이너의 참여했던 역경매 조회
+    @GetMapping("/auction/history")
+    public ResponseEntity<List<AuctionTrainerHistoryDTO>> getAuctionHistory(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO) {
+        return ResponseEntity.ok(reverseAuctionService.getAuctionHistoryToTrainer(memberAuthDTO.getEmail()));
+    }
 //    //트레이너에게만 보여지는 역경매 신청 list
 //    @GetMapping("/auction/list")
 //    public ResponseEntity<List<AuctionResponseToTrainerDTO>> getAuctionRequestList() {

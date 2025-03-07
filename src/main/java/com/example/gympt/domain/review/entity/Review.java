@@ -12,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @Getter
-@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "review_tbl")
@@ -39,6 +38,11 @@ public class Review extends BaseEntity {
     private Trainers trainers;
 
     private boolean active;
+
+    public void changeActive(boolean active) {
+        this.active = active;
+    }
+
 }
 
 

@@ -93,6 +93,7 @@ public class NotificationService {
      *
      * @param targetEmail
      */
+    @Transactional
     public void sendFinalSelected(String targetEmail) {
         log.info("sendFinalSelected notification: target targetEmail {}", targetEmail);
         Member member = memberRepository.getWithRoles(targetEmail)
@@ -116,6 +117,7 @@ public class NotificationService {
      * 해당 지역 새 역경매가 올라오면 트레이너들에게 알림 전송
      * 권한이 trainer 인 회원 리스트를 파라미터로 받아야 함
      */
+    @Transactional
     public void sendOpenActionToTrainer(Long localId) {
         log.info("sendOpenActionToTrainer notification: localId {}", localId);
 //해당 지역에서 활동하는 트레이너 회원들을 조회
@@ -131,6 +133,7 @@ public class NotificationService {
      *
      * @param auctionId
      */
+    @Transactional
     public void endedAuction(Long auctionId) {
         log.info("endedAuction notification: auctionId  {}", auctionId);
         //해당 역경매에 참여했던 트레이너 회원들을 조회

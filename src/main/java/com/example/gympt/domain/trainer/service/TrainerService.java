@@ -53,7 +53,7 @@ public interface TrainerService {
 
     void applyAuction(String TrainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO);
 
-    void changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
+    Long changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
 
     void changeByGym(Gym gym);
 

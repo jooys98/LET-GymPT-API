@@ -15,7 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     Optional<Member> getWithRoles(@Param("email") String email);
 
     @Query("select m from Member m where m.email = :email")
-        // leftjoin + fetch join (한번에 조회 ) Pagination OOM ->
     Optional<Member> findByEmail(@Param("email") String email);
 
     @Query("select m from Member m where m.email = :email")

@@ -20,9 +20,9 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
             @Param("auctionRequestId") Long auctionRequestId,
             @Param("trainerEmail") String trainerEmail
     );
-
-    @Query("select t from AuctionTrainerBid t where t.trainer.member.email =:email")
-    Optional<AuctionTrainerBid> findByEmail(@Param("email") String trainerEmail);
+//
+//    @Query("select t from AuctionTrainerBid t where t.trainer.id =:trainerId")
+//    Optional<AuctionTrainerBid> findByTrainerId(@Param("trainerId") Long trainerId);
 
 
     @Query("select a from AuctionTrainerBid a where a.auctionRequest.member.email=:email")
@@ -35,4 +35,7 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
 
     @Query("select t from AuctionTrainerBid t where t.auctionRequest.id =:auctionRequestId")
     List<AuctionTrainerBid> findTrainersInAuction(@Param("auctionRequestId") Long auctionRequestId);
+
+    @Query("select t from AuctionTrainerBid t where t.trainer.member.email =:email")
+    List<AuctionTrainerBid> findByTrainerEmail(@Param("email") String email);
 }

@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     private final LocalRepository localRepository;
 
     @Override
+    @Transactional
     public List<Member> findMemberTrainerInLocal(Long localId) {
         Local targetLocal = localRepository.findById(localId)
                 .orElseThrow(() -> new EntityNotFoundException("지역을 찾을 수 없습니다: " + localId));

@@ -8,7 +8,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @ToString
 public class TrainerAuctionRequestDTO {
@@ -18,13 +17,15 @@ public class TrainerAuctionRequestDTO {
     private String trainerEmail;
     //트레이너 이메일
     private String localName;
+    private Long localId;
+
     //트레이너의 사는 지역
-    private String GymName;
+    private String gymName;
     //헬스장 이름
     private Long auctionRequestId;
     //경매 번호
     private Long price;
-//제안 가격
+    //제안 가격
     private String proposalContent;
 //소개 , 어필 글
 

@@ -2,10 +2,11 @@ package com.example.gympt.domain.reverseAuction.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @ToString
 public class AuctionTrainerBidResponseDTO {
@@ -18,5 +19,6 @@ public class AuctionTrainerBidResponseDTO {
     private Long price;
     private String proposalContent;
     private String trainerImage;
+    private LocalDateTime startTime;
 
 }

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @ToString
 public class FinalSelectAuctionDTO {
@@ -23,6 +22,7 @@ public class FinalSelectAuctionDTO {
 
     private String trainerImage;
     //트레이너 이미지
+    private LocalDateTime createAt;
     private LocalDateTime closedAt;
     //역경매 종료 시간
     private Long localId;
@@ -30,5 +30,9 @@ public class FinalSelectAuctionDTO {
     //지역 이름
     private String gymAddress;
     //헬스장 주소
+    private String gymName;
+
+    private String status;
+
 }
 

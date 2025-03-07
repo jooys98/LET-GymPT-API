@@ -34,8 +34,8 @@ public class ReverseAuctionController {
 
     //트레이너 낙찰
     @PostMapping("/select")
-    public ResponseEntity<FinalSelectAuctionDTO> selectFinalTrainer(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestParam String trainerEmail) {
-        FinalSelectAuctionDTO finalSelectAuctionDTO = reverseAuctionService.selectTrainer(memberAuthDTO.getUsername(), trainerEmail);
+    public ResponseEntity<FinalSelectAuctionDTO> selectFinalTrainer(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody SelectedTrainerDTO selectedTrainerDTO) {
+        FinalSelectAuctionDTO finalSelectAuctionDTO = reverseAuctionService.selectTrainer(memberAuthDTO.getEmail(), selectedTrainerDTO.getTrainerId());
         return ResponseEntity.ok(finalSelectAuctionDTO);
     }
 
@@ -93,6 +93,12 @@ public class ReverseAuctionController {
     @DeleteMapping("/{auctionRequestId}")
     public ResponseEntity<Long> deleteAuction(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionRequestId) {
         return ResponseEntity.ok(reverseAuctionService.cancelAuction(memberAuthDTO.getEmail(), auctionRequestId));
+    }
+
+    //회원의 매칭된 역경매 내역 조회
+    @GetMapping("/history")
+    public ResponseEntity<List<FinalSelectAuctionDTO>> getHistory(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO) {
+        return ResponseEntity.ok(reverseAuctionService.getAuctionHistory(memberAuthDTO.getEmail()));
     }
 
 

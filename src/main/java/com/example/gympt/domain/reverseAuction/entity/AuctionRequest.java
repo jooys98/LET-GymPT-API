@@ -63,9 +63,16 @@ public class AuctionRequest extends BaseEntity {
     @Builder.Default
     private List<AuctionStatus> status = new ArrayList<>();
 
+    public void deleteStatus(AuctionStatus status) {
+        this.status.remove(status);
+    }
+
 
     public void changeStatus(AuctionStatus status) {
-        this.status.add(status);
+        // 이미 해당 상태가 존재하는지 확인
+        if (!this.status.contains(status)) {
+            this.status.add(status);
+        }
     }
 
     //참가한 트레이너 수
