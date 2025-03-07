@@ -1,9 +1,13 @@
 package com.example.gympt.domain.trainer.controller;
 
+import com.example.gympt.domain.member.dto.MemberRequestDTO;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerHistoryDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionUpdatePrice;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.service.ReverseAuctionService;
+import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
+import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
 import com.example.gympt.domain.trainer.service.TrainerService;
 import com.example.gympt.security.MemberAuthDTO;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +50,24 @@ public class TrainerController {
     public ResponseEntity<List<AuctionTrainerHistoryDTO>> getAuctionHistory(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO) {
         return ResponseEntity.ok(reverseAuctionService.getAuctionHistoryToTrainer(memberAuthDTO.getEmail()));
     }
+
+    //TODO: 기존 이미지 삭제 api 만들기
+
+
+    //회원정보 수정
+    @PutMapping
+    public ResponseEntity<Long> modifyMember(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        return ResponseEntity.ok(trainerService.updateTrainer(memberAuthDTO.getEmail(), trainerSaveRequestDTO));
+    }
+
+
+    //자신의 회원 정보 확인
+    @GetMapping
+    public ResponseEntity<TrainerResponseDTO> getMembers(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO) {
+        return ResponseEntity.ok(trainerService.getTrainerDetail(memberAuthDTO.getEmail()));
+    }
+
+
 //    //트레이너에게만 보여지는 역경매 신청 list
 //    @GetMapping("/auction/list")
 //    public ResponseEntity<List<AuctionResponseToTrainerDTO>> getAuctionRequestList() {

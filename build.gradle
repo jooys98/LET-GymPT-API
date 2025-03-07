@@ -100,18 +100,12 @@ dependencies {
     //WebSocket을 지원하지 않는 브라우저를 위한 대체 솔루션
     implementation 'org.webjars:sockjs-client:1.5.1'
 
-
-    implementation 'org.apache.poi:poi:4.1.2'
-
-    implementation 'org.apache.poi:poi-ooxml:4.1.2'
-
     // Spring WebClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // Jackson for JSON handling
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    //날짜 , 시간 읽기
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 tasks.named('test') {

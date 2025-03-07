@@ -19,6 +19,9 @@ public class TrainerSaveRequestDTO {
     private String introduction;
     private Long age;
     private Long gymId;
+    private String gymName;
+    private Long localId;
+    private String localName;
     private String gender;
     private List<MultipartFile> files;
 

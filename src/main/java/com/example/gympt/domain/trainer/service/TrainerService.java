@@ -1,6 +1,7 @@
 package com.example.gympt.domain.trainer.service;
 
 import com.example.gympt.domain.gym.entity.Gym;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerRequestDTO;
@@ -58,4 +59,8 @@ public interface TrainerService {
     void changeByGym(Gym gym);
 
     List<TrainerResponseDTO> getTrainerByGymId(Long id, String email);
+
+    Long updateTrainer(String email, TrainerSaveRequestDTO trainerSaveRequestDTO);
+
+    TrainerResponseDTO getTrainerDetail(String email);
 }

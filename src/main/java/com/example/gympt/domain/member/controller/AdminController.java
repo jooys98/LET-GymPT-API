@@ -60,7 +60,7 @@ public class AdminController {
         return ResponseEntity.ok("헬스장 수정이 완료 되었습니다!");
     }
 
-    // 리스트조회, 상품 등록시, select option용
+
     @GetMapping("/list")
     public ResponseEntity<List<LocalDTO>> list() {
         List<LocalDTO> dto = adminService.localList();

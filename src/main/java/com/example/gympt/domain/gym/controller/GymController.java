@@ -39,8 +39,7 @@ public class GymController {
     @GetMapping("/trainer-list")
     //트레이너 목록 다중조건 조회 + 페이지 네이션
     public ResponseEntity<PageResponseDTO<TrainerResponseDTO>> trainerList(@ModelAttribute TrainerRequestDTO trainerRequestDTO,
-                                                                           @ModelAttribute PageRequestDTO pageRequestDTO,
-                                                                           @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+                                                                           @ModelAttribute PageRequestDTO pageRequestDTO, @AuthenticationPrincipal final MemberAuthDTO memberDTO) {
         String email = (memberDTO != null) ? memberDTO.getEmail() : null;
         PageResponseDTO<TrainerResponseDTO> trainerResponseDTOS = trainerService.getTrainers(trainerRequestDTO, pageRequestDTO, email);
 

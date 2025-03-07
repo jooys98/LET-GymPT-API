@@ -180,6 +180,36 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
 
+
+    @Override
+    public Long updateTrainer(String email, TrainerSaveRequestDTO trainerSaveRequestDTO) {
+        Local local = getLocal(trainerSaveRequestDTO.getLocalId());
+        Trainers trainers = getTrainers(email);
+        Gym gym = getGym(trainerSaveRequestDTO.getGymId());
+        if (trainerSaveRequestDTO.getFiles() != null && !trainerSaveRequestDTO.getFiles().isEmpty()) {
+            List<String> newImages = customFileUtil.uploadS3Files(trainerSaveRequestDTO.getFiles());
+            for (String imageName : newImages) {
+                trainers.addImageString(imageName);
+            }
+        }
+
+        trainers.updateAge(trainerSaveRequestDTO.getAge());
+        trainers.updateTrainerName(trainerSaveRequestDTO.getName());
+        trainers.updateLocal(local);
+        trainers.updateGym(gym);
+        trainers.updateIntroduction(trainerSaveRequestDTO.getIntroduction());
+
+        trainerRepository.save(trainers);
+        return trainers.getId();
+
+    }
+
+    @Override
+    public TrainerResponseDTO getTrainerDetail(String email) {
+        return trainerEntityToDTO(this.getTrainers(email), false);
+    }
+
+
     private void updateTrainersGym(List<Trainers> trainers, Gym newGym) {
         // 각 트레이너의 헬스장 정보 변경
         trainers.forEach(trainer -> trainer.setGym(newGym));

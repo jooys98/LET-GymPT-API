@@ -41,6 +41,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookingRepository bookingRepository;
     private final ModerationService moderationService;
 
+
+    @Transactional
     @Override
     public void createReview(String email, ReviewRequestDTO reviewRequestDTO) {
         Member member = getMember(email);
@@ -103,6 +105,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    //비동기 호출
 
     public void checkReviewModeration(Review review) {
         String reviewText = review.getContent();
@@ -116,7 +119,8 @@ public class ReviewServiceImpl implements ReviewService {
                 );
     }
 
-
+    //모더레이션 결과에 따라 별도의 트랜잭션으로 리뷰 상태가 업데이트
+    @Transactional
     private void handleModerationResult(Map<String, Object> result, Review review) {
         try {
             // OpenAI 모더레이션 API 응답 구조에 맞게 파싱
