@@ -7,6 +7,7 @@ import com.example.gympt.domain.likes.entity.LikesGym;
 import com.example.gympt.domain.review.entity.Review;
 import com.example.gympt.domain.trainer.entity.TrainerImage;
 import com.example.gympt.domain.trainer.entity.Trainers;
+import com.example.gympt.domain.trainer.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -95,6 +96,11 @@ public class Gym {
 
     public void updateLocal(Local local) {
         this.local = local;
+    }
+
+
+    public void addPopular(String popular) {
+        this.popular = popular.equals("N") ? Popular.N : Popular.Y;
     }
 
     public void updateAddress(String address) {

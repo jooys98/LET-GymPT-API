@@ -36,26 +36,22 @@ public class LikesServiceImpl implements LikesService {
     /// @Param : 헬스장 아이디 , 유저 이메일
     @Override
     public Boolean toggleGymLikes(String email, Long gymId) {
-        try {
-            Member member = getMember(email);
-            Gym gym = getGym(gymId);
-            String likesMemberEmail = member.getEmail();
-            Long likesGymId = gym.getId();
+        Member member = getMember(email);
+        Gym gym = getGym(gymId);
+        String likesMemberEmail = member.getEmail();
+        Long likesGymId = gym.getId();
 
-            Boolean likesResult = likesGymRepository.existsByMember_EmailAndGym_Id(likesMemberEmail, likesGymId);
-            if (likesResult) {
-                likesGymRepository.deleteEmailGymId(likesMemberEmail, likesGymId);
-                return false;
-            } else {
-                LikesGym likesGym = LikesGym.builder()
-                        .gym(gym)
-                        .member(member)
-                        .build();
-                likesGymRepository.save(likesGym);
-                return true;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("헬스장 좋아요 토글 실패 ㅜ-ㅜ");
+        Boolean likesResult = likesGymRepository.likes(likesMemberEmail, likesGymId);
+        if (likesResult) {
+            likesGymRepository.deleteEmailGymId(likesMemberEmail, likesGymId);
+            return false;
+        } else {
+            LikesGym likesGym = LikesGym.builder()
+                    .gym(gym)
+                    .member(member)
+                    .build();
+            likesGymRepository.save(likesGym);
+            return true;
         }
     }
 

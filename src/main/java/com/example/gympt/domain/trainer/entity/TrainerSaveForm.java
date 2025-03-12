@@ -30,6 +30,8 @@ public class TrainerSaveForm extends BaseEntity {
     private String introduction;
     private Long age;
     private Gender gender;
+    private String profileImage;
+
 
     @ElementCollection
     @Builder.Default
@@ -43,8 +45,8 @@ public class TrainerSaveForm extends BaseEntity {
     @JoinColumn(name = "email")
     private Member member;
 
-    public void addGender(String gender) {
-        this.gender = gender.equals("M") ? Gender.M : Gender.F;
+    public void addGender(Gender gender) {
+        this.gender = gender;
     }
 
 

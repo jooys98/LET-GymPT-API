@@ -16,6 +16,7 @@ import java.util.List;
 public class TrainerResponseDTO {
     private Long id;
     private String email;
+    private String profileImage;
     private String name;
     private String introduction;
     private Long age;

@@ -70,8 +70,14 @@ public class TrainerServiceImpl implements TrainerService {
         if (!member.getMemberRoleList().contains(MemberRole.PREPARATION_TRAINER)) {
             throw new IllegalArgumentException("트레이너 신청 회원이 아닙니다");
         }
-        Gym gym = getGym(trainerSaveRequestDTO.getGymId());
 
+        if (trainerSaveRequestDTO.getProfileImage() == null || trainerSaveRequestDTO.getProfileImage().isEmpty()) {
+            throw new IllegalArgumentException("프로필 사진은 필수 정보입니다!");
+        }
+
+
+        Gym gym = getGym(trainerSaveRequestDTO.getGymId());
+        String profileImage = customFileUtil.uploadS3File(trainerSaveRequestDTO.getProfileImage());
         List<String> images = customFileUtil.uploadS3Files(trainerSaveRequestDTO.getFiles());
         //trainerSaveRequestDTO 이미지 이름 문자열 리스트 가져와서 s3 업로드 후 이미지 이름 문자열 반환
         List<TrainerSaveImage> trainerSaveImages = images.stream().map(TrainerSaveForm::addImageString).toList();
@@ -79,12 +85,13 @@ public class TrainerServiceImpl implements TrainerService {
         TrainerSaveForm trainerSaveForm = TrainerSaveForm.builder()
                 .member(member)
                 .gym(gym)
+                .profileImage(profileImage)
                 .name(trainerSaveRequestDTO.getName())
                 .age(trainerSaveRequestDTO.getAge())
                 .introduction(trainerSaveRequestDTO.getIntroduction())
                 .imageList(trainerSaveImages)
                 .build();
-        trainerSaveForm.addGender(trainerSaveRequestDTO.getGender());
+        trainerSaveForm.addGender(member.getGender());
 
         trainerSaveFormRepository.save(trainerSaveForm);
     }
@@ -180,7 +187,6 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
 
-
     @Override
     public Long updateTrainer(String email, TrainerSaveRequestDTO trainerSaveRequestDTO) {
         Local local = getLocal(trainerSaveRequestDTO.getLocalId());
@@ -192,6 +198,14 @@ public class TrainerServiceImpl implements TrainerService {
                 trainers.addImageString(imageName);
             }
         }
+
+        if (trainerSaveRequestDTO.getProfileImage() != null && !trainerSaveRequestDTO.getProfileImage().isEmpty()) {
+            String newProfileImage = customFileUtil.uploadS3File(trainerSaveRequestDTO.getProfileImage());
+            String oldImage = trainers.getProfileImage();
+            customFileUtil.deleteS3File(oldImage);
+            trainers.updateProfileImage(newProfileImage);
+        }
+
 
         trainers.updateAge(trainerSaveRequestDTO.getAge());
         trainers.updateTrainerName(trainerSaveRequestDTO.getName());

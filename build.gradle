@@ -106,6 +106,10 @@ dependencies {
     // Jackson for JSON handling
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
+
+    // Apache POI
+    implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml:4.1.2'
 }
 
 tasks.named('test') {

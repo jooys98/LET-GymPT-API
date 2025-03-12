@@ -16,6 +16,9 @@ public enum NotificationType {
     //to member
     NEW_AUCTION_TRAINER("새 트레이너가 입찰 하였습니다"),
     NEW_MESSAGE("새 메세지 도착"),
-    BOOKING_DAY("예약일 입니다, 늦지 않게 방문해주세요😀");
+    BOOKING_DAY("예약일 입니다, 늦지 않게 방문해주세요😀"),
+    REVIEW_APPROVED("리뷰가 승인되었습니다"),
+    REVIEW_REJECTED("리뷰에 부적절한 내용이 감지되었습니다"),
+    REVIEW_PROCESSING_ERROR("리뷰 검토 중 오류가 발생했습니다");
     private final String description;
 }

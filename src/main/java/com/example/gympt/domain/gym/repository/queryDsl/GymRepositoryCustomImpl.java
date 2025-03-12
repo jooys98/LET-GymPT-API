@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.example.gympt.domain.category.entity.QLocal.local;
@@ -60,6 +61,13 @@ public class GymRepositoryCustomImpl implements GymRepositoryCustom {
                .fetchOne();
     }
 
+    @Override
+    public List<Gym> findByIdList(List<Long> idList) {
+        return jpaQueryFactory.selectFrom(gym)
+                .where(gym.id.in(idList))
+                .fetch();
+    }
+
 
     //인기 헬스장 검색!
     private BooleanExpression filterByPopular(Popular isPopular) {
@@ -72,7 +80,7 @@ public class GymRepositoryCustomImpl implements GymRepositoryCustom {
         if (localName == null) {
             return null;
         }
-        return gym.local.localName.contains(localName);
+        return gym.local.localName.contains(localName).or(gym.address.contains(localName));
     }
 
     //단어 검색

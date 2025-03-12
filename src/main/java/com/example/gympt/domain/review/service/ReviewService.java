@@ -18,7 +18,7 @@ public interface ReviewService {
     List<ReviewResponseDTO> getGymReviews(Long gymId);
 
     Long deleteReview(String email, Long reviewId);
-
+    List<ReviewResponseDTO> getReviewListByTrainer(String email);
 
     default Review dtoToEntity(ReviewRequestDTO reviewRequestDTO, Member member, Gym gym, String reviewImage, Trainers trainers) {
         return Review.builder()
@@ -47,4 +47,6 @@ public interface ReviewService {
     }
 
     void deleteByGym(Gym gym);
+
+
 }

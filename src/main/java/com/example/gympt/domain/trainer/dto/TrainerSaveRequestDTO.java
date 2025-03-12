@@ -14,6 +14,7 @@ import java.util.List;
 @ToString
 public class TrainerSaveRequestDTO {
     //트레이너 신청 양식
+    private Long id;
     private String email;
     private String name;
     private String introduction;
@@ -22,7 +23,12 @@ public class TrainerSaveRequestDTO {
     private String gymName;
     private Long localId;
     private String localName;
-    private String gender;
+    private MultipartFile profileImage;
+
     private List<MultipartFile> files;
+
+//엑셀용
+    private String profileImageUrl;
+    private List<String> images;
 
 }

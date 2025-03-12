@@ -6,10 +6,15 @@ import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.service.MemberService;
 import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
 import com.example.gympt.domain.trainer.service.TrainerService;
+import com.example.gympt.notification.dto.FcmTokenRequestDTO;
 import com.example.gympt.props.JWTProps;
 import com.example.gympt.security.MemberAuthDTO;
 import com.example.gympt.util.CookieUtil;
 import com.example.gympt.util.JWTUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -104,5 +109,25 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMemberDetail(memberAuthDTO.getEmail()));
     }
 
+
+
+
+
+    @Operation(summary = "FCM 토큰 업데이트", description = "사용자의 FCM 토큰을 업데이트합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "FCM 토큰 업데이트 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @PostMapping("/fcm-token")
+    public ResponseEntity<Void> updateFCMToken(
+            @Parameter(description = "FCM 토큰 업데이트 요청 데이터", required = true)
+            @RequestBody FcmTokenRequestDTO request
+    ) {
+        log.info("updateFCMToken request: {}", request);
+        memberService.updateFCMToken(request.getEmail(), request.getFcmToken());
+        return ResponseEntity.ok().build();
+    }
 
 }

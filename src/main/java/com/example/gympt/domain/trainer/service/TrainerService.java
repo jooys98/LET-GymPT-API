@@ -1,5 +1,6 @@
 package com.example.gympt.domain.trainer.service;
 
+import com.example.gympt.domain.booking.dto.BookingResponseDTO;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
@@ -32,6 +33,7 @@ public interface TrainerService {
 //Trainers 엔티티 속 이미지 리스트 객체를  가져와서 문자열 리스트로 만들어주기
         TrainerResponseDTO responseDTO = TrainerResponseDTO.builder()
                 .id(trainers.getId())
+                .profileImage(trainers.getProfileImage())
                 .email(trainers.getMember().getEmail())
                 .age(trainers.getAge())
                 .name(trainers.getMember().getName())
@@ -63,4 +65,6 @@ public interface TrainerService {
     Long updateTrainer(String email, TrainerSaveRequestDTO trainerSaveRequestDTO);
 
     TrainerResponseDTO getTrainerDetail(String email);
+
+
 }

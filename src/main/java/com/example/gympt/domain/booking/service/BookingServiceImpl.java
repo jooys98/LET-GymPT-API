@@ -78,6 +78,13 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking).getId();
     }
 
+    @Override
+    public List<BookingResponseDTO> getBookingListByTrainer(String email) {
+        Trainers trainers = getTrainers(email);
+        return trainers.getBooking().stream().map(this::convertToDTO).toList();
+
+    }
+
     private Booking getBooking(Long id) {
         return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("해당 예약 내역이 존재하지 않습니다"));
     }
@@ -86,5 +93,7 @@ public class BookingServiceImpl implements BookingService {
         return memberRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("Member not found"));
     }
 
-
+    private Trainers getTrainers(String email) {
+        return trainerRepository.findByTrainerEmail(email).orElseThrow(() -> new EntityNotFoundException("Trainers not found"));
+    }
 }

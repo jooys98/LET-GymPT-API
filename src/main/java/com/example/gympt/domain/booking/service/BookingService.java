@@ -20,6 +20,8 @@ public interface BookingService {
 
     Long modifyBooking(String email, Long id, BookingUpdateDTO bookingUpdateDTO);
 
+    List<BookingResponseDTO> getBookingListByTrainer(String email);
+
     default BookingResponseDTO convertToDTO(Booking booking) {
         return BookingResponseDTO.builder()
                 .id(booking.getId())
@@ -41,5 +43,6 @@ public interface BookingService {
                 .bookingDate(bookingDate)
                 .build();
     }
+
 
 }

@@ -1,11 +1,16 @@
 package com.example.gympt.domain.trainer.controller;
 
+import com.amazonaws.Response;
+import com.example.gympt.domain.booking.dto.BookingResponseDTO;
+import com.example.gympt.domain.booking.service.BookingService;
 import com.example.gympt.domain.member.dto.MemberRequestDTO;
 import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerHistoryDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionUpdatePrice;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.service.ReverseAuctionService;
+import com.example.gympt.domain.review.dto.ReviewResponseDTO;
+import com.example.gympt.domain.review.service.ReviewService;
 import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
 import com.example.gympt.domain.trainer.service.TrainerService;
@@ -26,7 +31,8 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final ReverseAuctionService reverseAuctionService;
-
+    private final BookingService bookingService;
+    private final ReviewService reviewService;
     //프래잰테이션 계층 (도메인 표현)
 //트레이너 권한 회원만 이용할 수 있는 api
 
@@ -67,7 +73,17 @@ public class TrainerController {
         return ResponseEntity.ok(trainerService.getTrainerDetail(memberAuthDTO.getEmail()));
     }
 
+    //본인의 예약된 목록 보기
+    @GetMapping("/booking")
+    public ResponseEntity<List<BookingResponseDTO>> getAllBookingsHistory(@AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        return ResponseEntity.ok(bookingService.getBookingListByTrainer(memberDTO.getEmail()));
+    }
 
+
+    @GetMapping("/reviews")
+    public ResponseEntity<List<ReviewResponseDTO>> getAllReviewHistory(@AuthenticationPrincipal final MemberAuthDTO memberDTO) {
+        return ResponseEntity.ok(reviewService.getReviewListByTrainer(memberDTO.getEmail()));
+    }
 //    //트레이너에게만 보여지는 역경매 신청 list
 //    @GetMapping("/auction/list")
 //    public ResponseEntity<List<AuctionResponseToTrainerDTO>> getAuctionRequestList() {

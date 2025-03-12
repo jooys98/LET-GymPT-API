@@ -97,5 +97,11 @@ public class Member extends BaseEntity {
         this.localName = localName;
     }
 
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

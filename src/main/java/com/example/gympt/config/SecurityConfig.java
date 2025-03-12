@@ -52,6 +52,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(new AntPathRequestMatcher("/api/member/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/excel/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/gym/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/local/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/test/**")).permitAll()

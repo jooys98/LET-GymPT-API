@@ -23,7 +23,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"imageList" , "gym" , "member" , "reviews" , "booking" , "likes"})
+@ToString(exclude = {"imageList", "gym", "member", "reviews", "booking", "likes"})
 @Table(name = "trainers_tbl")
 public class Trainers {
     @Id
@@ -33,7 +33,7 @@ public class Trainers {
     private Long age;
     @Column(name = "introduction", columnDefinition = "LONGTEXT")
     private String introduction;
-
+    private String profileImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_id")
@@ -117,10 +117,14 @@ public class Trainers {
     }
 
 
-    public void clearImageList() {
+
+
+    public void clearImage() {
         this.imageList.clear();
     }
 
-
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 
 }

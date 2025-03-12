@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,6 @@ public interface GymRepository extends JpaRepository<Gym, Long> , GymRepositoryC
 
     @Query("select case when count(g) > 0 then true else false end from Gym g where g.local.id = :localId")
     boolean existsByLocal(@Param("localId") Long localId);
-
 
 
 }

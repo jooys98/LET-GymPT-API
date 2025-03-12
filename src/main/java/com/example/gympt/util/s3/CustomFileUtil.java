@@ -212,7 +212,7 @@ public class CustomFileUtil {
      * @param imagePathList 이미지 URL 리스트
      * @return 저장된 파일명 리스트
      */
-//string List 파라미터로 받음
+
     public List<String> uploadImagePathS3Files(List<String> imagePathList) {
         // imagePathList -> MultipartFile 변환 -> saveFiles
         List<MultipartFile> multipartFiles = new ArrayList<>();
@@ -225,11 +225,12 @@ public class CustomFileUtil {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                log.error("uploadImagePathS3Files error: {}", e.getMessage());
+                throw new RuntimeException("Failed to download file from URL: " + imagePath);
             }
         }
         return this.uploadS3Files(multipartFiles);
     }
-
     /**
      * 이미지 URL을 MultipartFile로 변환 후 s3에 저장후 url 반환
      * @param fileName 이미지 URL

@@ -25,6 +25,7 @@ public class TrainerSaveFormDTO {
     private String local;
     private String gymName;
     private String gender;
+    private String profileImage;
     private List<String> imageList;
 
 

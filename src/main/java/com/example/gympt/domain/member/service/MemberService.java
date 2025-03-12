@@ -6,9 +6,6 @@ import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.security.MemberAuthDTO;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.util.Map;
 
@@ -41,4 +38,6 @@ public interface MemberService {
     }
 
     MemberResponseDTO getMemberDetail(String email);
+
+    void updateFCMToken(String email, String fcmToken);
 }

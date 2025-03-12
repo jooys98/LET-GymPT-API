@@ -23,7 +23,7 @@ public class LikesController {
 
     //헬스장 좋아요 추가 / 취소
     @PostMapping("/gym")
-    public ResponseEntity<Boolean> toggleGymLikes(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO,@RequestBody LikesRequestDTO likesRequestDTO) {
+    public ResponseEntity<Boolean> toggleGymLikes(@AuthenticationPrincipal MemberAuthDTO memberAuthDTO, @RequestBody LikesRequestDTO likesRequestDTO) {
         Boolean gymLikes = likesService.toggleGymLikes(memberAuthDTO.getEmail(), likesRequestDTO.getGymId());
         return ResponseEntity.ok(gymLikes);
     }

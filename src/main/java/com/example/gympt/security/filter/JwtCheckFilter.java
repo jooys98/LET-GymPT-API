@@ -47,11 +47,11 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         ) {
             return true;
         }
-        // "/api/product/list" api는 추가하지 말것!
 
-        if (path.startsWith("/api/admin/product/excel/download")) {
+        if (path.startsWith("/api/excel/register/")) {
             return true;
         }
+
         if (path.startsWith("/api/gym/**")) {
             return true;
         }

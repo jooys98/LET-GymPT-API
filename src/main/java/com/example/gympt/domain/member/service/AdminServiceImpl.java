@@ -67,7 +67,7 @@ public class AdminServiceImpl implements AdminService {
         trainer.getMemberRoleList().remove(MemberRole.PREPARATION_TRAINER);
         trainer.getMemberRoleList().add(MemberRole.TRAINER);
         memberRepository.save(trainer); // 권한 바꿔주기
-        this.saveTrainer(trainerEmail);
+        saveTrainer(trainerEmail);
         notificationService.sendTrainerApproval(trainerEmail);
     }
 
@@ -77,6 +77,7 @@ public class AdminServiceImpl implements AdminService {
             TrainerSaveForm trainerSaveForm = getPreparationTrainer(trainerEmail);
             Gym gym = getGym(trainerSaveForm.getGym().getId());
 
+            String profileImage = trainerSaveForm.getProfileImage();
             List<TrainerSaveImage> images = trainerSaveForm.getImageList();
             List<String> imageList = images.stream().map(TrainerSaveImage::getTrainerSaveImageName).toList();
 
@@ -86,6 +87,7 @@ public class AdminServiceImpl implements AdminService {
                     .introduction(trainerSaveForm.getIntroduction())
                     .member(trainerSaveForm.getMember())
                     .gym(gym)
+                    .profileImage(profileImage)
                     .local(trainerSaveForm.getGym().getLocal())
                     .build();
             trainer.addGender(trainerSaveForm.getGender());
@@ -95,10 +97,9 @@ public class AdminServiceImpl implements AdminService {
             }
 
 
-            log.info("저장될 트레이너 email", trainer.getTrainerName());
+            log.info("저장 트레이너 email", trainer.getTrainerName());
 
             trainerRepository.save(trainer);
-            log.info("저장된 트레이너 email", trainer.getMember().getEmail());
             trainerSaveFormRepository.delete(trainerSaveForm);
         } catch (Exception e) {
             throw new RuntimeException("트레이너 저장 중  오류 발생 " + e.getMessage(), e);
@@ -127,7 +128,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void createGym(CreateGymDTO createGymDTO) {
 
-        //TODO: 지역 추가 옵션
         Local local = getLocalId(createGymDTO.getLocalId());
 
         Gym newGym = convertToGym(createGymDTO);
@@ -164,7 +164,7 @@ public class AdminServiceImpl implements AdminService {
     public void updateGym(Long gymId, CreateGymDTO createGymDTO) {
 
         Gym gym = getGym(gymId);
-        Local local = getLocal(createGymDTO.getLocal());
+        Local local = getLocal(createGymDTO.getLocalId());
 
         List<String> oldImageNames = gym.getImageList().stream()
                 .map(GymImage::getGymImageName).toList();
@@ -237,9 +237,24 @@ public class AdminServiceImpl implements AdminService {
     //CreateGymDTO -> gym 엔티티
     private Gym convertToGym(CreateGymDTO createGymDTO) {
 
-        Local local = getLocal(createGymDTO.getLocal());
+        Local local = getLocal(createGymDTO.getLocalId());
 //local 지역 조회 후 시작 !!!
-        List<String> imageNames = customFileUtil.uploadS3Files(createGymDTO.getFiles());
+//        List<String> imageNames = customFileUtil.uploadS3Files(createGymDTO.getFiles());
+
+
+        List<String> imageNames;
+
+        // 엑셀에서 온 경우 (uploadFileNames가 있고 files가 없는 경우)
+        if ((createGymDTO.getFiles() == null || createGymDTO.getFiles().isEmpty())
+                && createGymDTO.getUploadFileNames() != null && !createGymDTO.getUploadFileNames().isEmpty()) {
+            // uploadFileNames에 있는 경로로부터 이미지를 처리
+            // 예: S3에서 이미 존재하는 이미지를 참조하거나, 로컬에서 파일을 찾아 S3에 업로드
+            imageNames = customFileUtil.uploadImagePathS3Files(createGymDTO.getUploadFileNames());
+        } else {
+            // 웹 폼에서 온 경우
+            imageNames = customFileUtil.uploadS3Files(createGymDTO.getFiles());
+        }
+
 
         Gym gym = Gym.builder()
                 .gymName(createGymDTO.getGymName())
@@ -248,8 +263,9 @@ public class AdminServiceImpl implements AdminService {
                 .description(createGymDTO.getDescription())
                 .dailyPrice(createGymDTO.getDailyPrice())
                 .monthlyPrice(createGymDTO.getMonthlyPrice())
-                .popular(createGymDTO.getPopular())
                 .build();
+
+        gym.addPopular(createGymDTO.getPopular());
         //이미지 이름을 gym 엔티티 imageList 에 저장
         for (String imageName : imageNames) {
             gym.addImageString(imageName);
@@ -267,8 +283,8 @@ public class AdminServiceImpl implements AdminService {
         return gymRepository.findByGymId(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));
     }
 
-    private Local getLocal(String local) {
-        return localRepository.findByLocalName(local).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다"));
+    private Local getLocal(Long localId) {
+        return localRepository.findById(localId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다"));
     }
 
 

@@ -14,6 +14,7 @@ import com.example.gympt.domain.review.repository.ReviewRepository;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.domain.trainer.repository.TrainerRepository;
 import com.example.gympt.exception.CustomDoesntExist;
+import com.example.gympt.notification.service.NotificationService;
 import com.example.gympt.util.s3.CustomFileUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,9 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.example.gympt.notification.enums.NotificationType.REVIEW_APPROVED;
+import static com.example.gympt.notification.enums.NotificationType.REVIEW_REJECTED;
 
 @Service
 @Transactional
@@ -40,7 +44,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final TrainerRepository trainerRepository;
     private final BookingRepository bookingRepository;
     private final ModerationService moderationService;
-
+    private final NotificationService notificationService;
 
     @Transactional
     @Override
@@ -97,6 +101,12 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewResponseDTO> getReviewListByTrainer(String email) {
+        Trainers trainers = getTrainerEmail(email);
+        return trainers.getReviews().stream().map(this::EntityToDTO).toList();
+    }
+
+    @Override
     public void deleteByGym(Gym gym) {
         List<Review> reviews = reviewRepository.findByGymId(gym.getId());
         for (Review review : reviews) {
@@ -106,61 +116,80 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     //비동기 호출
-
     public void checkReviewModeration(Review review) {
         String reviewText = review.getContent();
 
         List<String> reviewTexts = List.of(reviewText);
 
         moderationService.moderateReview(reviewTexts)
-                .subscribe(
+                .subscribe(     //result : 떡볶이를 담을 접시
+                        //review : 신전 떡볶이
                         result -> handleModerationResult(result, review),
                         error -> log.error("모더레이션 API 오류: {}", error.getMessage())
                 );
     }
 
-    //모더레이션 결과에 따라 별도의 트랜잭션으로 리뷰 상태가 업데이트
+    //리뷰 검사 결과에 따라 별도의 트랜잭션으로 리뷰 상태가 업데이트 , 배달 완료된 신전 떡볶이
     @Transactional
-    private void handleModerationResult(Map<String, Object> result, Review review) {
+    public void handleModerationResult(Map<String, Object> result, Review review) {
         try {
-            // OpenAI 모더레이션 API 응답 구조에 맞게 파싱
-            //results 에는 응답 결과가 들어있다
+            // ChatGPT API 응답에서 결과 추출
             List<Map<String, Object>> results = (List<Map<String, Object>>) result.get("results");
 
             if (results != null && !results.isEmpty()) {
-                // 첫 번째 결과 확인 ->  results[0]에 해당하는 결과 flagged
-                Map<String, Object> moderationResult = results.get(0);
-                boolean flagged = (boolean) moderationResult.get("flagged");
+                // ChatGPT API 응답으로 변환된 결과 가져오기
+                Map<String, Object> gptResult = results.get(0);
+                boolean flagged = (boolean) gptResult.get("flagged");
 
                 if (flagged) {
-                    // 어떤 카테고리가 위반되었는지 확인 (선택적)
-                    Map<String, Boolean> categories = (Map<String, Boolean>) moderationResult.get("categories");
+                    // 어떤 카테고리가 위반되었는지 확인
+                    Map<String, Boolean> categories = (Map<String, Boolean>) gptResult.get("categories");
 
-                    // 위반 카테고리들을 로그로 기록 (선택적)
+                    // 위반 카테고리들을 로그로 기록
                     List<String> violatedCategories = categories.entrySet().stream()
                             .filter(Map.Entry::getValue)
                             .map(Map.Entry::getKey)
                             .collect(Collectors.toList());
 
-                    log.info("리뷰 ID: {}가 다음 카테고리에서 위반 감지됨: {}", review.getId(), violatedCategories);
+                    // 위반 이유 로깅 (reason 필드가 있는 경우)
+                    String reason = (String) gptResult.getOrDefault("reason", "알 수 없는 이유");
+                    log.info("리뷰 ID: {}가 다음 카테고리에서 위반 감지됨: {}, 이유: {}",
+                            review.getId(), violatedCategories, reason);
 
-                    // 악의적인 리뷰로 판단되면 active를 false로 설정
+                    // 리뷰 비활성화
                     review.changeActive(false);
                     reviewRepository.save(review);
+                    notificationService.sendNotificationToMember(
+                            review.getMember(),
+                            "리뷰에 부적절한 내용이 감지되었습니다",
+                            "리뷰 정책 위반이 감지되었습니다",
+                            REVIEW_REJECTED
+                    );
                 } else {
                     // 문제없는 리뷰는 active를 true로 설정
                     review.changeActive(true);
                     reviewRepository.save(review);
+                    notificationService.sendNotificationToMember(
+                            review.getMember(),
+                            "리뷰가 승인되었습니다",
+                            "귀하의 리뷰에 감사드립니다",
+                            REVIEW_APPROVED
+                    );
                 }
             }
         } catch (Exception e) {
-            log.error("모더레이션 결과 처리 중 오류: {}", e.getMessage());
+            log.error("모더레이션 결과 처리 중 오류: {}", e.getMessage(), e);
+            // 에러 처리 로직 (선택사항)
         }
     }
 
 
     private Trainers getTrainer(String trainerName) {
         return trainerRepository.findByName(trainerName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + trainerName));
+    }
+
+    private Trainers getTrainerEmail(String email) {
+        return trainerRepository.findByTrainerEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + email));
     }
 
 

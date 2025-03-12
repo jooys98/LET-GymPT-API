@@ -41,3 +41,4 @@ out/
 
 ### mac
 .DS_Store
+*service_key*.json
