@@ -45,6 +45,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookingRepository bookingRepository;
     private final ModerationService moderationService;
     private final NotificationService notificationService;
+    private final ReviewSummaryService reviewSummaryService;
 
     @Transactional
     @Override
@@ -175,6 +176,7 @@ public class ReviewServiceImpl implements ReviewService {
                             "귀하의 리뷰에 감사드립니다",
                             REVIEW_APPROVED
                     );
+                    reviewSummaryService.updateReviewSummary(review);
                 }
             }
         } catch (Exception e) {

@@ -51,6 +51,9 @@ public class Gym {
     @Builder.Default
     private List<LocalGymBridge> localGymBridgeList = new ArrayList<>();
 
+    @Column(length = 1000)
+    private String reviewSummary;
+
 
 
     @Enumerated(EnumType.STRING)
@@ -98,6 +101,10 @@ public class Gym {
         this.local = local;
     }
 
+    // 요약 업데이트 메서드
+    public void updateReviewSummary(String summary) {
+        this.reviewSummary = summary;
+    }
 
     public void addPopular(String popular) {
         this.popular = popular.equals("N") ? Popular.N : Popular.Y;
