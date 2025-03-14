@@ -34,7 +34,7 @@ public class NotificationService {
      * 개인 알림 전송 메서드
      */
 
-
+    @Transactional
     public void sendNotificationToMember(Member member, String title, String body, NotificationType type) {
         log.info("sendCouponToMember notification: member email {}", member.getEmail());
         Notification notification = Notification.of(
@@ -177,12 +177,12 @@ public class NotificationService {
      * @param targetEmail 알림을 받을 회원 이메일
      */
 
-    public void sendChattingMessage(String targetEmail, ChatMessageDTO chatMessageDTO,Member member) {
+    public void sendChattingMessage(String targetEmail, ChatMessageDTO chatMessageDTO, Member member) {
         log.info("sendChattingMessage notification: target targetEmail {}", targetEmail);
-       // 수신자
+        // 수신자
         Member target = memberRepository.getWithRoles(targetEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일을 가진 회원이 없습니다. targetEmail: " + targetEmail));
-       //발신자
+        //발신자
         String title = member.getName() + "님 에게 새 메세지가 도착하였습니다!";
         String body = chatMessageDTO.getMessage();
 

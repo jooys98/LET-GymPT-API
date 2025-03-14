@@ -54,8 +54,8 @@ public class ReviewServiceImpl implements ReviewService {
         Gym gym = getGym(reviewRequestDTO.getGymId());
 
         Trainers trainers = null;
-        if (reviewRequestDTO.getTrainerName() != null && !reviewRequestDTO.getTrainerName().isEmpty()) {
-            trainers = getTrainer(reviewRequestDTO.getTrainerName());
+        if (reviewRequestDTO.getTrainerId() != null) {
+            trainers = getTrainer(reviewRequestDTO.getTrainerId());
         }
 
         Booking booking = bookingRepository.findById(reviewRequestDTO.getBookingId()).orElseThrow(() -> new EntityNotFoundException("예약 내역이 없습니다 " + reviewRequestDTO.getBookingId()));
@@ -117,6 +117,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     //비동기 호출
+    @Transactional
     public void checkReviewModeration(Review review) {
         String reviewText = review.getContent();
 
@@ -124,9 +125,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         moderationService.moderateReview(reviewTexts)
                 .subscribe(     //result : 떡볶이를 담을 접시
-                        //review : 신전 떡볶이
+                                //review : 신전 떡볶이
+                        // subscribe 안에서 실행되는 동작은 전부 비동기작용이고
+                        // 별도의 스레드에서 실행되기 때문에 트랜젝션 처리와 관련이 없다
                         result -> handleModerationResult(result, review),
-                        error -> log.error("모더레이션 API 오류: {}", error.getMessage())
+                        error -> {
+                            log.error("모더레이션 API 오류: {}", error.getMessage());
+                            error.printStackTrace();
+                        }
+
                 );
     }
 
@@ -181,13 +188,13 @@ public class ReviewServiceImpl implements ReviewService {
             }
         } catch (Exception e) {
             log.error("모더레이션 결과 처리 중 오류: {}", e.getMessage(), e);
-            // 에러 처리 로직 (선택사항)
+
         }
     }
 
 
-    private Trainers getTrainer(String trainerName) {
-        return trainerRepository.findByName(trainerName).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + trainerName));
+    private Trainers getTrainer(Long trainerId) {
+        return trainerRepository.findById(trainerId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 트레이너 이름입니다 " + trainerId));
     }
 
     private Trainers getTrainerEmail(String email) {

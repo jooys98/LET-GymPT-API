@@ -33,10 +33,9 @@ public class ModerationService {
     // 음식이 도착하면 초인종이 울린다 , 음식을 접시에 담고 야무지게 음식을 먹는다
     // 내가 배달을 시킨 행위 : 비동기적 작업 , 주문한 신전떡볶이 : ai 가 내릴 결과 , 기다리면서 하는 개발 : 스레드가 멈추지 않는다
     // 조리가 다 돼어 우리집에 도착한 떡볶이 : 비동기적 반환 , 초인종 : ai 의 리뷰 작업이 끝날을 시 푸쉬 알림 (fcm)
-    // 접시에 담긴 떡볶이 : Map<String, Object>
+    // 떡볶이를 담을 접시  : Map<String, Object>
 
     public Mono<Map<String, Object>> moderateReview(List<String> reviewTexts) {
-        // 1. 기존 OpenAI 모더레이션 API 호출
         Mono<Map<String, Object>> openAi = webClient.post()
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")

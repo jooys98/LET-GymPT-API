@@ -26,7 +26,7 @@ public class ReviewSummaryService {
     @Value("${OPENAI_API_KEY}")
     private String apiKey;
 
-
+//리뷰가 달릴때마다 요약 업데이트 진행 ( 3개 이상일 경우에만 실행)
     @Transactional
     public void updateReviewSummary(Review newReview) {
         Gym gym = newReview.getGym();

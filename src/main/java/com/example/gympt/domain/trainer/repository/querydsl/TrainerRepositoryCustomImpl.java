@@ -55,7 +55,7 @@ public class TrainerRepositoryCustomImpl implements TrainerRepositoryCustom {
         if (localId == null) {
             return null;
         }
-        return trainers.local.id.eq(localId);
+        return trainers.local.id.eq(localId).or(trainers.local.parent.id.eq(localId));
     }
 
     private BooleanExpression filterByName(String name) {

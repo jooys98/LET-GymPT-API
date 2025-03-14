@@ -19,6 +19,6 @@ public enum NotificationType {
     BOOKING_DAY("예약일 입니다, 늦지 않게 방문해주세요😀"),
     REVIEW_APPROVED("리뷰가 승인되었습니다"),
     REVIEW_REJECTED("리뷰에 부적절한 내용이 감지되었습니다"),
-    REVIEW_PROCESSING_ERROR("리뷰 검토 중 오류가 발생했습니다");
+    PROCESSING_ERROR("리뷰 검토 중 오류가 발생했습니다");
     private final String description;
 }
