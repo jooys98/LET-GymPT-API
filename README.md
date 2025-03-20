@@ -145,7 +145,9 @@ MongoDB: 문서형 데이터베이스로 채팅 내역 고속 처리
 QueryDSL: 복잡한 데이터 조회 최적화
 
 📝 프로젝트 구조
-복사Let-gymPT/
+
+
+Let-gymPT/
 ├── src/
 │   ├── main/
 │   │   ├── java/com.example.gympt/
@@ -177,6 +179,7 @@ QueryDSL: 복잡한 데이터 조회 최적화
 │   │   └── resources/
 │   └── test/
 └── build.gradle
+
 
 
 
