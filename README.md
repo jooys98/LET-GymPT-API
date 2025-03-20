@@ -39,27 +39,37 @@ Amazon S3: 이미지 파일 저장 및 관리
 #외부 연동
 
 Kakao OAuth2: 소셜 로그인 구현
+
 FCM: 푸시 알림 서비스
+
 OpenAI GPT-3.5: 리뷰 필터링 및 요약 서비스
 
 
 #기타 도구
 
 Apache POI: 엑셀 데이터 자바 객체 변환 처리
+
 Figma: UI/UX 디자인
 
 
 🔍swagger
+
+
 :http://localhost:8080/swagger-ui/index.html
 
 
 📖ERD 
+
+
+
 <img width="929" alt="스크린샷 2025-03-20 오후 4 05 54" src="https://github.com/user-attachments/assets/826fd4b2-1209-4ad6-a5e8-9367aab671ba" />
 
 
 
 
 🌟Figma
+
+
 https://www.figma.com/design/mcWNBEhzZCT0j2n9lMutWp/Untitled?node-id=0-1&t=SBiyAAzXPIRNruMA-1
 
 
@@ -154,7 +164,7 @@ WebSocket을 활용한 실시간 양방향 통신
 
 예약 후 1일 뒤 리뷰 작성 가능
 
-AI 기반 악의적 리뷰 필터링
+AI 기반 악의적 리뷰 필터링, 필터링 완료 후 푸쉬 알림 전송
 
 헬스장 당 3개 이상 리뷰 누적 시 AI 리뷰 요약 제공
 
@@ -163,6 +173,8 @@ AI 기반 악의적 리뷰 필터링
 🏋️ 헬스 커뮤니티
 
 헬스 관련 정보 및 일상 공유 커뮤니티
+
+댓글 , 조회수를 기반으로 한 인기 게시글 조회 
 
 회원: 글쓰기, 삭제, 댓글 기능
 
@@ -176,9 +188,12 @@ AI 기반 악의적 리뷰 필터링
 
 📊 기술적 특징
 
+
 대용량 데이터 처리
 
 Apache POI를 활용한 엑셀 데이터 자바 객체 변환 및 대량 데이터 삽입
+
+
 
 보안 및 인증
 
@@ -186,15 +201,21 @@ JWT 토큰 기반 인증/인가 시스템
 
 카카오 OAuth2 소셜 로그인 구현
 
+
+
 실시간 통신
 
 WebSocket과 STOMP 프로토콜을 활용한 양방향 실시간 통신
+
+
 
 AI 활용
 
 GPT-3.5 기반 리뷰 필터링 및 요약 서비스
 
 Mono를 활용한 비동기 처리
+
+
 
 데이터베이스 최적화
 
