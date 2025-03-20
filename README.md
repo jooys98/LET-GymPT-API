@@ -12,27 +12,38 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 🛠️ 기술 스택
-백엔드
+
+#백엔드
 
 Spring Boot (JPA): 메인 백엔드 프레임워크
+
 WebSocket (STOMP): 실시간 채팅 및 역경매 기능 구현
+
 JWT: 토큰 기반 인증/인가 처리
+
 QueryDSL: 복잡한 데이터 조회 최적화
+
 Mono: AI 리뷰 필터링 비동기 처리
 
-데이터베이스
+
+
+#데이터베이스
 
 MySQL: 관계형 데이터베이스로 핵심 데이터 관리 및 트랜잭션 처리
+
 MongoDB: 채팅 내역 저장 및 조회 서비스
+
 Amazon S3: 이미지 파일 저장 및 관리
 
-외부 연동
+
+#외부 연동
 
 Kakao OAuth2: 소셜 로그인 구현
 FCM: 푸시 알림 서비스
 OpenAI GPT-3.5: 리뷰 필터링 및 요약 서비스
 
-기타 도구
+
+#기타 도구
 
 Apache POI: 엑셀 데이터 자바 객체 변환 처리
 Figma: UI/UX 디자인
