@@ -13,6 +13,7 @@ import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.domain.trainer.repository.TrainerRepository;
 import com.example.gympt.exception.CustomDoesntExist;
 import com.example.gympt.exception.CustomNotAccessHandler;
+import com.example.gympt.exception.NoDuplicationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,10 @@ public class BookingServiceImpl implements BookingService {
         Member member = getMember(email);
         Gym gym = gymRepository.findById(bookingRequestDTO.getGymId()).orElseThrow(() -> new EntityNotFoundException("헬스장 예약란은 필수입니다"));
 
+        if (bookingRequestDTO.getBookingDate().isBefore(LocalDateTime.now())) {
+            throw new NoDuplicationException("현재날짜보다 이전의 날짜는 예약이 불가능 합니다.");
+        }
+
         Trainers trainers = null;
         if (bookingRequestDTO.getTrainerId() != null) {
             trainers = trainerRepository.findById(bookingRequestDTO.getTrainerId()).orElse(null);
@@ -65,6 +70,8 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomNotAccessHandler("삭제 권한이 없습니다");
         }
         bookingRepository.delete(booking);
+        trainerRepository.delete(booking.getTrainers());
+        gymRepository.delete(booking.getGym());
         return booking.getId();
     }
 

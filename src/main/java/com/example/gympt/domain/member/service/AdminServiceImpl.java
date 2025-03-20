@@ -9,6 +9,7 @@ import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.entity.GymImage;
 import com.example.gympt.domain.gym.repository.GymRepository;
 import com.example.gympt.domain.member.dto.CreateGymDTO;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
@@ -222,6 +223,11 @@ public class AdminServiceImpl implements AdminService {
         return localId;
     }
 
+    @Override
+    public List<MemberResponseDTO> getAllMembers() {
+        return memberRepository.findAll().stream().map(MemberResponseDTO::from).toList();
+    }
+
 
     //CreateGymDTO -> gym 엔티티
     private Gym convertToGym(CreateGymDTO createGymDTO) {
@@ -259,7 +265,6 @@ public class AdminServiceImpl implements AdminService {
         } // 각각의 이미지 엔티티 로우기 이미지 개수 만큼 생김
         return gym;
     }
-
 
 
     private Gym getGym(Long gymId) {

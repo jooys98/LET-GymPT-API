@@ -52,18 +52,20 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(new AntPathRequestMatcher("/api/member/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/excel/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/gym/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/local/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/test/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/kakao/mobile/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/kakao/web/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/chat/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/health")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/community/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/review/**")).permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
-                        // /api/admin/join, /api/admin/login,logout 모두 접근 가능
+
+
                         // api path에 admin 포함되면 ROLE_ADMIN 권한이 있어야 접근 가능,
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/trainer/**")).hasRole("TRAINER")
                         .anyRequest().authenticated()
         );
 

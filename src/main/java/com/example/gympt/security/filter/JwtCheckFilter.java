@@ -48,16 +48,8 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
-        if (path.startsWith("/api/excel/")) {
-            return true;
-        }
 
         if (path.startsWith("/api/gym/**")) {
-            return true;
-        }
-        // /view 이미지 불러오기 api로 시작하는 요청은 필터를 타지 않도록 설정
-        if (path.startsWith("/api/product/view") || path.startsWith("/api/content/view")
-                || path.startsWith("/api/admin/product/view") || path.startsWith("/api/admin/content/view")) {
             return true;
         }
 
@@ -92,12 +84,11 @@ public class JwtCheckFilter extends OncePerRequestFilter {
         String autHeaderStr = request.getHeader("Authorization");
         log.info("autHeaderStr Authorization: {}", autHeaderStr);
 
-        if ((Objects.equals(autHeaderStr, "Bearer null") || autHeaderStr == null ) && (
-                request.getServletPath().startsWith("/api/gym/list")
-                //권한 /토큰 없이도 패스 해야 하는 api 경로적어놓기
-//                        || (request.getServletPath().startsWith("/api/product/") && request.getServletPath().endsWith("/detail"))
-//                        || (request.getServletPath().startsWith("/api/product/") && request.getServletPath().endsWith("/tag/list"))
-        )) {
+        if ((Objects.equals(autHeaderStr, "Bearer null") || autHeaderStr == null) && (
+                request.getServletPath().startsWith("/api/gym/")
+                        //권한 /토큰 없이도 패스 해야 하는 api 경로적어놓기
+                        || (request.getServletPath().startsWith("/api/community/") || (request.getServletPath().startsWith("/api/review/") && request.getMethod().equals("GET")
+                )))) {
             filterChain.doFilter(request, response);
             return;
         }

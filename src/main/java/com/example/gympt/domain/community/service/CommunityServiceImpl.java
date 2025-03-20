@@ -39,7 +39,7 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public CommunityResponseDTO getPostDetail(Long id) {
         Community community = communityRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Community not found"));
-        community.addViews();
+        community.addViews(); //게시글 상세조회 시 조회수 증가
         communityRepository.save(community);
         return CommunityResponseDTO.from(community);
     }

@@ -5,10 +5,10 @@ services:
     container_name: mysql_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: gymPT
-      MYSQL_USER: gymPT
-      MYSQL_PASSWORD: gymPT
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_DB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_DB_PASSWORD}
       TZ: Asia/Seoul
     ports:
       - "3307:3306"
@@ -28,9 +28,9 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: gymPT
-      MONGO_INITDB_ROOT_PASSWORD: gymPT
-      MONGO_INITDB_DATABASE: chat
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - mongodb_data:/data/db
 #      ec2에 디렉토리 따로 안만들어도 됨

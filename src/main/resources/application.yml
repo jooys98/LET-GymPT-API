@@ -54,14 +54,14 @@ spring:
 app:
   props:
     social:
-#      kakao:
-#        client-id: ${KAKAO_CLIENT_ID}
-#        client-secret: ${KAKAO_CLIENT_SECRET}
-#        authorization-uri: https://kauth.kakao.com/oauth/authorize
-#        token-uri: https://kauth.kakao.com/oauth/token
-#        user-info-uri: https://kapi.kakao.com/v2/user/me
-#        user-info-name-attribute-key: id
-#        client-name: Kakao
+      kakao:
+        client-id: ${KAKAO_CLIENT_ID}
+        client-secret: ${KAKAO_CLIENT_SECRET}
+        authorization-uri: https://kauth.kakao.com/oauth/authorize
+        token-uri: https://kauth.kakao.com/oauth/token
+        user-info-uri: https://kapi.kakao.com/v2/user/me
+        user-info-name-attribute-key: id
+        client-name: Kakao
 
     jwt:
       secret-key: ${JWT_SECRET_KEY}
@@ -110,13 +110,13 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/gymPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: gymPT
-    password: gymPT
+    url: ${MYSQL_DB_URL}
+    username: ${MYSQL_DB_USERNAME}
+    password: ${MYSQL_DB_PASSWORD}
 
   data:
     mongodb:
-      uri: mongodb://gymPT:gymPT@localhost:27017/chat?authSource=admin
+      uri: ${MONGO_DB_URL}
 #app:
 #  props:
 #    social:
@@ -143,9 +143,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/gymPT?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: gymPT
-    password: gymPT
+    url: ${MYSQL_DB_URL_PROD}
+    username: ${MYSQL_DB_USERNAME}
+    password: ${MYSQL_DB_PASSWORD}
     hikari:
       max-lifetime: 600000 # 최대 수명 (밀리초)
       idle-timeout: 300000 # 유휴 시간 (밀리초)
@@ -154,7 +154,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://gymPT:gymPT@localhost:27017/chat?authSource=admin
+      uri: ${MONGO_DB_URL_PROD}
 #app:
 #  props:
 #    social:

@@ -4,6 +4,7 @@ import com.example.gympt.domain.category.dto.LocalDTO;
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.member.dto.CreateGymDTO;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.trainer.dto.TrainerSaveFormDTO;
 import com.example.gympt.domain.trainer.entity.TrainerSaveForm;
 import com.example.gympt.domain.trainer.entity.TrainerSaveImage;
@@ -53,5 +54,7 @@ public interface AdminService {
                 .localName(local.getLocalName())
                 .build();
     }
+
+    List<MemberResponseDTO> getAllMembers();
 }
 

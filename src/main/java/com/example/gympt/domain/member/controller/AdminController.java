@@ -4,6 +4,7 @@ import com.example.gympt.domain.booking.dto.BookingRequestDTO;
 import com.example.gympt.domain.category.dto.LocalDTO;
 import com.example.gympt.domain.category.service.LocalService;
 import com.example.gympt.domain.member.dto.CreateGymDTO;
+import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.dto.RoleChangeRequest;
 import com.example.gympt.domain.member.service.AdminService;
 import com.example.gympt.domain.trainer.dto.TrainerSaveFormDTO;
@@ -105,6 +106,15 @@ public class AdminController {
     public ResponseEntity<List<TrainerSaveFormDTO>> getTrainersSaveForm() {
         List<TrainerSaveFormDTO> preparationTrainerList = adminService.getPreparationTrainers();
         return ResponseEntity.ok(preparationTrainerList);
+    }
+
+
+
+    @Operation(summary = "회원 목록 조회 ", description = "Let gymPT에 가입되어 있는 모든 회원을 조회합니다. ")
+    @GetMapping("/members")
+    public ResponseEntity<List<MemberResponseDTO>> getAllMembers() {
+        List<MemberResponseDTO> memberList = adminService.getAllMembers();
+        return ResponseEntity.ok(memberList);
     }
 
     @Operation(
