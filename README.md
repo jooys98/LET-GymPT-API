@@ -47,6 +47,8 @@ OpenAI GPT-3.5: 리뷰 필터링 및 요약 서비스
 
 #기타 도구
 
+Swagger API 3.0.0: API 문서화 
+
 Apache POI: 엑셀 데이터 자바 객체 변환 처리
 
 Figma: UI/UX 디자인

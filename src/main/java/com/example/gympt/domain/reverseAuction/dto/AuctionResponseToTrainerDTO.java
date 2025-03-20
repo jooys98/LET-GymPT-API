@@ -33,7 +33,7 @@ public class AuctionResponseToTrainerDTO {
     private Integer participateTrainers; // 참여한 트레이너
     private String status;// 상태
 
-    //TODO: 참여한 트레이너 들 + 가격+ 날짜 리스트도 함께 포함 시키기
+
 
 
     public static AuctionResponseToTrainerDTO from(AuctionRequest auctionRequest) {

@@ -8,6 +8,12 @@ import com.example.gympt.domain.member.service.MemberService;
 import com.example.gympt.props.JWTProps;
 import com.example.gympt.security.MemberAuthDTO;
 import com.example.gympt.util.CookieUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +31,27 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "Social Login API", description = "모바일 소셜 로그인 관련 API")
 public class SocialAppController {
 
     private final MemberService memberService;
     private final KakaoService kakaoService;
     private final JWTProps jwtProps;
 
+    @Operation(summary = "카카오 모바일 로그인", description = "카카오 소셜 로그인을 통해 모바일에서 인증합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> kakaoMoblieLogin(@Valid @RequestBody KakaoMoblieRequestDTO loginRequestDTO, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDTO> kakaoMoblieLogin(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "카카오 모바일 로그인 요청 정보", required = true,
+            content = @Content(schema = @Schema(implementation = KakaoMoblieRequestDTO.class)))
+                                                             @Valid @RequestBody KakaoMoblieRequestDTO loginRequestDTO,
+                                                             HttpServletResponse response) {
         log.info("kakaoMoblie login request: {}", loginRequestDTO);
 
         MemberAuthDTO memberAuthDTO = kakaoService.getKakaoMoblieMember(loginRequestDTO);

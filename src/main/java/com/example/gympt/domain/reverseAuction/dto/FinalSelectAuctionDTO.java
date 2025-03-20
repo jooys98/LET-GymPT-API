@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 public class FinalSelectAuctionDTO {
-
     //유저에게 보내지는 트레이너 정보 , 최종 매칭된 내역 트레이너 보기
     private Long auctionId;
     //경매 번호
