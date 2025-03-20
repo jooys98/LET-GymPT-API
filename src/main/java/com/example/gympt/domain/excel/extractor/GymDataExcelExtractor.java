@@ -39,22 +39,21 @@ public class GymDataExcelExtractor {
 
                 int rowNum = row.getRowNum() + 1;
 
-                String imagePathInfo = row.getCell(7).getStringCellValue().trim();
+                String imagePathInfo = row.getCell(6).getStringCellValue().trim();
                 List<String> imageList = getExcelImageList(imagePathInfo);
 
                 // 이미지 URL의 확장자 유효성 검사
                 validateImageExtensions(imageList, rowNum);
                 CreateGymDTO dto = CreateGymDTO.builder()
-                        .id((long) row.getCell(0).getNumericCellValue())
-                        .gymName(row.getCell(1).getStringCellValue().trim())
-                        .dailyPrice((long) row.getCell(2).getNumericCellValue())
-                        .monthlyPrice((long) row.getCell(3).getNumericCellValue())
-                        .address(row.getCell(4).getStringCellValue().trim())
-                        .description(row.getCell(5).getStringCellValue().trim())
-                        .localId((long) row.getCell(6).getNumericCellValue())
+                        .gymName(row.getCell(0).getStringCellValue().trim())
+                        .dailyPrice((long) row.getCell(1).getNumericCellValue())
+                        .monthlyPrice((long) row.getCell(2).getNumericCellValue())
+                        .address(row.getCell(3).getStringCellValue().trim())
+                        .description(row.getCell(4).getStringCellValue().trim())
+                        .localId((long) row.getCell(5).getNumericCellValue())
                         .uploadFileNames(imageList)
-                        .info(row.getCell(8).getStringCellValue().trim())
-                        .popular(row.getCell(9).getStringCellValue().trim())
+                        .info(row.getCell(7).getStringCellValue().trim())
+                        .popular(row.getCell(8).getStringCellValue().trim())
                         .build();
 
                 return dto;

@@ -51,7 +51,7 @@ public class ChatController {
         //구독자에게 메세지 전송
         //클라이언트 구독주소(destination) + 채팅방 번호 + 전송되고 mongodb 애 저장될 메세지(payload)
         //mu sql 테이블에도 insert
-        // /topic/chat/room/{roomId} 에게 전송
+        //topic/chat/room/{roomId} 에게 전송
 
 
     }

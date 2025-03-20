@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,6 +39,6 @@ public class JoinRequestDTO {
 
 //    @DateTimeFormat(pattern = "yyyy-MM-dd")
 
-    private String birthday;
+    private Long birthday;
     private String role;
 }

@@ -46,11 +46,7 @@ public class LikesServiceImpl implements LikesService {
             likesGymRepository.deleteEmailGymId(likesMemberEmail, likesGymId);
             return false;
         } else {
-            LikesGym likesGym = LikesGym.builder()
-                    .gym(gym)
-                    .member(member)
-                    .build();
-            likesGymRepository.save(likesGym);
+            likesGymRepository.save(LikesGym.from(member, gym));
             return true;
         }
     }
@@ -67,7 +63,7 @@ public class LikesServiceImpl implements LikesService {
     /// @Param: 트레이너 이메일 , 유저 이메일
     @Override
     public Boolean toggleTrainerLikes(String email, Long trainerId) {
-        try {
+
             Member member = getMember(email);
             Trainers trainers = getTrainer(trainerId);
             String likesMemberEmail = member.getEmail();
@@ -78,17 +74,9 @@ public class LikesServiceImpl implements LikesService {
                 likesTrainerRepository.deleteTrainerEmail(likesMemberEmail, likesTrainerEmail);
                 return false;
             } else {
-                LikesTrainers likesTrainers = LikesTrainers.builder()
-                        .trainers(trainers)
-                        .member(member)
-                        .build();
-                likesTrainerRepository.save(likesTrainers);
+                likesTrainerRepository.save(LikesTrainers.from(member, trainers));
                 return true;
             }
-
-        } catch (Exception e) {
-            throw new RuntimeException("트레이너 좋아요 실패 ㅜㅜ");
-        }
     }
 
     //회원의 트레이너 좋아요 조회
@@ -96,12 +84,12 @@ public class LikesServiceImpl implements LikesService {
     public List<LikesTrainersDTO> getLikesTrainerList(String email) {
         Member member = getMember(email);
         List<LikesTrainersDTO> likesTrainersDTOS = likesTrainerRepository.findLikesTrainersByMemberEmail(member.getEmail())
-                .stream().map(trainer -> this.toTrainerLikesDTO(trainer,likesTrainerRepository.likes(email, trainer.getId()))).toList();
+                .stream().map(trainer -> this.toTrainerLikesDTO(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
         return likesTrainersDTOS;
     }
 
 
-    private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers,boolean likes) {
+    private LikesTrainersDTO toTrainerLikesDTO(LikesTrainers likesTrainers, boolean likes) {
         Trainers trainers = getTrainer(likesTrainers.getTrainers().getId());
         String trainerImage = trainers.getImageList().stream().map(TrainerImage::getTrainerImageName).findFirst().orElse(null);
 
@@ -126,7 +114,6 @@ public class LikesServiceImpl implements LikesService {
         String image = gym.getImageList().stream()
                 .map(GymImage::getGymImageName)
                 .findFirst().orElse(null);
-
 
         LikesGymDTO likesGymDTO = LikesGymDTO.builder()
                 .id(gym.getId())

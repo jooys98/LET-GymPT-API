@@ -26,8 +26,6 @@ public class Local {
     @Column(name = "name", nullable = false)
     private String localName;
 
-
-
     //여러개의 부모 카테고리 들도 또 하나의 부모 카테고리를 가질 수 있음
     @ManyToOne(fetch = FetchType.LAZY)
 

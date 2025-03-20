@@ -3,6 +3,7 @@ package com.example.gympt.domain.trainer.entity;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.gym.entity.GymImage;
 import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
 import com.example.gympt.domain.trainer.enums.Gender;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -27,6 +28,7 @@ public class TrainerSaveForm extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(name = "introduction", columnDefinition = "LONGTEXT")
     private String introduction;
     private Long age;
     private Gender gender;
@@ -74,4 +76,16 @@ public class TrainerSaveForm extends BaseEntity {
 //문자열 리스트를 파라미터로 받음
 //각 문자열을 TrainerSaveImage 객체로 변환
 //변환된 객체들을 imageList 필드에 저장
+public static TrainerSaveForm from(Member member , Gym gym , String profileImage , List<TrainerSaveImage> image , TrainerSaveRequestDTO trainerSaveRequestDTO) {
+   return TrainerSaveForm.builder()
+            .member(member)
+            .gym(gym)
+            .profileImage(profileImage)
+            .name(trainerSaveRequestDTO.getName())
+            .age(trainerSaveRequestDTO.getAge())
+            .introduction(trainerSaveRequestDTO.getIntroduction())
+            .imageList(image)
+            .build();
+}
+
 }

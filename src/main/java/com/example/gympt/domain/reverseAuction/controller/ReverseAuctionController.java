@@ -21,8 +21,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @RequestMapping("/api/reverse-auction")
 public class ReverseAuctionController {
-//로그인 후 이용 가능한 서비스
-
+    //로그인 후 이용 가능한 서비스
+    private final SimpMessageSendingOperations messagingTemplate;
     private final ReverseAuctionService reverseAuctionService;
 
     //역경매 신청
@@ -65,7 +65,6 @@ public class ReverseAuctionController {
     }
 
     //역경매 글 상세보기 (민감한 정보는 트레이너 에게만 !)
-    //TODO : 상세보기 트레이너가 볼 dto 필드 수정 , 여기도 권한으로 분기 처리 하기 
     @GetMapping("/{auctionRequestId}")
     public ResponseEntity<?> getAuctionDetailById(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionRequestId) {
         Object auctionResponseDTO = reverseAuctionService.getAuction(auctionRequestId, memberAuthDTO.getEmail());
@@ -101,6 +100,4 @@ public class ReverseAuctionController {
         return ResponseEntity.ok(reverseAuctionService.getAuctionHistory(memberAuthDTO.getEmail()));
     }
 
-
-//TODO : 지역별 진행중인 역경매 조회 api, 역경매 입찰 취소 로직
 }

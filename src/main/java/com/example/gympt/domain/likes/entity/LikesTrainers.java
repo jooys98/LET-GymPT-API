@@ -28,5 +28,12 @@ public class LikesTrainers {
     @JoinColumn(name = "trainer_email")
     private Trainers trainers;
 
+    public static LikesTrainers from(Member member, Trainers trainers) {
+        return LikesTrainers.builder()
+                .trainers(trainers)
+                .member(member)
+                .build();
+    }
+
 
 }

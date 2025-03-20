@@ -39,4 +39,13 @@ public class Booking {
 public void changeBookingDate(LocalDateTime bookingDate) {
     this.bookingDate = bookingDate;
 }
+
+    public static Booking from(Member member, Gym gym, Trainers trainers, LocalDateTime bookingDate) {
+        return Booking.builder()
+                .gym(gym)
+                .trainers(trainers == null ? null : trainers)
+                .member(member)
+                .bookingDate(bookingDate)
+                .build();
+    }
 }

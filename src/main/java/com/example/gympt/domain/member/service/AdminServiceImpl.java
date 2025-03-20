@@ -73,6 +73,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Transactional
     public void saveTrainer(String trainerEmail) {
+
         try {
             TrainerSaveForm trainerSaveForm = getPreparationTrainer(trainerEmail);
             Gym gym = getGym(trainerSaveForm.getGym().getId());
@@ -91,6 +92,8 @@ public class AdminServiceImpl implements AdminService {
                     .local(trainerSaveForm.getGym().getLocal())
                     .build();
             trainer.addGender(trainerSaveForm.getGender());
+            gym.addTrainer(trainer);
+            gymRepository.save(gym);
 
             for (String imageName : imageList) {
                 trainer.addImageString(imageName);
@@ -98,9 +101,9 @@ public class AdminServiceImpl implements AdminService {
 
 
             log.info("저장 트레이너 email", trainer.getTrainerName());
-
-            trainerRepository.save(trainer);
             trainerSaveFormRepository.delete(trainerSaveForm);
+            trainerRepository.save(trainer);
+
         } catch (Exception e) {
             throw new RuntimeException("트레이너 저장 중  오류 발생 " + e.getMessage(), e);
         }
@@ -109,12 +112,11 @@ public class AdminServiceImpl implements AdminService {
 
 
 //트레이너 회원가입을 따로 안만든 이유 :
-//카카오 소셜 로그인도 있어서 같이 연동하려면 너무 복잡해지기 때문에
+//카카오 소셜 로그인도 있어서 같이 연동하려면 너무 복잡해지기 때문
 //(kakao) member -> trainer 형식으로 구현
 //트레이너 신청시 TrainerSaveForm 에 insert -> admin 의 허용시 Trainers 에 트레이너 정보가 그대로 insert 된다
 
 
-    //트레이너 신청 목록 리스트로 보기 !!!!
     @Override
     public List<TrainerSaveFormDTO> getPreparationTrainers() {
         List<TrainerSaveFormDTO> trainerSaveFormDTOList = trainerSaveFormRepository.findAll()
@@ -124,16 +126,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    //새 헬스장 등록
     @Override
     public void createGym(CreateGymDTO createGymDTO) {
-
         Local local = getLocalId(createGymDTO.getLocalId());
-
         Gym newGym = convertToGym(createGymDTO);
         gymRepository.save(newGym);
-        // 헬스장 등록 이미지 완료 !!!!
-
         if (createGymDTO.getLocalId() != null) {
             localGymBridgeRepository.save(LocalGymBridge.from(local, newGym));
         }
@@ -141,7 +138,7 @@ public class AdminServiceImpl implements AdminService {
 
     //헬스장 삭제!!
     @Override
-    public void deleteGym(Long gymId) {
+    public Long deleteGym(Long gymId) {
         Gym gym = getGym(gymId);
 
         List<String> imageNames = gym.getImageList().stream()
@@ -149,19 +146,20 @@ public class AdminServiceImpl implements AdminService {
                 .toList();
         customFileUtil.deleteS3Files(imageNames);
 
-        gym.clearImageList();
-        gymRepository.delete(gym);
+        gym.clearImageList(); //객체 삭제
+        gymRepository.delete(gym); // 엔티티 삭제
         localGymBridgeRepository.deleteByGym(gym);
         reviewService.deleteByGym(gym);
         trainerService.changeByGym(gym);
 //GymImage 객체 -> 문자열 -> s3 삭제
+        return gymId;
     }
 
 
     //헬스장 정보 수정!!!
     @Transactional
     @Override
-    public void updateGym(Long gymId, CreateGymDTO createGymDTO) {
+    public Long updateGym(Long gymId, CreateGymDTO createGymDTO) {
 
         Gym gym = getGym(gymId);
         Local local = getLocal(createGymDTO.getLocalId());
@@ -209,28 +207,19 @@ public class AdminServiceImpl implements AdminService {
         gym.updateDailyPrice(createGymDTO.getDailyPrice());
         gym.updateMonthlyPrice(createGymDTO.getMonthlyPrice());
         //나머지 정보들도 수정한다
-    }
-
-    //지역 전체 보기 - admin 용
-    @Transactional(readOnly = true)
-    @Override
-    public List<LocalDTO> localList() {
-        return localRepository.findAll().stream()
-                .map(this::entityToDTO)
-                .toList();
+        return gym.getId();
     }
 
 
     //카테고리 삭제
     @Override
-    public void removeLocal(Long localId) {
+    public Long removeLocal(Long localId) {
         // 연관관계가 있는 카테고리라면 삭제 불가능
         if (gymRepository.existsByLocal(localId)) {
             throw new IllegalStateException("지역에 해당하는 헬스장이 있어 삭제가 불가능합니다.");
         }
-
         localRepository.deleteById(localId);
-        // 파일 삭제
+        return localId;
     }
 
 
@@ -238,10 +227,7 @@ public class AdminServiceImpl implements AdminService {
     private Gym convertToGym(CreateGymDTO createGymDTO) {
 
         Local local = getLocal(createGymDTO.getLocalId());
-//local 지역 조회 후 시작 !!!
-//        List<String> imageNames = customFileUtil.uploadS3Files(createGymDTO.getFiles());
-
-
+//local 지역 조회 후 해당 local 정보도 함께 entity 에 담기
         List<String> imageNames;
 
         // 엑셀에서 온 경우 (uploadFileNames가 있고 files가 없는 경우)
@@ -263,6 +249,7 @@ public class AdminServiceImpl implements AdminService {
                 .description(createGymDTO.getDescription())
                 .dailyPrice(createGymDTO.getDailyPrice())
                 .monthlyPrice(createGymDTO.getMonthlyPrice())
+                .info(createGymDTO.getInfo())
                 .build();
 
         gym.addPopular(createGymDTO.getPopular());
@@ -274,10 +261,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    private Member getMemberRoles(String email) {
-        return memberRepository.getWithRoles(email)
-                .orElseThrow(() -> new EntityNotFoundException("회원이 존재하지 않습니다"));
-    }
 
     private Gym getGym(Long gymId) {
         return gymRepository.findByGymId(gymId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 헬스장 입니다 "));

@@ -31,7 +31,6 @@ public class MemberDataExcelExtractor {
 
     private static ExcelDataExtractor<JoinRequestDTO> getExtractor() {
         return new ExcelDataExtractor<JoinRequestDTO>() {
-            private final DataFormatter dataFormatter = new DataFormatter();
 
             @Override
             protected JoinRequestDTO map(Row row) {
@@ -43,7 +42,7 @@ public class MemberDataExcelExtractor {
                         .address(row.getCell(4).getStringCellValue().trim())
                         .localName(row.getCell(5).getStringCellValue().trim())
                         .gender(row.getCell(6).getStringCellValue().trim())
-                        .birthday(dataFormatter.formatCellValue(row.getCell(7)).trim())
+                        .birthday((long)row.getCell(7).getNumericCellValue())
                         .role(row.getCell(8).getStringCellValue().trim())
                         .build();
 

@@ -26,6 +26,9 @@ public interface AdminService {
         return TrainerSaveFormDTO.builder()
                 .id(trainerSaveForm.getId())
                 .name(trainerSaveForm.getName())
+                .email(trainerSaveForm.getMember().getEmail())
+                .profileImage(trainerSaveForm.getProfileImage())
+                .local(trainerSaveForm.getGym().getLocal().getLocalName())
                 .age(trainerSaveForm.getAge())
                 .introduction(trainerSaveForm.getIntroduction())
                 .gender(trainerSaveForm.getGender().toString())
@@ -38,19 +41,17 @@ public interface AdminService {
 
     void createGym(CreateGymDTO createGymDTO);
 
-    void deleteGym(Long gymId);
+    Long deleteGym(Long gymId);
 
-    void updateGym(Long gymId, CreateGymDTO createGymDTO);
+    Long updateGym(Long gymId, CreateGymDTO createGymDTO);
 
-    List<LocalDTO> localList();
+    Long removeLocal(Long localId);
 
-    void removeLocal(Long localId);
-
-    default LocalDTO entityToDTO(Local local){
-            return LocalDTO.builder()
-                    .id(local.getId())
-                    .localName(local.getLocalName())
-                    .build();
-        }
+    default LocalDTO entityToDTO(Local local) {
+        return LocalDTO.builder()
+                .id(local.getId())
+                .localName(local.getLocalName())
+                .build();
     }
+}
 

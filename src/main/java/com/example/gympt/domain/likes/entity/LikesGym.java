@@ -30,7 +30,7 @@ public class LikesGym {
 
 
 
-    public static LikesGym createLikes(Member member, Gym gym) {
+    public static LikesGym from(Member member, Gym gym) {
         return LikesGym.builder()
                 .member(member)
                 .gym(gym)

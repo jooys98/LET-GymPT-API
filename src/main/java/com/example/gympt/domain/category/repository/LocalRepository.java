@@ -16,4 +16,6 @@ public interface LocalRepository extends JpaRepository<Local, Long> , LocalRepos
 
     @Query("select l from Local l where l.id = :localId")
     Optional<Local> findLocalId(@Param("localId") Long localId);
+
+
 }

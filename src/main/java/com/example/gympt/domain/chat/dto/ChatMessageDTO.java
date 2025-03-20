@@ -1,6 +1,7 @@
 package com.example.gympt.domain.chat.dto;
 
 
+import com.example.gympt.domain.chat.document.ChatMessages;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -24,4 +25,18 @@ public class ChatMessageDTO {
     private boolean isRead;
     //    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime sendTime;
+
+
+    public static ChatMessageDTO from(ChatMessages chatMessages, String sender) {
+        return ChatMessageDTO.builder()
+                .roomId(chatMessages.getRoomId())
+                .sender(sender)
+                .email(chatMessages.getEmail())
+                .trainerEmail(chatMessages.getTrainerEmail())
+                .message(chatMessages.getMessage())
+                .sendTime(chatMessages.getSendTime())
+                .isRead(chatMessages.isRead())
+                .build();
+
+    }
 }

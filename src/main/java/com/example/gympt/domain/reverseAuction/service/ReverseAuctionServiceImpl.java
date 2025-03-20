@@ -73,19 +73,9 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
         // 신청내역이 없거나 COMPLETED 상태라면 새로운 신청 처리
         Local local = getLocal(auctionRequestDTO.getLocalId());
         //사용자는 자신의 사는 지역이 아니더라도 원하는 지역에서 수업 신청이 가능하므로 동네 조회 비교 로직은 생략
-
-        AuctionRequest auctionRequest = AuctionRequest.builder()
-                .member(member)
-                .height(auctionRequestDTO.getHeight())
-                .weight(auctionRequestDTO.getWeight())
-                .title(auctionRequestDTO.getTitle())
-                .age(auctionRequestDTO.getAge())
-                .request(auctionRequestDTO.getRequest())
-                .medicalConditions(auctionRequestDTO.getMedicalConditions())
-                .local(local)
-                .build();
+        AuctionRequest auctionRequest = AuctionRequest.from(auctionRequestDTO, member, local);
         auctionRequest.addGender(auctionRequestDTO.getGender());
-        auctionRequest.changeStatus(OPEN);
+        auctionRequest.changeStatus(AuctionStatus.OPEN);
 
         auctionRequestRepository.save(auctionRequest);
         //해당 지역 트레이너 들에게 알림 전송
@@ -128,17 +118,13 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
                 .orElseThrow(() -> new EntityNotFoundException("일치하는 정보가 없습니다"));
 
         //최종 매칭 테이블에 AuctionTrainerBid 참조값 저장하기
-        MatchedAuction matchedAuction = MatchedAuction.builder()
-                .auctionTrainerBid(auctionTrainerBid)
-                .auctionRequest(auctionRequest)
-                .finalPrice(auctionTrainerBid.getPrice()) // 트레이너가 제안한 최종 금액
-                .build();
+        MatchedAuction matchedAuction = MatchedAuction.from(auctionRequest, auctionTrainerBid);
 
         matchedAuctionRepository.save(matchedAuction);
         //최종 매칭 테이블에 저장
 
 //사용자에게 보낼 트레이너 정보들
-        FinalSelectAuctionDTO finalSelectAuctionDTO = convertToSelectDTO(auctionRequest, matchedAuction);
+        FinalSelectAuctionDTO finalSelectAuctionDTO = FinalSelectAuctionDTO.from(auctionRequest, matchedAuction);
         // 참여했던 트레이너에게 알림 전송
         notificationService.endedAuction(auctionRequest.getId());
         //낙찰 된 트레이너 에게 알림 전송
@@ -147,13 +133,11 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     }
 
 
-    //TODO : 역경매 정보 회원 권한에 따라 분기처리 하는 방식으로 수정 하기
-
     @Transactional(readOnly = true)
     @Override
     public List<AuctionResponseDTO> getAuctionList() {
         List<AuctionRequest> auctionRequests = auctionRequestRepository.findAll();
-        return auctionRequests.stream().map(this::AuctionEntityToDTO).toList();
+        return auctionRequests.stream().map(AuctionResponseDTO::from).toList();
 
     }
 
@@ -162,7 +146,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     @Override
     public List<AuctionResponseToTrainerDTO> getAuctionListToTrainers() {
         List<AuctionResponseToTrainerDTO> auctionResponseDTOS = auctionRequestRepository.findAll().stream()
-                .map(this::AuctionEntityForTrainersToDTO).toList();
+                .map(AuctionResponseToTrainerDTO::from).toList();
         return auctionResponseDTOS;
     }
 
@@ -177,15 +161,17 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     @Override
     public Object getAuction(Long auctionRequestId, String email) {
         Member member = getMember(email);
-        if (member.getMemberRoleList().contains(MemberRole.USER)) {
-            AuctionResponseDTO auctionResponseDTO = auctionRequestRepository.findById(auctionRequestId)
-                    .map(this::AuctionEntityToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보 입니다"));
-            return auctionResponseDTO;
+        AuctionRequest auction = auctionRequestRepository.findById(auctionRequestId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 역경매 입니다."));
+        String auctionMemberEmail = auction.getMember().getEmail();
+        //일반 회원의 조회일 경우
+        if (auctionMemberEmail.equals(member.getEmail()) || member.getMemberRoleList().contains(MemberRole.TRAINER)) {
+            return AuctionResponseToTrainerDTO.from(auction);
         } else {
-            AuctionResponseToTrainerDTO auctionResponseToTrainerDTO = auctionRequestRepository.findById(auctionRequestId)
-                    .map(this::AuctionEntityForTrainersToDTO).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 정보입니다"));
-            return auctionResponseToTrainerDTO;
+            return AuctionResponseDTO.from(auction);
         }
+        // 경매 요청자가 현재 로그인한 사용자일 경우
+
+
     }
 
     //트레이너만 볼수 있는 역경매 상세정보
@@ -206,7 +192,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     public List<AuctionResponseDTO> getAuctionListInLocal(Long localId) {
         List<Local> LocalIds = localRepository.findByLocalId(localId);
         List<AuctionResponseDTO> auctionResponseDTOS = auctionRequestRepository.findByAuctionInLocal(LocalIds)
-                .stream().map(auction -> this.AuctionEntityToDTO(auction)).toList();
+                .stream().map(auction -> AuctionResponseDTO.from(auction)).toList();
         return auctionResponseDTOS;
     }
 
@@ -215,7 +201,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     public List<AuctionResponseToTrainerDTO> getAuctionListToTrainersInLocal(Long localId) {
         List<Local> LocalIds = localRepository.findByLocalId(localId);
         List<AuctionResponseToTrainerDTO> auctionResponseDTOS = auctionRequestRepository.findByAuctionInLocal(LocalIds)
-                .stream().map(auction -> this.AuctionEntityForTrainersToDTO(auction)).toList();
+                .stream().map(auction -> AuctionResponseToTrainerDTO.from(auction)).toList();
         return auctionResponseDTOS;
     }
 
@@ -238,7 +224,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     public List<AuctionTrainerBidResponseDTO> getTrainers(Long auctionRequestId) {
         AuctionRequest auctionRequest = getAuctionRequestById(auctionRequestId);
         List<AuctionTrainerBid> trainersInAuction = auctionTrainerBidRepository.findTrainersInAuction(auctionRequest.getId());
-        return trainersInAuction.stream().map(this::convertToAuctionTrainerBidDTO).toList();
+        return trainersInAuction.stream().map(AuctionTrainerBidResponseDTO::from).toList();
 
     }
 
@@ -252,7 +238,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
 
         for (MatchedAuction matchedAuction : matchedAuctions) {
             AuctionRequest auctionRequest = matchedAuction.getAuctionRequest(); //AuctionRequest 를 참조하는 역경매 결과 테이블에서 AuctionRequest 정보를 가져온다
-            result.add(convertToSelectDTO(auctionRequest, matchedAuction));
+            result.add(FinalSelectAuctionDTO.from(auctionRequest, matchedAuction));
         }
         return result;
     }
@@ -260,7 +246,7 @@ public class ReverseAuctionServiceImpl implements ReverseAuctionService {
     @Override
     public List<AuctionTrainerHistoryDTO> getAuctionHistoryToTrainer(String email) {
         List<AuctionTrainerBid> auctionTrainerBidHistory = auctionTrainerBidRepository.findByTrainerEmail(email);
-        return auctionTrainerBidHistory.stream().map(this::convertToAuctionTrainerHistory).toList();
+        return auctionTrainerBidHistory.stream().map(AuctionTrainerHistoryDTO::from).toList();
     }
 
 

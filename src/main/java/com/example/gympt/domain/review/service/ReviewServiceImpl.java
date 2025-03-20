@@ -11,6 +11,7 @@ import com.example.gympt.domain.review.dto.ReviewRequestDTO;
 import com.example.gympt.domain.review.dto.ReviewResponseDTO;
 import com.example.gympt.domain.review.entity.Review;
 import com.example.gympt.domain.review.repository.ReviewRepository;
+import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
 import com.example.gympt.domain.trainer.entity.Trainers;
 import com.example.gympt.domain.trainer.repository.TrainerRepository;
 import com.example.gympt.exception.CustomDoesntExist;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,13 +67,16 @@ public class ReviewServiceImpl implements ReviewService {
                 booking.getMember() == null || !booking.getMember().equals(member)) {
             throw new CustomDoesntExist("예약 내역이 없어 리뷰 작성이 불가능 합니다");
         }
+
+        if(booking.getBookingDate().isAfter(LocalDateTime.now())){
+            throw new CustomDoesntExist("아직 예약일이 지나지 않아 리뷰를 작성할 수 없습니다.");
+        }
         // 만약 리뷰 이미지가 있으면 s3에 업로드
         String reviewImage = null;
         if (reviewRequestDTO.getReviewImage() != null && !reviewRequestDTO.getReviewImage().isEmpty()) {
             reviewImage = customFileUtil.uploadS3File(reviewRequestDTO.getReviewImage());
         }
-
-        Review newReview = dtoToEntity(reviewRequestDTO, member, gym, reviewImage, trainers);
+        Review newReview = Review.from(reviewRequestDTO, member, gym, reviewImage, trainers);
         checkReviewModeration(newReview);
         reviewRepository.save(newReview);
 
@@ -80,13 +85,13 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public List<ReviewResponseDTO> getMyReviewList(String email) {
-        return reviewRepository.findReviewsByEmail(email).stream().map(this::EntityToDTO).toList();
+        return reviewRepository.findReviewsByEmail(email).stream().map(ReviewResponseDTO::from).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<ReviewResponseDTO> getGymReviews(Long gymId) {
-        return reviewRepository.findByGymId(gymId).stream().map(this::EntityToDTO).toList();
+        return reviewRepository.findByGymId(gymId).stream().map(ReviewResponseDTO::from).toList();
     }
 
     @Override
@@ -104,8 +109,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponseDTO> getReviewListByTrainer(String email) {
         Trainers trainers = getTrainerEmail(email);
-        return trainers.getReviews().stream().map(this::EntityToDTO).toList();
-    }
+        return trainers.getReviews().stream().map(ReviewResponseDTO::from).toList();
+    } //TODO: 테스트 후 이건 삭제하기
 
     @Override
     public void deleteByGym(Gym gym) {
@@ -116,6 +121,13 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    @Override
+    public List<ReviewResponseDTO> getTrainerReviews(Long trainerId) {
+        List<Review> trainerReviews = reviewRepository.findByTrainerId(trainerId);
+        return trainerReviews.stream().map(ReviewResponseDTO::from).toList();
+    }
+
+
     //비동기 호출
     @Transactional
     public void checkReviewModeration(Review review) {
@@ -125,7 +137,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         moderationService.moderateReview(reviewTexts)
                 .subscribe(     //result : 떡볶이를 담을 접시
-                                //review : 신전 떡볶이
+                        //review : 신전 떡볶이
                         // subscribe 안에서 실행되는 동작은 전부 비동기작용이고
                         // 별도의 스레드에서 실행되기 때문에 트랜젝션 처리와 관련이 없다
                         result -> handleModerationResult(result, review),

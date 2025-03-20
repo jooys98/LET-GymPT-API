@@ -37,5 +37,16 @@ public class ChatRoom {
 
     private LocalDateTime createdAt;
     private LocalDateTime lastMessageTime;
+
+    public static ChatRoom from(Member member, Trainers trainers, Long id) {
+        return ChatRoom.builder()
+                .id(id) //null 이면 자동으로 생성된다
+                .trainer(trainers)
+                .createdAt(LocalDateTime.now())
+                .member(member)
+                .lastMessageTime(LocalDateTime.now())
+                .trainerProfile(trainers.getImageList().get(0).getTrainerImageName())
+                .build();
+    }
 }
 

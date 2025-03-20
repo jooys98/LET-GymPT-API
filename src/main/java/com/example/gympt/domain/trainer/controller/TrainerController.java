@@ -5,6 +5,7 @@ import com.example.gympt.domain.booking.dto.BookingResponseDTO;
 import com.example.gympt.domain.booking.service.BookingService;
 import com.example.gympt.domain.member.dto.MemberRequestDTO;
 import com.example.gympt.domain.member.dto.MemberResponseDTO;
+import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerBidResponseDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerHistoryDTO;
 import com.example.gympt.domain.reverseAuction.dto.AuctionUpdatePrice;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
@@ -39,14 +40,13 @@ public class TrainerController {
 
     //역경매 입찰 신청
     @PostMapping("/auction")
-    public ResponseEntity<String> letAuctionTrainer(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
-        trainerService.applyAuction(memberAuthDTO.getEmail(), trainerAuctionRequestDTO);
-        return ResponseEntity.ok("역경매 참여 완료 되었습니다");
+    public ResponseEntity<AuctionTrainerBidResponseDTO> letAuctionTrainer(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @RequestBody TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
+        return ResponseEntity.ok(trainerService.applyAuction(memberAuthDTO.getEmail(), trainerAuctionRequestDTO));
     }
 
     //pt 가격 변경
     @PatchMapping("/auction/{auctionId}")
-    public ResponseEntity<Long> updateAuctionPrice(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionId, @RequestBody AuctionUpdatePrice auctionUpdatePrice) {
+    public ResponseEntity<AuctionTrainerBidResponseDTO> updateAuctionPrice(@AuthenticationPrincipal final MemberAuthDTO memberAuthDTO, @PathVariable Long auctionId, @RequestBody AuctionUpdatePrice auctionUpdatePrice) {
         return ResponseEntity.ok(trainerService.changePrice(auctionId, memberAuthDTO.getEmail(), auctionUpdatePrice.getUpdatePrice()));
 
     }

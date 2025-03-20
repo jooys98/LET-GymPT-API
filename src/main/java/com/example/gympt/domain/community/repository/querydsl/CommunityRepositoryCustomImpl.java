@@ -24,8 +24,22 @@ public class CommunityRepositoryCustomImpl implements CommunityRepositoryCustom 
                 .leftJoin(community.comments, comment).fetchJoin()
                 .where(containsKeyword(keyword))
                 .distinct()
+                .orderBy(community.createdAt.desc())
                 .fetch();
     }
+
+    @Override
+    public List<Community> findPopularCommunity() {
+        return queryFactory
+                .selectFrom(community)
+                .where(isPopular())
+                .orderBy(community.createdAt.desc())
+                .fetch();
+    }
+
+    private BooleanExpression isPopular() {
+        return community.commentCount.goe(10).or(community.views.goe(10));
+    } // 댓글수 / 조회수 둘 중 하나라도 10 개 이상인 글들
 
     private BooleanExpression containsKeyword(String keyword) {
         if (keyword == null || keyword.isBlank()) {

@@ -7,9 +7,11 @@ import com.example.gympt.domain.trainer.dto.TrainerSaveRequestDTO;
 import com.example.gympt.domain.trainer.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class MemberCreator {
 
     private final AdminService adminService;
@@ -18,7 +20,7 @@ public class MemberCreator {
 
     public void createTrainers(TrainerSaveRequestDTO trainerSaveRequestDTO) {
         trainerService.saveTrainer(trainerSaveRequestDTO.getEmail(), trainerSaveRequestDTO);
-        adminService.approveTrainer(trainerSaveRequestDTO.getEmail());
+
     }
 
     public void createMembers(JoinRequestDTO requestDTO) {

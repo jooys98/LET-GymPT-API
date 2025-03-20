@@ -33,6 +33,7 @@ public class LocalServiceImpl implements LocalService {
     private final GymServiceImpl gymService;
     private final LikesGymRepository likesGymRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<GymResponseDTO> getLocalGymList(Long localId, String email) {
         Local local = getLocal(localId);
@@ -41,26 +42,36 @@ public class LocalServiceImpl implements LocalService {
         return localGymList;
     }//local id 애 해당하는 헬스장 리스트 -> 풀어서 LocalResponseDTO 로 변환 -> 다시 리스트로 만들기 !
 
-
+    @Transactional(readOnly = true)
     @Override
     public List<LocalDTO> getAll() {
         List<Local> locals = localRepository.findAllLocal();
-        List<LocalDTO> localDTOS = locals.stream().map(this::convertToDTO).collect(Collectors.toList());
+        List<LocalDTO> localDTOS = locals.stream().map(LocalDTO::from).toList();
         return localDTOS;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LocalDTO> getSubLocals(Long localId) {
         List<Local> locals = localRepository.findByLocalId(localId);
-        return locals.stream().map(this::convertToDTO).toList();
+        return locals.stream().map(LocalDTO::from).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LocalParentDTO> getLocals(Long localId) {
         List<Local> locals = localRepository.findByLocalId(localId);
-        return locals.stream().map(this::convertToLocalParentDTO).toList();
+        return locals.stream().map(LocalParentDTO::from).toList();
     }
 
+    //지역 전체 보기 - admin 용
+    @Transactional(readOnly = true)
+    @Override
+    public List<LocalDTO> localList() {
+        return localRepository.findAll().stream()
+                .map(LocalDTO::from)
+                .toList();
+    }
 
     private Local getLocal(Long localId) {
         return localRepository.findById(localId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다"));

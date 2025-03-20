@@ -1,5 +1,8 @@
 package com.example.gympt.domain.chat.document;
 
+import com.example.gympt.domain.chat.dto.ChatMessageDTO;
+import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.trainer.entity.Trainers;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
@@ -42,6 +45,18 @@ public class ChatMessages {
 //                : null;
 //    }
 
+    public static ChatMessages from(ChatMessageDTO chatMessageDTO, Member member, Trainers trainers, Long id) {
+        return ChatMessages.builder()
+                .roomId(id)
+                .trainerEmail(trainers.getMember().getEmail())
+                .email(member.getEmail())
+                .sendTime(chatMessageDTO.getSendTime())
+                .trainerImage(trainers.getImageList().get(0).getTrainerImageName())
+                .message(chatMessageDTO.getMessage())
+                .isRead(false)
+                .build();
+
+    }
 
 }
 

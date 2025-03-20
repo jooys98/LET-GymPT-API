@@ -25,17 +25,7 @@ public interface MemberService {
 
     MemberResponseDTO updateMember(String email, MemberRequestDTO memberRequestDTO);
 
-    default MemberResponseDTO entityToDTO(Member member) {
-        return MemberResponseDTO.builder()
-                .email(member.getEmail())
-                .name(member.getName())
-                .phone(member.getPhone())
-                .localName(member.getLocalName())
-                .gender(member.getGender().toString())
-                .profileImage(member.getProfileImage())
-                .address(member.getAddress())
-                .build();
-    }
+
 
     MemberResponseDTO getMemberDetail(String email);
 

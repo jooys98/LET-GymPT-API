@@ -49,35 +49,9 @@ public class MemberServiceImpl implements MemberService {
                 .ifPresent(member -> {
                     throw new IllegalArgumentException("이미 존재하는 회원입니다");
                 });
-// joinRequestDTO -> Member Entity
-        LocalDate birthday = null;
-        String birthdayStr = request.getBirthday(); // "1990.5.15" 형식
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.M.d");
-            Date date = dateFormat.parse(birthdayStr);
-            birthday = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        } catch (ParseException e) {
-            // 예외 처리
-        }
-        Member member = Member.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .address(request.getAddress())
-                .localName(request.getLocalName())
-                .birthday(birthday)
-                .phone(request.getPhone())
-                .build();
-        member.addGender(request.getGender());
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        Member member = Member.from(request);
 
-        String role = request.getRole();
-        if (role.equals("TRAINER")) {
-            member.addRole(MemberRole.PREPARATION_TRAINER);
-        } else if (role.equals("USER")) {
-            member.addRole(MemberRole.USER);
-        } else if (role.equals("ADMIN")) {
-            member.addRole(MemberRole.ADMIN);
-        }
 //TODO : 타입 불일치 주의
         log.info("member: {}", member);
         //권한 업데이트
@@ -92,7 +66,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("memberAuthDTO: {}", memberAuthDTO);
 
         if (!passwordEncoder.matches(password, memberAuthDTO.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다");
+            throw new RuntimeException("비밀번호가 틀렸습니다");
         }
         Map<String, Object> claims = memberAuthDTO.getClaims();
         String accessToken = jwtUtil.generateToken(claims, jwtProps.getAccessTokenExpirationPeriod());
@@ -160,14 +134,14 @@ public class MemberServiceImpl implements MemberService {
         member.updateAddress(memberRequestDTO.getAddress());
         member.updateLocalName(memberRequestDTO.getLocalName());
 
-        return entityToDTO(memberRepository.save(member));
+        return MemberResponseDTO.from(memberRepository.save(member));
     }
 
 
     @Override
     public MemberResponseDTO getMemberDetail(String email) {
         Member member = getMember(email);
-        return this.entityToDTO(member);
+        return MemberResponseDTO.from(member);
     }
 
     @Transactional

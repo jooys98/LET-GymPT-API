@@ -1,10 +1,13 @@
 package com.example.gympt.domain.community.entity;
 
+import com.example.gympt.domain.community.dto.CommentDTO;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -27,4 +30,14 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_id")
     private Community community;
+
+    public static Comment from(Community community, CommentDTO commentDTO, Member member) {
+        return Comment.builder()
+                .member(member)
+                .community(community)
+                .content(commentDTO.getContent())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+    }
 }

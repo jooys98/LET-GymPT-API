@@ -18,7 +18,9 @@ import java.util.List;
 @ToString
 public class GymResponseDTO {
     private Long id;
-    private String localName;
+    private String parentLocal; // 관악구
+    private String childrenLocal; // 봉천동
+    private String localName; // 지하철역
     private String gymName;
     private String address;
     private String description;
@@ -28,7 +30,9 @@ public class GymResponseDTO {
     private Popular popular;
     private boolean likes;
     private double reviewAverage;
+    private int trainerCount;
     private int reviewCount;
+    private String reviewSummary;
     private List<String> imageNames;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

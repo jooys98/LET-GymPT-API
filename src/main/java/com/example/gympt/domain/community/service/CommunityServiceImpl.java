@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,19 +32,22 @@ public class CommunityServiceImpl implements CommunityService {
     @Transactional(readOnly = true)
     @Override
     public List<CommunityResponseDTO> getAllPosts() {
-        return communityRepository.findAll().stream().map(this::convertToDTO).toList();
+        return communityRepository.findAll().stream().map(CommunityResponseDTO::from).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public CommunityResponseDTO getPostDetail(Long id) {
-        return convertToDTO(communityRepository.findById(id).orElseThrow());
+        Community community = communityRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Community not found"));
+        community.addViews();
+        communityRepository.save(community);
+        return CommunityResponseDTO.from(community);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CommunityResponseDTO> getSearchPost(String keyword) {
-        return communityRepository.findCommunities(keyword).stream().map(this::convertToDTO).toList();
+        return communityRepository.findCommunities(keyword).stream().map(CommunityResponseDTO::from).toList();
 //
     }
 
@@ -51,7 +55,7 @@ public class CommunityServiceImpl implements CommunityService {
     public void createPost(String username, CommunityRequestDTO communityRequestDTO) {
         Member member = getMember(username);
         String image = customFileUtil.uploadS3File(communityRequestDTO.getImage());
-        communityRepository.save(convertToEntity(communityRequestDTO, member, image));
+        communityRepository.save(Community.from(communityRequestDTO, member, image));
     }
 
 
@@ -74,7 +78,10 @@ public class CommunityServiceImpl implements CommunityService {
     public void createComment(String username, CommentDTO commentDTO) {
         Member member = getMember(username);
         Community community = getCommunity(commentDTO.getPostId());
-        commentRepository.save(convertToComment(community, commentDTO, member));
+        community.addCommentCount();
+        communityRepository.save(community);
+        commentRepository.save(Comment.from(community, commentDTO, member));
+
     }
 
     @Override
@@ -90,7 +97,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<CommentDTO> getComments(Long id) {
-        return commentRepository.findByCommunityId(id).stream().map(this::convertToCommentsDTO).toList();
+        return commentRepository.findByCommunityId(id).stream().map(CommentDTO::from).toList();
+    }
+
+    @Override
+    public List<CommunityResponseDTO> getAllPopularPosts() {
+        return communityRepository.findPopularCommunity().stream().map(CommunityResponseDTO::from).toList();
     }
 
 

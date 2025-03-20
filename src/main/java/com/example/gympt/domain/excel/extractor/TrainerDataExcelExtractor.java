@@ -33,17 +33,14 @@ public class TrainerDataExcelExtractor {
             @Override
             protected TrainerSaveRequestDTO map(Row row) {
                 TrainerSaveRequestDTO dto = TrainerSaveRequestDTO.builder()
-                        .id((long) row.getCell(0).getNumericCellValue())
-                        .email(row.getCell(1).getStringCellValue().trim())
-                        .name(row.getCell(2).getStringCellValue().trim())
-                        .introduction(row.getCell(3).getStringCellValue().trim())
-                        .age((long) row.getCell(4).getNumericCellValue())
-                        .gymName(row.getCell(5).getStringCellValue().trim())
-                        .gymId((long) row.getCell(6).getNumericCellValue())
-                        .localName(row.getCell(7).getStringCellValue().trim())
-                        .localId((long) row.getCell(8).getNumericCellValue())
-                        .images(getExcelImageList(row.getCell(9).getStringCellValue().trim()))
-                        .profileImageUrl(row.getCell(10).getStringCellValue().trim())
+                        .email(row.getCell(0).getStringCellValue().trim())
+                        .name(row.getCell(1).getStringCellValue().trim())
+                        .introduction(row.getCell(2).getStringCellValue().trim())
+                        .age((long) row.getCell(3).getNumericCellValue())
+                        .gymName(row.getCell(4).getStringCellValue().trim())
+                        .gymId((long) row.getCell(5).getNumericCellValue())
+                        .uploadFileNames(getExcelImageList(row.getCell(6).getStringCellValue().trim()))
+                        .profileImageUrl(row.getCell(7).getStringCellValue().trim())
                         .build();
 
                 return dto;

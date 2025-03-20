@@ -58,15 +58,26 @@ public class GymServiceImpl implements GymService {
         return entityToDTO(gym, likesGymRepository.likes(email, gym.getId()));
     }
 
-public GymResponseDTO entityToDTO(Gym gym, boolean likes) {
+    public GymResponseDTO entityToDTO(Gym gym, boolean likes) {
         Local local = localRepository.findById(gym.getLocal().getId()).orElseThrow(() -> new EntityNotFoundException("해당 지역이 없습니다"));
 
+        Local topLevelParent = findTopLevelParent(local);
+        String topParentName = topLevelParent != null ? topLevelParent.getLocalName() : null;
+
+        // 중간 카테고리 (현재 지역의 부모가 최상위가 아닌 경우 부모의 부모가 중간 카테고리)
+        String middleCategoryName = null;
+        if (local.getParent() != null && local.getParent().getParent() != null) {
+            // 현재 지역이 최하위, 부모가 중간, 부모의 부모가 최상위인 경우
+            middleCategoryName = local.getParent().getLocalName();
+        }
         List<String> imageNames = gym.getImageList().stream()
                 .map(GymImage::getGymImageName)
                 .toList();
         return GymResponseDTO.builder()
                 .id(gym.getId())
                 .localName(local.getLocalName())
+                .parentLocal(topParentName)      // 관악구 (최상위)
+                .childrenLocal(middleCategoryName != null ? middleCategoryName : "")  // 봉천동 (중간)
                 .gymName(gym.getGymName())
                 .address(gym.getAddress())
                 .description(gym.getDescription())
@@ -75,10 +86,37 @@ public GymResponseDTO entityToDTO(Gym gym, boolean likes) {
                 .likesCount(gym.getLikesCount())
                 .popular(gym.getPopular())
                 .imageNames(imageNames)
-                .reviewAverage(gym.getReviewAverage())
-                .reviewCount(gym.getReviewCount())
+                .reviewAverage(gym.getReviewAverage()) // 리뷰 평균
+                .reviewCount(gym.getReviewCount()) // 리뷰 갯수
+                .trainerCount(gym.trainerCount())
+                .reviewSummary(gym.getReviewSummary())//리뷰 요약
                 .likes(likes)
                 .build();
 
+    }
+
+    private Local findTopLevelParent(Local local) {
+        if (local == null) {
+            return null;
+        }
+
+        // 부모가 없으면 현재 지역이 최상위
+        if (local.getParent() == null) {
+            return local;
+        }
+
+        Local current = local;
+        while (current.getParent() != null) {
+            current = current.getParent();
+        }
+        /** while문의 최상위 부모를 찾아가는 과정
+         * 시작: current = 서울대입구
+         * 첫 번째 반복: current = 서울대입구.getParent() = 봉천동
+         * 두 번째 반복: current = 봉천동.getParent() = 관악구
+         * 세 번째 반복 시도: 관악구.getParent() = null이므로 루프 종료
+         * 반환: 관악구 (최상위 부모)
+         */
+
+        return current;
     }
 }

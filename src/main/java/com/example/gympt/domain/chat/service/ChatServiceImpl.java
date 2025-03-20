@@ -77,7 +77,7 @@ public class ChatServiceImpl implements ChatService {
         Trainers trainers = getTrainer(chatRoomDTO.getTrainerEmail());
         // sql ChatRoom 엔티티에 저장, id는 자동으로 생성되므로 null 로 전달
 
-        ChatRoom chatRoom = createChatRoomEntity(member, trainers, null);
+        ChatRoom chatRoom = ChatRoom.from(member, trainers, null);
         //새로운 chat room 생성 + 저장
         //대화 상대방
         String sender = this.getRoomMembers(chatRoom.getId()).stream()
@@ -87,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
 
         chatRoomRepository.save(chatRoom);
         //다시 dto로 변환하여 리턴
-        return this.convertToChatRoomDTO(chatRoom, sender, null);
+        return ChatRoomDTO.from(chatRoom, sender, null);
 
     }
 
@@ -141,7 +141,7 @@ public class ChatServiceImpl implements ChatService {
                     .findFirst()
                     .orElse(null);
             ChatMessages lastMessage = lastMessageMap.get(chatRoom.getId());
-            return convertToChatRoomDTO(chatRoom, sender,
+            return ChatRoomDTO.from(chatRoom, sender,
                     lastMessage != null ? lastMessage.getMessage() : null);
         }).toList();
     }
@@ -198,7 +198,7 @@ public class ChatServiceImpl implements ChatService {
                             .findFirst()
                             .orElse(null);
                     ChatMessages lastMessage = unreadMessagesMap.get(room.getId());
-                    return convertToDTO(lastMessage, sender);
+                    return ChatMessageDTO.from(lastMessage, sender);
                 })
                 .toList();
     }
@@ -225,13 +225,13 @@ public class ChatServiceImpl implements ChatService {
                 .findFirst()
                 .orElse(null);
         // document 변환
-        ChatMessages chatMessage = this.convertToDocument(chatMessageDTO, member, trainers, chatRoom.getId());
+        ChatMessages chatMessage = ChatMessages.from(chatMessageDTO, member, trainers, chatRoom.getId());
         //mongodb 에 저장된 document
         chatMessageRepository.save(chatMessage);
         //저장된 document 를 다시 dto 로 변환하여 전달
-        notificationService.sendChattingMessage(sender, convertToDTO(chatMessage, sender), member);
+        notificationService.sendChattingMessage(sender, ChatMessageDTO.from(chatMessage, sender), member);
 
-        return this.convertToDTO(chatMessage, sender);
+        return ChatMessageDTO.from(chatMessage, sender);
     }
 
 

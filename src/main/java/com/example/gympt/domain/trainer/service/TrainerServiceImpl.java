@@ -8,6 +8,7 @@ import com.example.gympt.domain.likes.repository.LikesTrainerRepository;
 import com.example.gympt.domain.member.entity.Member;
 import com.example.gympt.domain.member.enums.MemberRole;
 import com.example.gympt.domain.member.repository.MemberRepository;
+import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerBidResponseDTO;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.entity.AuctionRequest;
 import com.example.gympt.domain.reverseAuction.entity.AuctionTrainerBid;
@@ -61,6 +62,7 @@ public class TrainerServiceImpl implements TrainerService {
     private final NotificationService notificationService;
     private final LocalRepository localRepository;
 
+    @Transactional
     @Override
 //트레이너 데뷔 신청!!
     //가입시 트레이너 회원으로 회원가입 -> 트레이너 프로필 만들기 -> admin 의 허용으로 트레이너 권한
@@ -74,23 +76,38 @@ public class TrainerServiceImpl implements TrainerService {
         if (trainerSaveRequestDTO.getProfileImage() == null || trainerSaveRequestDTO.getProfileImage().isEmpty()) {
             throw new IllegalArgumentException("프로필 사진은 필수 정보입니다!");
         }
+//트레이너 이미지 리스트
+        List<String> imageNames;
+
+        // 엑셀에서 온 경우 (uploadFileNames가 있고 files가 없는 경우)
+        if ((trainerSaveRequestDTO.getFiles() == null || trainerSaveRequestDTO.getFiles().isEmpty()) //이미지 파일이 없을때
+                && trainerSaveRequestDTO.getUploadFileNames() != null && !trainerSaveRequestDTO.getUploadFileNames().isEmpty() // 이미지 이름이 존재할때
+        ) {
+            // uploadFileNames에 있는 경로로부터 이미지를 처리
+            // 예: S3에서 이미 존재하는 이미지를 참조하거나, 로컬에서 파일을 찾아 S3에 업로드
+            imageNames = customFileUtil.uploadImagePathS3Files(trainerSaveRequestDTO.getUploadFileNames());
+        } else {
+            // 웹 폼에서 온 경우
+            imageNames = customFileUtil.uploadS3Files(trainerSaveRequestDTO.getFiles());
+        }
+//트레이너 프로필 이미지
+        String profileImage;
+        //엑셀에서 온 경우
+        if ((trainerSaveRequestDTO.getProfileImage() == null || trainerSaveRequestDTO.getProfileImage().isEmpty())
+                && trainerSaveRequestDTO.getProfileImageUrl() != null && !trainerSaveRequestDTO.getProfileImageUrl().isEmpty()) {
+            profileImage = customFileUtil.uploadImagePathS3File(trainerSaveRequestDTO.getProfileImageUrl());
+        } else {
+            //웹 폼에서 온 경우
+            profileImage = customFileUtil.uploadS3File(trainerSaveRequestDTO.getProfileImage());
+        }
 
 
         Gym gym = getGym(trainerSaveRequestDTO.getGymId());
-        String profileImage = customFileUtil.uploadS3File(trainerSaveRequestDTO.getProfileImage());
-        List<String> images = customFileUtil.uploadS3Files(trainerSaveRequestDTO.getFiles());
+
         //trainerSaveRequestDTO 이미지 이름 문자열 리스트 가져와서 s3 업로드 후 이미지 이름 문자열 반환
-        List<TrainerSaveImage> trainerSaveImages = images.stream().map(TrainerSaveForm::addImageString).toList();
+        List<TrainerSaveImage> trainerSaveImages = imageNames.stream().map(TrainerSaveForm::addImageString).toList();
         //이미지 객체 변환
-        TrainerSaveForm trainerSaveForm = TrainerSaveForm.builder()
-                .member(member)
-                .gym(gym)
-                .profileImage(profileImage)
-                .name(trainerSaveRequestDTO.getName())
-                .age(trainerSaveRequestDTO.getAge())
-                .introduction(trainerSaveRequestDTO.getIntroduction())
-                .imageList(trainerSaveImages)
-                .build();
+        TrainerSaveForm trainerSaveForm = TrainerSaveForm.from(member, gym, profileImage, trainerSaveImages, trainerSaveRequestDTO);
         trainerSaveForm.addGender(member.getGender());
 
         trainerSaveFormRepository.save(trainerSaveForm);
@@ -102,8 +119,10 @@ public class TrainerServiceImpl implements TrainerService {
     public PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO, String email) {
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1,
                 pageRequestDTO.getSize());
+
+
         List<TrainerResponseDTO> trainerList = trainerRepository.findTrainers(trainerRequestDTO, pageable)
-                .stream().map(trainer -> this.trainerEntityToDTO(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
+                .stream().map(trainer -> TrainerResponseDTO.from(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
 
         Long totalCount = trainerRepository.countTrainers(trainerRequestDTO);
         return new PageResponseDTO<>(trainerList, pageRequestDTO, totalCount);
@@ -113,12 +132,12 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public TrainerResponseDTO getTrainerById(Long id, String email) {
         Trainers trainers = getTrainerId(id);
-        return trainerEntityToDTO(trainers, likesTrainerRepository.likes(email, trainers.getId()));
+        return TrainerResponseDTO.from(trainers, likesTrainerRepository.likes(email, trainers.getId()));
     }
 
     //트레이너 역경매 입찰 신청
     @Override
-    public void applyAuction(String trainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
+    public AuctionTrainerBidResponseDTO applyAuction(String trainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
 
         Trainers trainers = getTrainers(trainerEmail);
         Local local = getLocal(trainerAuctionRequestDTO.getLocalId());
@@ -131,19 +150,14 @@ public class TrainerServiceImpl implements TrainerService {
         auctionRequest.changeStatus(AuctionStatus.IN_PROGRESS);
         //트레이너 입찰시 open 에서 진행중으로 상태 변경
 
-        AuctionTrainerBid auctionTrainerBid = AuctionTrainerBid.builder()
-                .auctionRequest(auctionRequest)
-                .price(trainerAuctionRequestDTO.getPrice())
-                .proposalContent(trainerAuctionRequestDTO.getProposalContent())
-                .trainer(trainers)
-                .trainerImage(trainers.getImageList().isEmpty() ? null :
-                        trainers.getImageList().get(0).getTrainerImageName())//이미지 한장만 가져오기
-                .build();
+        AuctionTrainerBid auctionTrainerBid = AuctionTrainerBid.from(auctionRequest, trainers, trainerAuctionRequestDTO);
         auctionTrainerBid.changeStatus(AuctionTrainerStatus.PENDING);
 
-        auctionTrainerBidRepository.save(auctionTrainerBid);
+
         //역경매를 신청한 회원에게 알림 발송
         notificationService.newTrainerAuctionNotification(auctionRequest.getMember().getEmail());
+
+        return AuctionTrainerBidResponseDTO.from(auctionTrainerBid);
 
     }
 
@@ -153,7 +167,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     //트레이너 pt 가격 변경
     @Override
-    public Long changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice) {
+    public AuctionTrainerBidResponseDTO changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice) {
 
         Trainers trainers = getTrainers(trainerEmail);
         AuctionTrainerBid auctionTrainerBid = auctionTrainerBidRepository
@@ -165,7 +179,7 @@ public class TrainerServiceImpl implements TrainerService {
         auctionTrainerBidRepository.save(auctionTrainerBid);
         //입찰시 해당 역경매를 신청한 회원에게 알림 발송
         notificationService.updatePriceAuctionToMember(auctionTrainerBid.getAuctionRequest().getMember().getEmail());
-        return auctionTrainerBid.getAuctionRequest().getId();
+        return AuctionTrainerBidResponseDTO.from(auctionTrainerBid);
     }
 
     @Override
@@ -182,14 +196,13 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public List<TrainerResponseDTO> getTrainerByGymId(Long id, String email) {
         List<TrainerResponseDTO> trainerList = trainerRepository.findByGymId(id)
-                .stream().map(trainer -> this.trainerEntityToDTO(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
+                .stream().map(trainer -> TrainerResponseDTO.from(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
         return trainerList;
     }
 
 
     @Override
     public Long updateTrainer(String email, TrainerSaveRequestDTO trainerSaveRequestDTO) {
-        Local local = getLocal(trainerSaveRequestDTO.getLocalId());
         Trainers trainers = getTrainers(email);
         Gym gym = getGym(trainerSaveRequestDTO.getGymId());
         if (trainerSaveRequestDTO.getFiles() != null && !trainerSaveRequestDTO.getFiles().isEmpty()) {
@@ -209,7 +222,6 @@ public class TrainerServiceImpl implements TrainerService {
 
         trainers.updateAge(trainerSaveRequestDTO.getAge());
         trainers.updateTrainerName(trainerSaveRequestDTO.getName());
-        trainers.updateLocal(local);
         trainers.updateGym(gym);
         trainers.updateIntroduction(trainerSaveRequestDTO.getIntroduction());
 
@@ -220,7 +232,13 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public TrainerResponseDTO getTrainerDetail(String email) {
-        return trainerEntityToDTO(this.getTrainers(email), false);
+        return TrainerResponseDTO.from(this.getTrainers(email), false);
+    }
+
+    @Override
+    public List<TrainerResponseDTO> getTrainerListByLocal(String email, Long localId) {
+        return localRepository.findTrainersByLocalId(localId)
+                .stream().map(trainer -> TrainerResponseDTO.from(trainer, likesTrainerRepository.likes(email, trainer.getId()))).toList();
     }
 
 

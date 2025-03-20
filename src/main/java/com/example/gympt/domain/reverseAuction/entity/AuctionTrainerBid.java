@@ -1,5 +1,6 @@
 package com.example.gympt.domain.reverseAuction.entity;
 
+import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
 import com.example.gympt.domain.reverseAuction.enums.AuctionTrainerStatus;
 import com.example.gympt.domain.trainer.entity.TrainerImage;
@@ -19,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "auction_trainer_bid")
+@ToString
 public class AuctionTrainerBid extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,4 +63,17 @@ public class AuctionTrainerBid extends BaseEntity {
     public void changePrice(Long price) {
         this.price = price;
     }
+
+    public static AuctionTrainerBid from(AuctionRequest auctionRequest, Trainers trainers, TrainerAuctionRequestDTO trainerAuctionRequestDTO) {
+        return AuctionTrainerBid.builder()
+                .auctionRequest(auctionRequest)
+                .price(trainerAuctionRequestDTO.getPrice())
+                .proposalContent(trainerAuctionRequestDTO.getProposalContent())
+                .trainer(trainers)
+                .trainerImage(trainers.getImageList().isEmpty() ? null :
+                        trainers.getImageList().get(0).getTrainerImageName())//이미지 한장만 가져오기
+                .build();
+    }
+
+
 }

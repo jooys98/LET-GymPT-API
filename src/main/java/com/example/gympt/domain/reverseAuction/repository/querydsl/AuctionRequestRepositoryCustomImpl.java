@@ -41,6 +41,7 @@ public class AuctionRequestRepositoryCustomImpl implements AuctionRequestReposit
                 .where(
                         eqLocal(localIds)
                 )
+                .orderBy(auctionRequest.closedAt.desc())
                 .fetch();
     }
 

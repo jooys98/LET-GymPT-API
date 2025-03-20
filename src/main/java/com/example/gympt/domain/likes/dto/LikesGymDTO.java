@@ -15,6 +15,7 @@ public class LikesGymDTO {
     //유저의 좋아요 누른 헬스장 조회
     private Long id;
     private String email;
+    private String parentLocalName;
     private String localName;
     private String gymName;
     private String address;

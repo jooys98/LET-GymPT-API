@@ -15,7 +15,7 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
 
     @Query("SELECT atb FROM AuctionTrainerBid atb " +
             "WHERE atb.auctionRequest.id = :auctionRequestId " +
-            "AND atb.trainer.member.email = :trainerEmail")
+            "AND atb.trainer.member.email = :trainerEmail order by atb.createdAt desc ")
     Optional<AuctionTrainerBid> findByAuctionRequestIdAndTrainer(
             @Param("auctionRequestId") Long auctionRequestId,
             @Param("trainerEmail") String trainerEmail
@@ -25,7 +25,7 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
 //    Optional<AuctionTrainerBid> findByTrainerId(@Param("trainerId") Long trainerId);
 
 
-    @Query("select a from AuctionTrainerBid a where a.auctionRequest.member.email=:email")
+    @Query("select a from AuctionTrainerBid a where a.auctionRequest.member.email=:email order by a.createdAt desc")
     List<AuctionTrainerBid> findByMemberEmail(@Param("email") String memberEmail);
 
     @Modifying
@@ -33,9 +33,9 @@ public interface AuctionTrainerBidRepository extends JpaRepository<AuctionTraine
     void deleteByIdList(@Param("ids") List<Long> ids);
 
 
-    @Query("select t from AuctionTrainerBid t where t.auctionRequest.id =:auctionRequestId")
+    @Query("select t from AuctionTrainerBid t where t.auctionRequest.id =:auctionRequestId order by t.createdAt desc")
     List<AuctionTrainerBid> findTrainersInAuction(@Param("auctionRequestId") Long auctionRequestId);
 
-    @Query("select t from AuctionTrainerBid t where t.trainer.member.email =:email")
+    @Query("select t from AuctionTrainerBid t where t.trainer.member.email =:email order by t.createdAt desc")
     List<AuctionTrainerBid> findByTrainerEmail(@Param("email") String email);
 }

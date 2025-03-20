@@ -4,6 +4,7 @@ import com.example.gympt.domain.booking.dto.BookingResponseDTO;
 import com.example.gympt.domain.gym.entity.Gym;
 import com.example.gympt.domain.member.dto.MemberResponseDTO;
 import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.reverseAuction.dto.AuctionTrainerBidResponseDTO;
 import com.example.gympt.domain.reverseAuction.dto.TrainerAuctionRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerRequestDTO;
 import com.example.gympt.domain.trainer.dto.TrainerResponseDTO;
@@ -24,39 +25,11 @@ public interface TrainerService {
 
     PageResponseDTO<TrainerResponseDTO> getTrainers(TrainerRequestDTO trainerRequestDTO, PageRequestDTO pageRequestDTO, String email);
 
-
-    //트레이너 정보 조회시 쓰이는 dto 변환 메서드
-    default TrainerResponseDTO trainerEntityToDTO(Trainers trainers, boolean likes) {
-        List<String> imageNames = trainers.getImageList().stream()
-                .map(TrainerImage::getTrainerImageName)
-                .toList();
-//Trainers 엔티티 속 이미지 리스트 객체를  가져와서 문자열 리스트로 만들어주기
-        TrainerResponseDTO responseDTO = TrainerResponseDTO.builder()
-                .id(trainers.getId())
-                .profileImage(trainers.getProfileImage())
-                .email(trainers.getMember().getEmail())
-                .age(trainers.getAge())
-                .name(trainers.getMember().getName())
-                .gender(trainers.getGender().toString())
-                .introduction(trainers.getIntroduction())
-                .gymId(trainers.getGym().getId())
-                .localId(trainers.getLocal().getId())
-                .gymName(trainers.getGym().getGymName())
-                .local(trainers.getLocal().getLocalName())
-                .likesCount(trainers.getLikesCount())
-                .imageList(imageNames)
-                .likes(likes)
-                .build();
-        return responseDTO;
-
-    }
-
-
     TrainerResponseDTO getTrainerById(Long id, String email);
 
-    void applyAuction(String TrainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO);
+    AuctionTrainerBidResponseDTO applyAuction(String TrainerEmail, TrainerAuctionRequestDTO trainerAuctionRequestDTO);
 
-    Long changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
+    AuctionTrainerBidResponseDTO changePrice(Long auctionRequestId, String trainerEmail, Long updatePrice);
 
     void changeByGym(Gym gym);
 
@@ -67,4 +40,5 @@ public interface TrainerService {
     TrainerResponseDTO getTrainerDetail(String email);
 
 
+    List<TrainerResponseDTO> getTrainerListByLocal(String email, Long localId);
 }

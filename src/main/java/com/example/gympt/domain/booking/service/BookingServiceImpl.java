@@ -36,7 +36,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDTO> getBookingList(String email) {
         Member member = getMember(email);
-        return bookingRepository.findByEmail(member.getEmail()).stream().map(this::convertToDTO).toList();
+        List<Booking> bookings = bookingRepository.findByEmail(member.getEmail());
+        return bookings.stream().map(BookingResponseDTO::from).toList();
     }
 
 
@@ -50,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
             trainers = trainerRepository.findById(bookingRequestDTO.getTrainerId()).orElse(null);
         }
 
-        Booking Newbooking = convertToEntity(member, gym, trainers, bookingRequestDTO.getBookingDate());
+        Booking Newbooking = Booking.from(member, gym, trainers, bookingRequestDTO.getBookingDate());
         bookingRepository.save(Newbooking);
         return Newbooking.getId();
     }
@@ -81,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDTO> getBookingListByTrainer(String email) {
         Trainers trainers = getTrainers(email);
-        return trainers.getBooking().stream().map(this::convertToDTO).toList();
+        return trainers.getBooking().stream().map(BookingResponseDTO::from).toList();
 
     }
 

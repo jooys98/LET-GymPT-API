@@ -4,6 +4,8 @@ import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.category.entity.LocalGymBridge;
 import com.example.gympt.domain.category.entity.QLocalGymBridge;
 import com.example.gympt.domain.gym.entity.Gym;
+import com.example.gympt.domain.trainer.entity.Trainers;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import static com.example.gympt.domain.category.entity.QLocal.local;
 import static com.example.gympt.domain.category.entity.QLocalGymBridge.localGymBridge;
 import static com.example.gympt.domain.category.entity.enums.LastType.Y;
 import static com.example.gympt.domain.gym.entity.QGym.gym;
+import static com.example.gympt.domain.trainer.entity.QTrainers.trainers;
 
 @RequiredArgsConstructor
 public class LocalRepositoryCustomImpl implements LocalRepositoryCustom {
@@ -37,6 +40,8 @@ public class LocalRepositoryCustomImpl implements LocalRepositoryCustom {
                 .where(local.parent.id.eq(localId))
                 .fetch();
     }
+
+
  //관악구에 해당하는 헬스장 또는 서울대입구에 있는 헬스장 찾기
     @Override
     public List<Gym> findGymByLocalId(Long localId) {
@@ -48,7 +53,17 @@ public class LocalRepositoryCustomImpl implements LocalRepositoryCustom {
                 .distinct()
                 .fetch();
     }
-
+    //관악구에 해당하는 헬스장 또는 서울대입구에 있는 트레이너 찾기
+    @Override
+    public List<Trainers> findTrainersByLocalId(Long localId) {
+        return queryFactory
+                .selectFrom(trainers)
+                .join(trainers.gym , gym)
+                .join(gym.local, local)
+                .where(eqSubLocalId(localId).or(eqLocalId(localId)))
+                .distinct()
+                .fetch();
+    }
 
 
 

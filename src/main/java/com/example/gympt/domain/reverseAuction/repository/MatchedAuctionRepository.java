@@ -14,6 +14,6 @@ public interface MatchedAuctionRepository extends JpaRepository<MatchedAuction, 
     @Query("select t from MatchedAuction t where t.auctionTrainerBid.trainer.member.email=:email")
     List<MatchedAuction> findByTrainerEmail(@Param("email") String email);
 
-    @Query("select m from MatchedAuction m where m.auctionRequest.member.email =:email")
+    @Query("select m from MatchedAuction m where m.auctionRequest.member.email =:email order by m.createdAt desc")
     List<MatchedAuction> findByEmail(@Param("email") String email);
 }

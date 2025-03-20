@@ -18,25 +18,6 @@ public interface LocalService {
 
     List<LocalDTO> getSubLocals(Long localId);
 
-
-    default LocalDTO convertToDTO(Local local) {
-        return LocalDTO.builder()
-                .id(local.getId())
-                .localName(local.getLocalName())
-                .build();
-    }
-
-
-    default LocalParentDTO convertToLocalParentDTO(Local local) {
-        LocalParentDTO dto = new LocalParentDTO();
-        dto.setId(local.getId());
-        dto.setLocalName(local.getLocalName());
-        if (local.getChildren() != null && !local.getChildren().isEmpty()) {
-            dto.setChildren(local.getChildren().stream().map(this::convertToLocalParentDTO).collect(Collectors.toSet()));
-        }
-
-        return dto;
-    }
-
     List<LocalParentDTO> getLocals(Long localId);
+    List<LocalDTO> localList();
 }

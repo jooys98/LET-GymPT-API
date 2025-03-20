@@ -207,6 +207,19 @@ public class CustomFileUtil {
 
     }
 
+
+    public String uploadImagePathS3File(String imageUrl) {
+        try {
+            MultipartFile multipartFile = convert(imageUrl);
+            return this.uploadS3File(multipartFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("uploadImagePathS3Files error: {}", e.getMessage());
+            throw new RuntimeException("Failed to download file from URL: " + imageUrl);
+        }
+    }
+
+
     /**
      * 이미지 URL을 MultipartFile로 변환 후 s3에 저장
      * @param imagePathList 이미지 URL 리스트

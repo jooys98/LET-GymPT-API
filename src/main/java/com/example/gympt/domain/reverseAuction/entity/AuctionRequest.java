@@ -2,6 +2,7 @@ package com.example.gympt.domain.reverseAuction.entity;
 
 import com.example.gympt.domain.category.entity.Local;
 import com.example.gympt.domain.member.entity.Member;
+import com.example.gympt.domain.reverseAuction.dto.AuctionRequestDTO;
 import com.example.gympt.domain.reverseAuction.enums.AuctionStatus;
 import com.example.gympt.domain.trainer.enums.Gender;
 import com.example.gympt.entity.BaseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "auction_request")
+@ToString
 public class AuctionRequest extends BaseEntity {
 
     @Id
@@ -83,4 +85,19 @@ public class AuctionRequest extends BaseEntity {
     public void addGender(String gender) {
         this.gender = gender.equals("M") ? Gender.M : Gender.F;
     }
+
+    public static AuctionRequest from(AuctionRequestDTO auctionRequestDTO, Member member, Local local) {
+       return AuctionRequest.builder()
+                .member(member)
+                .height(auctionRequestDTO.getHeight())
+                .weight(auctionRequestDTO.getWeight())
+                .title(auctionRequestDTO.getTitle())
+                .age(auctionRequestDTO.getAge())
+                .request(auctionRequestDTO.getRequest())
+                .medicalConditions(auctionRequestDTO.getMedicalConditions())
+                .local(local)
+                .build();
+
+    }
+
 }

@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"imageList" , "trainers"})
+@ToString(exclude = {"imageList", "trainers"})
 @Table(name = "gym_tbl")
 public class Gym {
     @Id
@@ -33,7 +33,7 @@ public class Gym {
     private String description;
     private Long dailyPrice;
     private Long monthlyPrice;
-
+    private String info;
     @OneToMany(mappedBy = "gym", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LikesGym> likes = new ArrayList<>();
 
@@ -53,7 +53,6 @@ public class Gym {
 
     @Column(length = 1000)
     private String reviewSummary;
-
 
 
     @Enumerated(EnumType.STRING)
@@ -86,6 +85,15 @@ public class Gym {
                 .build();
         addImage(gymImage);
     }
+
+    public void addTrainer(Trainers trainer) {
+        this.trainers.add(trainer);
+    }
+
+    public int trainerCount() {
+        return this.trainers.size();
+    }
+
 
     //이미지 삭제!!!!!!!!
     public void clearImageList() {
@@ -121,6 +129,7 @@ public class Gym {
     public void updateDailyPrice(Long dailyPrice) {
         this.dailyPrice = dailyPrice;
     }
+
     public void updateMonthlyPrice(Long monthlyPrice) {
         this.monthlyPrice = monthlyPrice;
     }

@@ -48,7 +48,7 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
-        if (path.startsWith("/api/excel/register/")) {
+        if (path.startsWith("/api/excel/")) {
             return true;
         }
 
