@@ -1,6 +1,6 @@
 💪Let-gymPT API
 
-<img width="525" alt="스크린샷 2025-03-21 오후 12 10 44" src="https://github.com/user-attachments/assets/de086ffb-6321-471b-9a9b-fe2f9a453394" />
+<img width="487" alt="스크린샷 2025-03-21 오후 6 36 23" src="https://github.com/user-attachments/assets/02ae867b-e91f-4ab1-99ed-7b8244b6835c" />
 
 
 Let-gymPT는 지역별 헬스장과 트레이너를 쉽게 찾고, 합리적인 금액으로 PT를 받을 수 있는 역경매 시스템을 제공하는 헬스 플랫폼입니다. 
