@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,5 +19,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("select b from Booking b where b.member.email =:email")
     List<Booking> findByEmail(@Param("email") String email);
+
+
+    @Query("select bd from Booking bd where bd.bookingDate = :today")
+    List<Booking> findByBookingDate(@Param("today") LocalDate today);
 }
 
