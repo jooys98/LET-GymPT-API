@@ -18,8 +18,8 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 🔍프로젝트 아키텍처 (모놀리식 아키텍처)
-<img width="755" alt="GymPT_아키텍처구성도" src="https://github.com/user-attachments/assets/84796dd7-904b-4c58-b7b7-8a72d6b42b48" />
 
+<img width="1020" alt="GymPT_아키텍처구성도" src="https://github.com/user-attachments/assets/1be6ab56-2fa1-4dde-bdf8-33b348997499" />
 
 
 
