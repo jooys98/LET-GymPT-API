@@ -14,6 +14,17 @@ Let-gymPT는 트레이너와 회원을 연결하는 종합 헬스 플랫폼입�
 WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 기능으로 신뢰성 있는 헬스 커뮤니티를 구축합니다.
 
 
+
+
+
+🔍프로젝트 아키텍처 (모놀리식 아키텍처)
+<img width="755" alt="GymPT_아키텍처구성도" src="https://github.com/user-attachments/assets/84796dd7-904b-4c58-b7b7-8a72d6b42b48" />
+
+
+
+
+
+
 🛠️ 기술 스택
 
 #백엔드
