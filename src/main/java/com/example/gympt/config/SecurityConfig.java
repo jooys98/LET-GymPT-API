@@ -127,7 +127,6 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 출처 설정 (모든 출처 허용)
-//        configuration.setAllowedOriginPatterns(Arrays.asList("*"));  // localhost:3000 -> 허용
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001",
                 "http://3.37.43.117", "http://3.37.43.117:8080", "http://letgympt.store", "http://api.letgympt.store"// EC2 퍼블릭 IP 3000, 3001 포트 허용
         ));
