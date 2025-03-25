@@ -128,8 +128,7 @@ public class SecurityConfig {
         // 출처 설정 (모든 출처 허용)
 //        configuration.setAllowedOriginPatterns(Arrays.asList("*"));  // localhost:3000 -> 허용
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001",
-                "http://43.200.239.220", "http://43.200.239.220:3000", "http://43.200.239.220:3001", // EC2 퍼블릭 IP 3000, 3001 포트 허용
-                "https://openapi.map.naver.com"
+                "http://3.37.43.117", "http://3.37.43.117:8080", "http://letgympt.store", "http://api.letgympt.store"// EC2 퍼블릭 IP 3000, 3001 포트 허용
         ));
         // 허용할 메서드 설정
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS"));
