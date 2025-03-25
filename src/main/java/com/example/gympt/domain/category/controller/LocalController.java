@@ -27,9 +27,6 @@ public class LocalController {
 
     private final LocalService localService;
 
-    //지역별 헬스장 보기
-
-
     //최상위 지역
     @Operation(summary = "최상위 지역을 조회합니다", description = "파라미터 없이 최상위 지역들만 보여주는 api 입니다. ex) 관악구 , 강남구 , 영등포구")
     @GetMapping
