@@ -27,7 +27,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/*.jar" # JAR 파일 위치
           target: "/home/ubuntu/${{ env.REPOSITORY_NAME }}"
           strip_components: 2
