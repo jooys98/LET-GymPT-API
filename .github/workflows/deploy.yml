@@ -30,7 +30,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DOCKER_USERNAME,DOCKER_TOKEN
           script: |
             cd ~/app
+            export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+            export DOCKER_TOKEN="${{ secrets.DOCKER_TOKEN }}"
             chmod +x deploy.sh
             ./deploy.sh
