@@ -36,7 +36,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp","/ws-auction")
-                .setAllowedOrigins("http://localhost:3000")
+                .setAllowedOrigins("http://3.37.43.117:8080" , "http://letgympt.store" , "http://api.letgympt.store"  )
                 .withSockJS();  //필수 설정값
     }
 
