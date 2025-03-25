@@ -36,6 +36,28 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 
+🔍swagger
+
+
+:http://localhost:8080/swagger-ui/index.html
+
+
+
+
+
+
+<img width="1277" alt="스크린샷 2025-03-25 오후 6 59 34" src="https://github.com/user-attachments/assets/b859d864-fb14-431e-b5cf-ce249f9ff8c9" />
+
+
+
+
+
+
+
+
+
+
+
 🛠️ 기술 스택
 
 #백엔드
@@ -79,10 +101,6 @@ Apache POI: 엑셀 데이터 자바 객체 변환 처리
 Figma: UI/UX 디자인
 
 
-🔍swagger
-
-
-:http://localhost:8080/swagger-ui/index.html
 
 
 📖ERD 
