@@ -3,6 +3,9 @@
 <img width="487" alt="스크린샷 2025-03-21 오후 6 36 23" src="https://github.com/user-attachments/assets/02ae867b-e91f-4ab1-99ed-7b8244b6835c" />
 
 
+
+
+
 Let-gymPT는 지역별 헬스장과 트레이너를 쉽게 찾고, 합리적인 금액으로 PT를 받을 수 있는 역경매 시스템을 제공하는 헬스 플랫폼입니다. 
 트레이너와 일반 회원이 함께 소통할 수 있는 커뮤니티를 통해 헬스 문화를 활성화하고, 실시간 알림과 채팅, 리뷰 시스템으로 편리한 사용자 경험을 제공합니다.
 
@@ -18,9 +21,16 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 
-🔍프로젝트 아키텍처 (모놀리식 아키텍처)
+🔍서버 아키텍처 (모놀리식 아키텍처)
 
 <img width="1020" alt="GymPT_아키텍처구성도" src="https://github.com/user-attachments/assets/1be6ab56-2fa1-4dde-bdf8-33b348997499" />
+
+
+
+🔍배포 아키텍처
+
+<img width="1059" alt="스크린샷 2025-03-25 오후 6 38 07" src="https://github.com/user-attachments/assets/ba58766c-a29d-4fa1-bbb8-c4944387db89" />
+
 
 
 
