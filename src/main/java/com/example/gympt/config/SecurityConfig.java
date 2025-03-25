@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/health")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/community/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/review/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/moderation/**")).permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
 
 

@@ -48,6 +48,15 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (path.startsWith("/api/moderation/**")) {
+            return true;
+        }
+
+
+        if (path.startsWith("/api/local/**")) {
+            return true;
+        }
+
 
         if (path.startsWith("/api/gym/**")) {
             return true;
