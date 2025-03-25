@@ -31,7 +31,7 @@ public class ReviewSummaryService {
     public void updateReviewSummary(Review newReview) {
         Gym gym = newReview.getGym();
 
-        // 해당 체육관의 모든 리뷰 가져오기 ( 안좋은 리뷰도 포함)
+        // 해당 헬스장의 모든 리뷰 가져오기 ( 안좋은 리뷰도 포함)
         List<Review> reviews = reviewRepository.findByGymId(gym.getId());
 
         // 리뷰가 충분히 있는 경우에만 요약 생성
@@ -59,7 +59,7 @@ public class ReviewSummaryService {
                             "messages", List.of(
                                     Map.of(
                                             "role", "system",
-                                            "content", "당신은 체육관 리뷰를 분석하고 요약하는 전문가입니다. 다음 리뷰들을 분석하여 장점, 단점, 주요 특징을 300자 이내로 요약해주세요."
+                                            "content", "당신은 체육관 리뷰를 분석하고 요약하는 전문가입니다. 다음 리뷰들을 분석하여 장점, 단점, 주요 특징을 300자 이내로 요약해주세요. 비속어가 들어간 리뷰는 분석에서 제외 합니다 ."
                                     ),
                                     Map.of(
                                             "role", "user",
