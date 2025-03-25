@@ -5,35 +5,41 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: LET-GymPT-API
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > src/.env
       - name: Build with Gradle
-        run: ./gradlew build -x test # 테스트 제외하고 빌드
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build -x test # 테스트 제외하고 빌드
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: "build/libs/*.jar" # JAR 파일 위치
-          target: "/home/${{ secrets.EC2_USERNAME }}/app"
+          target: "/home/ubuntu/${{ env.REPOSITORY_NAME }}"
           strip_components: 2
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: DOCKER_USERNAME,DOCKER_TOKEN
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true 
           script: |
-            cd ~/app
-            export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
-            export DOCKER_TOKEN="${{ secrets.DOCKER_TOKEN }}"
-            chmod +x deploy.sh
-            ./deploy.sh
+            cd /home/ubuntu/${{ env.REPOSITORY_NAME }}
+            sudo chown -R ubuntu:ubuntu .
+            sudo fuser -k -n tcp 8080 || true 
+            nohup java -jar *SNAPSHOT.jar --spring.profiles.active=prod > ./output.log 2>&1 &
