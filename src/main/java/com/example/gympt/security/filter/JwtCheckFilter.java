@@ -53,6 +53,14 @@ public class JwtCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (path.startsWith("/api/community/**")) {
+            return true;
+        }
+
+        if (path.startsWith("/api/review/**")) {
+            return true;
+        }
+
         // Swagger UI 경로 제외 설정
         if (path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs")) {
             return true;

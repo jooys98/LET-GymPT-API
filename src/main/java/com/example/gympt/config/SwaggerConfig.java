@@ -26,7 +26,7 @@ public class SwaggerConfig {
     private Info apiInfo () {
         return new Info()
                 .title("Let Gym-Pt-api Swagger")
-                .description("널 위해서라면 api 300개도 만들어줄 수 있어 ...⭐️")
+                .description("💪Let-gymPT API 는 트레이너와 회원을 연결하는 종합 헬스 플랫폼 API 서비스 입니다. 사용자는 지역별 헬스장과 트레이너를 검색하고 예약할 수 있으며, 역경매 시스템을 통해 자신에게 맞는 조건의 PT를 합리적인 가격에 받을 수 있습니다. WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 기능으로 신뢰성 있는 헬스 커뮤니티를 구축합니다.️")
                 .version("1.0.0");
     }
 
