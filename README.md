@@ -22,6 +22,7 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 🔍서버 아키텍처 (모놀리식 아키텍처)
+(그림 구조상 서비스 레어어가 몇개 생략 된 점 양해 부탁드립니다.)
 
 <img width="1020" alt="GymPT_아키텍처구성도" src="https://github.com/user-attachments/assets/1be6ab56-2fa1-4dde-bdf8-33b348997499" />
 
@@ -29,8 +30,7 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 🔍배포 아키텍처
 
-<img width="1059" alt="스크린샷 2025-03-25 오후 6 38 07" src="https://github.com/user-attachments/assets/ba58766c-a29d-4fa1-bbb8-c4944387db89" />
-
+<img width="964" alt="스크린샷 2025-03-26 오전 11 01 23" src="https://github.com/user-attachments/assets/fed6f889-ee50-46c0-a5ff-4e47b8f86b65" />
 
 
 
