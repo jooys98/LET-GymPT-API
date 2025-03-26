@@ -39,7 +39,7 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 🔍swagger
 
 
-:http://localhost:8080/swagger-ui/index.html
+:http://3.37.43.117:8080/swagger-ui/index.html
 
 
 
