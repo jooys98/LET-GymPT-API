@@ -54,6 +54,23 @@ WebSocket 기반의 실시간 소통과 AI 기반 리뷰 필터링 및 요약 �
 
 
 
+📖ERD 
+
+
+
+<img width="929" alt="스크린샷 2025-03-20 오후 4 05 54" src="https://github.com/user-attachments/assets/826fd4b2-1209-4ad6-a5e8-9367aab671ba" />
+
+
+
+
+🌟Figma
+
+
+https://www.figma.com/design/mcWNBEhzZCT0j2n9lMutWp/Untitled?node-id=0-1&t=SBiyAAzXPIRNruMA-1
+
+
+
+
 
 
 
@@ -102,20 +119,6 @@ Figma: UI/UX 디자인
 
 
 
-
-📖ERD 
-
-
-
-<img width="929" alt="스크린샷 2025-03-20 오후 4 05 54" src="https://github.com/user-attachments/assets/826fd4b2-1209-4ad6-a5e8-9367aab671ba" />
-
-
-
-
-🌟Figma
-
-
-https://www.figma.com/design/mcWNBEhzZCT0j2n9lMutWp/Untitled?node-id=0-1&t=SBiyAAzXPIRNruMA-1
 
 
 
